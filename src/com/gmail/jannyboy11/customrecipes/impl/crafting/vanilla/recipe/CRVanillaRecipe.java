@@ -1,0 +1,15 @@
+package com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe;
+
+import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingRecipe;
+
+import net.minecraft.server.v1_12_R1.IRecipe;
+
+public class CRVanillaRecipe<R extends IRecipe> extends CRCraftingRecipe<R> implements CraftingRecipe {
+
+	public CRVanillaRecipe(R nmsRecipe) {
+		super(nmsRecipe);
+	}
+
+
+}
