@@ -57,6 +57,11 @@ public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe, Comp
 	public boolean isHidden() {
 		return nmsRecipe.d();
 	}
+	
+	@Override
+	public String getGroup() {
+		return (String) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "a");
+	}
 
 	@Override
 	public List<CraftItemStack> getLeftOverItems(CraftingInventory craftingInventory) {

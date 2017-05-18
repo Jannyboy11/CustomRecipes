@@ -28,7 +28,7 @@ public class CustomRecipesApiImplementation implements CustomRecipesApi {
 	private final BiMap<IRecipe, CraftingRecipe> registeredCraftingRecipes = HashBiMap.create();
 	private final Map<String, Class<? extends CraftingRecipe>> registeredCraftingRecipeTypes = new HashMap<>();
 	
-	public boolean registerRecipe(CraftingRecipe recipe) {
+	private boolean putRecipe(CraftingRecipe recipe) {
 		if (recipe instanceof CRCraftingRecipe) {
 			@SuppressWarnings("rawtypes")
 			CRCraftingRecipe wrapper = (CRCraftingRecipe) recipe;
@@ -40,26 +40,39 @@ public class CustomRecipesApiImplementation implements CustomRecipesApi {
 		}
 	}
 	
+	/*not sure about this one TODO refactor this, possibly?*/
 	public boolean registerRecipeType(String name, Class<? extends CraftingRecipe> recipeType) {
 		return registeredCraftingRecipeTypes.putIfAbsent(name, recipeType) == null;
 	}
 	
+	@Override
 	public boolean isVanillaRecipeType(CraftingRecipe recipe) {
 		return recipe instanceof CRVanillaRecipe;
 	}
 	
+	@Override
 	public ShapedRecipe asCustomRecipesMirror(org.bukkit.inventory.ShapedRecipe bukkitRecipe) {
 		CraftShapedRecipe craftShapedRecipe = CraftShapedRecipe.fromBukkitRecipe(bukkitRecipe);
 		ShapedRecipes nmsRecipe = (ShapedRecipes) ReflectionUtil.getDeclaredFieldValue(craftShapedRecipe, "recipe");
 		return new CRShapedRecipe<>(nmsRecipe);
 	}
 	
+	@Override
 	public ShapelessRecipe asCustomRecipesMirror(org.bukkit.inventory.ShapelessRecipe bukkitRecipe) {
 		CraftShapelessRecipe craftShapelessRecipe = CraftShapelessRecipe.fromBukkitRecipe(bukkitRecipe);
 		ShapelessRecipes nmsRecipe = (ShapelessRecipes) ReflectionUtil.getDeclaredFieldValue(craftShapelessRecipe, "recipe");
 		return new CRShapelessRecipe<>(nmsRecipe);
 	}
 	
+	@Override
+	public boolean addToCraftingManager(CraftingRecipe recipe) {
+		boolean wasNotCached = putRecipe(recipe);
+		if (!wasNotCached) return false;
+		
+		
+		//TODO
+		return false;
+	}
 	
 
 }

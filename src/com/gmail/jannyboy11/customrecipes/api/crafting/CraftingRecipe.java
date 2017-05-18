@@ -16,6 +16,8 @@ public interface CraftingRecipe {
 	
 	public List<? extends ItemStack> getLeftOverItems(CraftingInventory craftingInventory);
 
-	boolean isHidden();
+	public boolean isHidden();
+
+	public String getGroup();
 
 }

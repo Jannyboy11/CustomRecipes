@@ -13,25 +13,28 @@ import org.bukkit.inventory.ItemStack;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 
-public class ProxyCraftingRecipe implements CraftingRecipe {
+public class ProxyRecipe implements CraftingRecipe {
 	
 	private final BiPredicate<? super CraftingInventory, ? super World> matcher;
 	private final Function<? super CraftingInventory, ? extends ItemStack> crafter;
 	private final Supplier<? extends ItemStack> result;
 	private final Function<? super CraftingInventory, ? extends List<? extends ItemStack>> leftover;
 	private final BooleanSupplier hidden;
+	private final Supplier<String> group;
 	
-	public ProxyCraftingRecipe(BiPredicate<? super CraftingInventory, ? super World> matcher,
+	public ProxyRecipe(BiPredicate<? super CraftingInventory, ? super World> matcher,
 			Function<? super CraftingInventory, ? extends ItemStack> crafter,
 			Supplier<? extends ItemStack> result,
 			Function<? super CraftingInventory, ? extends List<? extends ItemStack>> leftover,
-			BooleanSupplier hidden) {
+			BooleanSupplier hidden,
+			Supplier<String> group) {
 		
 		this.matcher = Objects.requireNonNull(matcher);
 		this.crafter = Objects.requireNonNull(crafter);
 		this.result = Objects.requireNonNull(result);
 		this.leftover = Objects.requireNonNull(leftover);
 		this.hidden = Objects.requireNonNull(hidden);
+		this.group = Objects.requireNonNull(group);
 	}
 
 	@Override
@@ -57,6 +60,11 @@ public class ProxyCraftingRecipe implements CraftingRecipe {
 	@Override
 	public boolean isHidden() {
 		return hidden.getAsBoolean();
+	}
+
+	@Override
+	public String getGroup() {
+		return group.get();
 	}
 
 }
