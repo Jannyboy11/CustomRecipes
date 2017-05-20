@@ -1,22 +1,26 @@
-package com.gmail.jannyboy11.customrecipes.impl;
+package com.gmail.jannyboy11.customrecipes.impl.crafting;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Objects;
+import java.util.function.Predicate;
 
 import org.bukkit.NamespacedKey;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftShapedRecipe;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftShapelessRecipe;
 import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
 
-import com.gmail.jannyboy11.customrecipes.api.CustomRecipesApi;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
-import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedRecipe;
-import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessRecipe;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.Bukkit2NMSRecipe;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.*;
-import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
-
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRArmorDyeRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRBannerAddPatternRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRBannerDuplicateRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRBookCloneRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRFireworksRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRMapCloneRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRMapExtendRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRRepairRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapedRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapelessRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShieldDecorationRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShulkerBoxDyeRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRTippedArrowRecipe;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
@@ -37,10 +41,15 @@ import net.minecraft.server.v1_12_R1.RegistryMaterials;
 import net.minecraft.server.v1_12_R1.ShapedRecipes;
 import net.minecraft.server.v1_12_R1.ShapelessRecipes;
 
-public class CustomRecipesApiImplementation implements CustomRecipesApi {
+public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api.crafting.CraftingManager {
 	
 	private final BiMap<IRecipe, CraftingRecipe> registeredCraftingRecipes = HashBiMap.create();
-	private final Map<String, Class<? extends CraftingRecipe>> registeredCraftingRecipeTypes = new HashMap<>();
+	
+	private CRRecipeRegistry limiter;
+	
+	public CRCraftingManager() {
+		CraftingManager.recipes = this.limiter = new CRRecipeRegistry(CraftingManager.recipes);
+	}
 	
 	private boolean putRecipe(CraftingRecipe recipe) {
 		if (recipe instanceof CRCraftingRecipe) {
@@ -54,32 +63,8 @@ public class CustomRecipesApiImplementation implements CustomRecipesApi {
 		}
 	}
 	
-	/*not sure about this one TODO refactor this, possibly?*/
-	public boolean registerRecipeType(String name, Class<? extends CraftingRecipe> recipeType) {
-		return registeredCraftingRecipeTypes.putIfAbsent(name, recipeType) == null;
-	}
-	
 	@Override
-	public boolean isVanillaRecipeType(CraftingRecipe recipe) {
-		return recipe instanceof CRVanillaRecipe;
-	}
-	
-	@Override
-	public ShapedRecipe asCustomRecipesMirror(org.bukkit.inventory.ShapedRecipe bukkitRecipe) {
-		CraftShapedRecipe craftShapedRecipe = CraftShapedRecipe.fromBukkitRecipe(bukkitRecipe);
-		ShapedRecipes nmsRecipe = (ShapedRecipes) ReflectionUtil.getDeclaredFieldValue(craftShapedRecipe, "recipe");
-		return new CRShapedRecipe<>(nmsRecipe);
-	}
-	
-	@Override
-	public ShapelessRecipe asCustomRecipesMirror(org.bukkit.inventory.ShapelessRecipe bukkitRecipe) {
-		CraftShapelessRecipe craftShapelessRecipe = CraftShapelessRecipe.fromBukkitRecipe(bukkitRecipe);
-		ShapelessRecipes nmsRecipe = (ShapelessRecipes) ReflectionUtil.getDeclaredFieldValue(craftShapelessRecipe, "recipe");
-		return new CRShapelessRecipe<>(nmsRecipe);
-	}
-	
-	@Override
-	public boolean addToCraftingManager(NamespacedKey key, CraftingRecipe recipe) {
+	public boolean addRecipe(NamespacedKey key, CraftingRecipe recipe) {
 		boolean wasNotCached = putRecipe(recipe);
 		if (!wasNotCached) return false;
 		
@@ -91,13 +76,13 @@ public class CustomRecipesApiImplementation implements CustomRecipesApi {
 	}
 
 	@Override
-	public boolean resetRecipes() {
-		clearRecipes();
+	public boolean reset() {
+		clear();
 		return CraftingManager.init();
 	}
 
 	@Override
-	public void clearRecipes() {
+	public void clear() {
 		registeredCraftingRecipes.clear();
 		CraftingManager.recipes = new RegistryMaterials<>();
 	}
@@ -138,27 +123,37 @@ public class CustomRecipesApiImplementation implements CustomRecipesApi {
 		});
 	}
 	
-	
-	public CraftingRecipe getCraftingRecipeByKey(NamespacedKey key) {
+	@Override
+	public CraftingRecipe getRecipe(NamespacedKey key) {
 		MinecraftKey mcKey = CraftNamespacedKey.toMinecraft(key);
 		IRecipe mcRecipe = CraftingManager.a(mcKey);
 		if (mcRecipe == null) return null;
 		return fromNMSRecipe(mcRecipe);		
 	}
 	
-	public boolean removeFromCraftingManager(NamespacedKey key) {
-		CraftingRecipe recipe = getCraftingRecipeByKey(key);
+	@Override
+	public boolean removeRecipe(NamespacedKey key) {
+		CraftingRecipe recipe = getRecipe(key);
 		if (recipe == null) return false;
 		IRecipe nmsRecipe = registeredCraftingRecipes.inverse().remove(recipe);
 		if (nmsRecipe == null) return false;
+		return removeRecipe(nmsRecipe);
+	}
+	
+	private boolean removeRecipe(IRecipe recipe) {
+		return removeRecipe(p -> Objects.equals(recipe, p));
+	}
+	
+	private boolean removeRecipe(Predicate<? super IRecipe> predicate) {
+		ensureLimited();
 		
-		/*
-		 * TODO
-		 * the hard part. remove from crafting manager.
-		 * 
-		 * */
-		
-		return false;
+		return limiter.disableRecipe(predicate);
+	}
+	
+	private void ensureLimited() {
+		if (CraftingManager.recipes != limiter) {
+			CraftingManager.recipes = limiter = new CRRecipeRegistry(CraftingManager.recipes);
+		}
 	}
 	
 	public int getCraftingRecipeId(CraftingRecipe recipe) {
