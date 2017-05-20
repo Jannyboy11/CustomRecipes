@@ -11,5 +11,4 @@ public class CRVanillaRecipe<R extends IRecipe> extends CRCraftingRecipe<R> impl
 		super(nmsRecipe);
 	}
 
-
 }

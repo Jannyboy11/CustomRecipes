@@ -13,6 +13,11 @@ import org.bukkit.inventory.ItemStack;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 
+/**
+ * A CraftingRecipe implementation which delegates all methods to the supplied functions in the constructor.
+ * 
+ * @author Jan
+ */
 public class ProxyRecipe implements CraftingRecipe {
 	
 	private final BiPredicate<? super CraftingInventory, ? super World> matcher;
@@ -37,31 +42,49 @@ public class ProxyRecipe implements CraftingRecipe {
 		this.group = Objects.requireNonNull(group);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean matches(CraftingInventory craftingInventory, World world) {
 		return matcher.test(craftingInventory, world);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ItemStack craftItem(CraftingInventory craftingInventory) {
 		return crafter.apply(craftingInventory);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ItemStack getResult() {
 		return result.get();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<? extends ItemStack> getLeftOverItems(CraftingInventory craftingInventory) {
 		return leftover.apply(craftingInventory);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isHidden() {
 		return hidden.getAsBoolean();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getGroup() {
 		return group.get();
