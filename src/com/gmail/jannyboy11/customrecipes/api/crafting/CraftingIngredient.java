@@ -4,6 +4,7 @@ import java.util.function.Predicate;
 
 import org.bukkit.inventory.ItemStack;
 
+@FunctionalInterface
 public interface CraftingIngredient extends Predicate<ItemStack> {
 	
 	public boolean isIngredient(ItemStack itemStack);

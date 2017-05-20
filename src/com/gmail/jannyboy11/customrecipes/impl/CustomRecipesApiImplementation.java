@@ -69,7 +69,6 @@ public class CustomRecipesApiImplementation implements CustomRecipesApi {
 		boolean wasNotCached = putRecipe(recipe);
 		if (!wasNotCached) return false;
 		
-		
 		//TODO
 		return false;
 	}

@@ -19,11 +19,6 @@ public class CRChoiceIngredient extends CRCraftingIngredient<RecipeItemStack> im
 	}
 
 	@Override
-	public boolean isIngredient(ItemStack itemStack) {
-		return this.nmsIngredient.test(CraftItemStack.asNMSCopy(itemStack));
-	}
-
-	@Override
 	public List<? extends ItemStack> getChoices() {
 		return Arrays.stream(nmsIngredient.choices).map(CraftItemStack::asCraftMirror).collect(Collectors.toList());
 	}

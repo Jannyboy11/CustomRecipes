@@ -74,7 +74,7 @@ public class Bukkit2NMSRecipe extends IRecipe {
 	}
 	
 	@Override
-	public boolean d() {
+	public boolean c() {
 		return bukkitRecipe.isHidden();
 	}
 	

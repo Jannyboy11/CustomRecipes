@@ -22,10 +22,6 @@ public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe, Comp
 	public CRCraftingRecipe(R nmsRecipe) {
 		this.nmsRecipe = Objects.requireNonNull(nmsRecipe);
 	}
-	
-	public boolean isSpecialRecipe() {
-		return nmsRecipe.d();
-	}
 
 	@Override
 	public int compareTo(CRCraftingRecipe<?> o) {
@@ -55,7 +51,7 @@ public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe, Comp
 	
 	@Override
 	public boolean isHidden() {
-		return nmsRecipe.d();
+		return nmsRecipe.c();
 	}
 	
 	@Override
