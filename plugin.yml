@@ -3,3 +3,21 @@ description: The CustomRecipes plugin, revamped for 1.12
 version: 2.0.0
 author: Jannyboy11
 main: com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin
+
+commands:
+  addrecipe:
+    description: Create a new recipe
+    usage: /addrecipe <type> <args>
+    permission: customrecipes.addrecipe
+  removerecipe:
+    description: Remove a recipe
+    usage: /removerecipe <type> <args>
+    permission: customrecipes.removerecipe
+
+permissions:
+  customrecipes.addrecipe:
+    description: Allows access to /addrecipe
+    default: op
+  customrecipes.removerecipe:
+    description: Allows access to /removerecipe
+    default: op

@@ -1,7 +1,14 @@
 package com.gmail.jannyboy11.customrecipes;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.NavigableMap;
+import java.util.TreeMap;
+import java.util.function.BiConsumer;
+
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftShapedRecipe;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftShapelessRecipe;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.gmail.jannyboy11.customrecipes.api.CustomRecipesApi;
@@ -10,6 +17,8 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceManager;
+import com.gmail.jannyboy11.customrecipes.commands.AddRecipeCommandExecutor;
+import com.gmail.jannyboy11.customrecipes.commands.RemoveRecipeCommandExecutor;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingManager;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.InjectedIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapedRecipe;
@@ -23,12 +32,24 @@ import net.minecraft.server.v1_12_R1.ShapelessRecipes;
 
 public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi {
 	
+	private final NavigableMap<String, BiConsumer<? super Player, ? super List<String>>> adders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+	private final NavigableMap<String, BiConsumer<? super Player, ? super List<String>>> removers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+	
 	private final CRCraftingManager craftingManager = new CRCraftingManager();
 	private final CRFurnaceManager furnaceManager = new CRFurnaceManager();
 	
 	@Override
 	public void onLoad() {
 		InjectedIngredient.inject();
+		
+		//TODO add standard adders
+		//TODO add standard removers
+	}
+	
+	@Override
+	public void onEnable() {
+		getCommand("addrecipe").setExecutor(new AddRecipeCommandExecutor(Collections.unmodifiableNavigableMap(adders)));
+		getCommand("removerecipe").setExecutor(new RemoveRecipeCommandExecutor(Collections.unmodifiableNavigableMap(removers)));		
 	}
 	
 	public static CustomRecipesPlugin getInstance() {
