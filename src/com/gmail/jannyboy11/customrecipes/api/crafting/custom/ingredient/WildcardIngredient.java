@@ -9,19 +9,14 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingIngredient;
  * 
  * @author Jan
  */
-public class WildcardIngredient implements CraftingIngredient {
+public final class WildcardIngredient implements CraftingIngredient {
 	
 	/**
 	 * The singleton instance
 	 */
-	private static WildcardIngredient instance;
+	public static final WildcardIngredient INSTANCE = new WildcardIngredient();
 	
-	/**
-	 * The singleton getter. WildcardIngredient uses lazy instantiation.
-	 * @return the singleton instance
-	 */
-	public static WildcardIngredient getInstance() {
-		return instance == null ? instance = new WildcardIngredient() : instance;
+	private WildcardIngredient() {
 	}
 
 	/**

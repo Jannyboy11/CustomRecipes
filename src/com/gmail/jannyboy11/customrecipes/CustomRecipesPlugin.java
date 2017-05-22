@@ -11,6 +11,7 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedReci
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceManager;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingManager;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.InjectedIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRVanillaRecipe;
@@ -22,8 +23,13 @@ import net.minecraft.server.v1_12_R1.ShapelessRecipes;
 
 public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi {
 	
-	private CRCraftingManager craftingManager = new CRCraftingManager();
-	private CRFurnaceManager furnaceManager = new CRFurnaceManager();
+	private final CRCraftingManager craftingManager = new CRCraftingManager();
+	private final CRFurnaceManager furnaceManager = new CRFurnaceManager();
+	
+	@Override
+	public void onLoad() {
+		InjectedIngredient.inject();
+	}
 	
 	public static CustomRecipesPlugin getInstance() {
 		return JavaPlugin.getPlugin(CustomRecipesPlugin.class);

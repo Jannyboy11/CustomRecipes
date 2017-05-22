@@ -15,9 +15,9 @@ public class NBTRecipe extends ShapedRecipes {
 	
 	private final List<NBTTagCompound> ingredientTags;
 
-	public NBTRecipe(String group, int width, int height,
-			NonNullList<RecipeItemStack> ingredients, ItemStack result, List<NBTTagCompound> ingredientTags) {
-			
+	public NBTRecipe(String group, int width, int height, NonNullList<RecipeItemStack> ingredients,
+			ItemStack result, List<NBTTagCompound> ingredientTags) {
+		
 		super(group, width, height, makeNBTSpecific(ingredients, ingredientTags), result);
 		this.ingredientTags = ingredientTags;
 	}
