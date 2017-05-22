@@ -25,7 +25,7 @@ public interface CraftingManager {
 
 	/**
 	 * Reset the crafting manager to the vanilla recipes. Since vanilla recipes are now loaded from JSON files inside the server jar,
-	 * This method will also load custom recipes in your server jar.
+	 * this method will also load custom recipes in your server jar.
 	 * 
 	 * @return whether JSON files in the server jar were loaded successfully
 	 */

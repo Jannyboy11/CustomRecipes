@@ -22,12 +22,12 @@ public interface CustomRecipesApi {
 	public ShapedRecipe asCustomRecipesMirror(org.bukkit.inventory.ShapedRecipe bukkitRecipe);
 
 	/**
-	 * Translate a bukkit shapeless recipe to a CustomRecipe shapeless recipe.
+	 * Translate a bukkit shapeless recipe to a CustomRecipes shapeless recipe.
+	 * 
 	 * @param bukkitRecipe the bukkit recipe
 	 * @return the CustomRecipes variant
 	 */
 	public ShapelessRecipe asCustomRecipesMirror(org.bukkit.inventory.ShapelessRecipe bukkitRecipe);
-
 
 	/**
 	 * Tests whether the crafting recipe is a vanilla kind.
