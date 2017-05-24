@@ -13,16 +13,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.gmail.jannyboy11.customrecipes.api.CustomRecipesApi;
-import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingManager;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessRecipe;
-import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceManager;
 import com.gmail.jannyboy11.customrecipes.commands.AddRecipeCommandExecutor;
 import com.gmail.jannyboy11.customrecipes.commands.RemoveRecipeCommandExecutor;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingManager;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.InjectedIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapedAdder;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapelessAdder;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRVanillaRecipe;
@@ -45,7 +44,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		InjectedIngredient.inject();
 		
 		addAdder("shaped", new ShapedAdder(this));
-		//TODO shapeless
+		addAdder("shapeless", new ShapelessAdder(this));
 		//TODO nbt
 		//TODO permission
 		//TODO furnace

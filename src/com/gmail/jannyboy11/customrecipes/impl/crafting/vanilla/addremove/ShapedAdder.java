@@ -1,12 +1,8 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove;
 
 import java.util.List;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryCustom;
@@ -106,9 +102,11 @@ public class ShapedAdder implements BiConsumer<Player, List<String>> {
 				CRShapedRecipe<ShapedRecipes> shapedRecipe = new CRShapedRecipe<>(nmsRecipe);
 				List<List<String>> recipeIngredients = shapedRecipe.getIngredients().stream()
 					.map((CRChoiceIngredient ingr) -> ingr.getChoices().stream()
-							.map(InventoryUtils::getItemName).collect(Collectors.toList()))
+						.map(InventoryUtils::getItemName).collect(Collectors.toList()))
 					.collect(Collectors.toList());
-				String recipeString = recipeIngredients + " -> " + InventoryUtils.getItemName(shapedRecipe.getResult());
+				String recipeString = recipeIngredients + "" +
+					ChatColor.RESET + " -> " +
+					InventoryUtils.getItemName(shapedRecipe.getResult());
 				
 				holder.plugin.getCraftingManager().addRecipe(shapedRecipe);
 				holder.callbackPlayer.sendMessage(String.format("%sAdded shaped recipe: %s%s%s!",
