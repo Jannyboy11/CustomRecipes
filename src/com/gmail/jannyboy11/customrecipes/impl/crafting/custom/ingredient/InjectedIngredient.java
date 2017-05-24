@@ -65,7 +65,36 @@ public class InjectedIngredient implements Predicate<ItemStack> {
 	}
 	
 	/*
-	 * THANK YOU SO MUCH ASM
+	 *	THANK YOU SO MUCH ASM
+	 * 
+	 * 	Java source code of the class:
+	 * 
+	 * 	package net.minecraft.server.v1_12_R1;
+	 * 
+	 * 	import java.util.Objects;
+	 * 	import java.util.function.Predicate;
+	 * 
+	 * 	public class RecipeItemStackInjected extends RecipeItemStack {
+	 *
+	 * 		private final Predicate<? super ItemStack> predicate;
+	 *
+	 * 		public RecipeItemStackInjected(Predicate<? super ItemStack> predicate) {
+	 *     		super(null, null);
+	 *     		this.predicate = Objects.requireNonNull(predicate);
+	 * 		}
+	 *
+	 * 		@Override
+	 * 		public boolean apply(ItemStack itemStack) {
+	 *			return predicate.test(itemStack);
+	 *		}
+	 *
+	 *		@Override
+	 *		public boolean a(ItemStack itemStack) {
+	 * 			return predicate.test(itemStack);
+	 *		}
+	 *
+	 *	}
+	 * 
 	 */
 
 	private static class RecipeItemStackInjectedDump implements Opcodes {

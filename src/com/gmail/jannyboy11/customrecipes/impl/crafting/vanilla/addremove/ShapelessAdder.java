@@ -87,7 +87,7 @@ public class ShapelessAdder implements BiConsumer<Player, List<String>> {
 		}
 		
 		
-		public ShapelessRecipes toRecipe() {
+		private ShapelessRecipes toRecipe() {
 			
 			
 			return null;
