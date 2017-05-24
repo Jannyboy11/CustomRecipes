@@ -34,7 +34,6 @@ public class ShapedAdder implements BiConsumer<Player, List<String>> {
 	
 	private final CustomRecipesPlugin plugin;
 	
-	
 	public ShapedAdder (CustomRecipesPlugin plugin) {
 		this.plugin = plugin;
 	}
