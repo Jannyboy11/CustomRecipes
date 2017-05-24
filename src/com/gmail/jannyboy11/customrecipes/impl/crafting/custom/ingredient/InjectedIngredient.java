@@ -22,7 +22,7 @@ public class InjectedIngredient implements Predicate<ItemStack> {
 			recipeItemStackInjectedClass = (Class<? extends RecipeItemStack>) loader
 					.defineClass("net/minecraft/server/v1_12_R1/RecipeItemStackInjected", RecipeItemStackInjectedDump.dump());
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 	
@@ -51,7 +51,7 @@ public class InjectedIngredient implements Predicate<ItemStack> {
 
 	
 	/*
-	 * The class loaded to define the RecipeItemStackInjected class
+	 * The class loader to define the RecipeItemStackInjected class
 	 */
 	
 	private static class RecipeItemStackClassLoader extends ClassLoader {
@@ -65,7 +65,6 @@ public class InjectedIngredient implements Predicate<ItemStack> {
 	}
 	
 	/*
-	 *	THANK YOU SO MUCH ASM
 	 * 
 	 * 	Java source code of the class:
 	 * 
@@ -94,6 +93,8 @@ public class InjectedIngredient implements Predicate<ItemStack> {
 	 *		}
 	 *
 	 *	}
+	 *
+	 *	THANKS ASM!
 	 * 
 	 */
 
