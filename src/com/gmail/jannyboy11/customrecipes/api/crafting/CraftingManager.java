@@ -11,7 +11,7 @@ public interface CraftingManager {
 	 * @param recipe
 	 * @return whether the recipe was added successfully
 	 */
-	public boolean addRecipe(NamespacedKey key, CraftingRecipe recipe);
+	public boolean addRecipe(CraftingRecipe recipe);
 
 	/*
 	 * TODO document this

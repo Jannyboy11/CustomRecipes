@@ -9,6 +9,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryCrafting;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
 import org.bukkit.inventory.Recipe;
 
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
@@ -36,6 +37,7 @@ public class Bukkit2NMSRecipe extends IRecipe {
 
 	public Bukkit2NMSRecipe(CraftingRecipe bukkitRecipe) {
 		this.bukkitRecipe = Objects.requireNonNull(bukkitRecipe);
+		this.key = CraftNamespacedKey.toMinecraft(bukkitRecipe.getKey());
 	}
 	
 	public static CraftInventoryCrafting getBukkitCraftingInventory(InventoryCrafting inventoryCrafting) {

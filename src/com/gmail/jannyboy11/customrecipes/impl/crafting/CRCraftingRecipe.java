@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
 import org.bukkit.inventory.CraftingInventory;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
@@ -88,4 +90,10 @@ public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe, Comp
 	public int hashCode() {
 		return nmsRecipe.hashCode();
 	}
+
+	@Override
+	public NamespacedKey getKey() {
+		return CraftNamespacedKey.fromMinecraft(nmsRecipe.key);
+	}
+	
 }

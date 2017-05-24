@@ -3,6 +3,7 @@ package com.gmail.jannyboy11.customrecipes;
 import java.util.Collections;
 import java.util.List;
 import java.util.NavigableMap;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
 
@@ -21,6 +22,7 @@ import com.gmail.jannyboy11.customrecipes.commands.AddRecipeCommandExecutor;
 import com.gmail.jannyboy11.customrecipes.commands.RemoveRecipeCommandExecutor;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingManager;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.InjectedIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapedAdder;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRVanillaRecipe;
@@ -35,15 +37,24 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	private final NavigableMap<String, BiConsumer<? super Player, ? super List<String>>> adders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	private final NavigableMap<String, BiConsumer<? super Player, ? super List<String>>> removers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	
-	private final CRCraftingManager craftingManager = new CRCraftingManager();
-	private final CRFurnaceManager furnaceManager = new CRFurnaceManager();
+	private CRCraftingManager craftingManager = new CRCraftingManager();
+	private CRFurnaceManager furnaceManager = new CRFurnaceManager();
 	
 	@Override
 	public void onLoad() {
 		InjectedIngredient.inject();
 		
-		//TODO add standard adders
+		addAdder("shaped", new ShapedAdder(this));
+		//TODO shapeless
+		//TODO nbt
+		//TODO permission
+		//TODO furnace
+		
 		//TODO add standard removers
+	}
+	
+	public boolean addAdder(String recipeType, BiConsumer<? super Player, ? super List<String>> adder) {
+		return adders.putIfAbsent(recipeType, adder) == null;
 	}
 	
 	@Override
@@ -57,12 +68,12 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	}
 	
 	@Override
-	public CraftingManager getCraftingManager() {
+	public CRCraftingManager getCraftingManager() {
 		return craftingManager;
 	}
 	
 	@Override
-	public FurnaceManager getFurnaceManager() {
+	public CRFurnaceManager getFurnaceManager() {
 		return furnaceManager;
 	}
 
@@ -85,5 +96,16 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		return new CRShapelessRecipe<>(nmsRecipe);
 	}
 	
+	
+	
+	//for NMS developers
+	
+	public void setCraftingManager(CRCraftingManager craftingManager) {
+		this.craftingManager = Objects.requireNonNull(craftingManager);
+	}
+	
+	public void setFurnaceManager(CRFurnaceManager furnaceManager) {
+		this.furnaceManager = Objects.requireNonNull(furnaceManager);
+	}
 
 }

@@ -44,6 +44,8 @@ import net.minecraft.server.v1_12_R1.ShapelessRecipes;
 public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api.crafting.CraftingManager {
 	
 	private final BiMap<IRecipe, CraftingRecipe> registeredCraftingRecipes = HashBiMap.create();
+	private final BiMap<String, Class<? extends IRecipe>> customImplementations = HashBiMap.create();
+	
 	
 	private CRRecipeRegistry limiter;
 	
@@ -63,12 +65,18 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 		}
 	}
 	
+	// for NMS developers
+	public boolean registerCustomImplementation(String recipeType, Class<? extends IRecipe> implementation) {
+		return customImplementations.putIfAbsent(recipeType, implementation) == null;
+	}
+	
+	
 	@Override
-	public boolean addRecipe(NamespacedKey key, CraftingRecipe recipe) {
+	public boolean addRecipe(CraftingRecipe recipe) {
 		boolean wasNotCached = putRecipe(recipe);
 		if (!wasNotCached) return false;
 		
-		MinecraftKey minecraftKey = CraftNamespacedKey.toMinecraft(key);
+		MinecraftKey minecraftKey = CraftNamespacedKey.toMinecraft(recipe.getKey());
 		IRecipe nmsRecipe = registeredCraftingRecipes.inverse().get(recipe);
 		CraftingManager.a(minecraftKey, nmsRecipe);
 		
@@ -87,10 +95,20 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 		CraftingManager.recipes = new RegistryMaterials<>();
 	}
 	
-	private CraftingRecipe fromNMSRecipe(IRecipe recipe) {
+	/*
+	 * This method could be private.
+	 * But I like other NMS developers to override it in their plugins if that's desired.
+	 */
+	public CraftingRecipe fromNMSRecipe(IRecipe recipe) {
 		if (recipe == null) return null;
 		return registeredCraftingRecipes.computeIfAbsent(recipe , r -> {
-			//order is important.
+			//check if the recipe class was a custom implementation
+			if (customImplementations.containsValue(r.getClass())) {
+				//fall back to generic CRCrafting recipe if the recipe was not registered.
+				return registeredCraftingRecipes.getOrDefault(r, new CRCraftingRecipe<>(r));
+			}
+			
+			//if not custom, check which vanilla implementation. order is important.
 			if (r instanceof RecipeArmorDye) {
 				return new CRArmorDyeRecipe((RecipeArmorDye) r);
 			} else if (r instanceof RecipesBanner.AddRecipe) {
@@ -117,7 +135,9 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 				return new CRShapedRecipe<>((ShapedRecipes) r);
 			} else if (r instanceof ShapelessRecipes) {
 				return new CRShapelessRecipe<>((ShapelessRecipes) r);
-			} else {			
+			} else {
+				//unknown type of recipe.
+				//best we can do is return a generic crafting recipe 
 				return new CRCraftingRecipe<>(r);
 			}
 		});
@@ -128,7 +148,7 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 		MinecraftKey mcKey = CraftNamespacedKey.toMinecraft(key);
 		IRecipe mcRecipe = CraftingManager.a(mcKey);
 		if (mcRecipe == null) return null;
-		return fromNMSRecipe(mcRecipe);		
+		return fromNMSRecipe(mcRecipe);
 	}
 	
 	@Override

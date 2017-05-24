@@ -2,6 +2,7 @@ package com.gmail.jannyboy11.customrecipes.api.crafting;
 
 import java.util.List;
 
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
@@ -76,5 +77,12 @@ public interface CraftingRecipe {
 	 * @return the group identifier, or the empty string if the recipe has no group
 	 */
 	public String getGroup();
+	
+	/**
+	 * Get the key of the recipe. Recipe keys must be unique.
+	 * 
+	 * @return the key
+	 */
+	public NamespacedKey getKey();
 
 }
