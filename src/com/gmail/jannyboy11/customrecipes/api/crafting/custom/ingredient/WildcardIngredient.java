@@ -20,7 +20,7 @@ public final class WildcardIngredient implements CraftingIngredient {
 	}
 
 	/**
-	 * Tests whether the itemstack is an ingredient.
+	 * Tests whether the ItemStack is an ingredient.
 	 * 
 	 * @return true
 	 */

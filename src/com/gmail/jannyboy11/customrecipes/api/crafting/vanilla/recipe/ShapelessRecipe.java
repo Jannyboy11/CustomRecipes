@@ -12,6 +12,11 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.ingredient.Choice
  */
 public interface ShapelessRecipe extends CraftingRecipe {
 	
+	/**
+	 * Get the ingredients of the recipe.
+	 * 
+	 * @return the ingredients
+	 */
 	public List<? extends ChoiceIngredient> getIngredients();
 
 }

@@ -25,5 +25,9 @@ public class PermissionRecipe extends ShapedRecipes {
 		}
 		return super.a(inventoryCrafting, world);
 	}
+	
+	public String getPermission() {
+		return permission;
+	}
 
 }

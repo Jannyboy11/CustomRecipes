@@ -1,9 +1,10 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.CombinedIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.CombinedAndIngredient;
 
 import net.minecraft.server.v1_12_R1.ItemStack;
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
@@ -27,10 +28,14 @@ public class NBTRecipe extends ShapedRecipes {
 		for (int i = 0; i < ingredients.size(); i++) {
 			RecipeItemStack originalIngredient = ingredients.get(i);
 			NBTTagCompound compound = to.get(i);
-			CombinedIngredient c = new CombinedIngredient(originalIngredient, itemStack -> Objects.equals(itemStack.getTag(), compound));
+			CombinedAndIngredient c = new CombinedAndIngredient(originalIngredient, itemStack -> Objects.equals(itemStack.getTag(), compound));
 			result.set(i, c.asNMSIngredient());
 		}
 		return result;
+	}
+	
+	public List<NBTTagCompound> getIngredientTags() {
+		return Collections.unmodifiableList(ingredientTags);
 	}
 	
 }

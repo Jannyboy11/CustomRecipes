@@ -43,8 +43,7 @@ public class ShapelessAdder implements BiConsumer<Player, List<String>> {
 	public void accept(Player player, List<String> args) {
 		org.bukkit.inventory.ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
 		if (itemInMainHand == null) {
-			player.sendMessage(
-					ChatColor.RED + "Put the result of the recipe in your main hand when executing this command.");
+			player.sendMessage(ChatColor.RED + "Put the result of the recipe in your main hand when executing this command.");
 			return;
 		}
 
@@ -79,8 +78,7 @@ public class ShapelessAdder implements BiConsumer<Player, List<String>> {
 			this.result = result;
 			this.key = key;
 			this.group = group;
-			this.dispenserInventory = plugin.getServer().createInventory(this, InventoryType.DISPENSER,
-					"Create a shapeless recipe!");
+			this.dispenserInventory = plugin.getServer().createInventory(this, InventoryType.DISPENSER, "Create a shapeless recipe!");
 			plugin.getServer().getPluginManager().registerEvents(this, plugin);
 		}
 

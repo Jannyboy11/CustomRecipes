@@ -43,11 +43,10 @@ import net.minecraft.server.v1_12_R1.ShapelessRecipes;
 
 public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api.crafting.CraftingManager {
 	
-	private final BiMap<IRecipe, CraftingRecipe> registeredCraftingRecipes = HashBiMap.create();
-	private final BiMap<String, Class<? extends IRecipe>> customImplementations = HashBiMap.create();
+	protected final BiMap<IRecipe, CraftingRecipe> registeredCraftingRecipes = HashBiMap.create();
+	protected final BiMap<String, Class<? extends IRecipe>> customImplementations = HashBiMap.create();
 	
-	
-	private CRRecipeRegistry limiter;
+	protected CRRecipeRegistry limiter;
 	
 	public CRCraftingManager() {
 		CraftingManager.recipes = this.limiter = new CRRecipeRegistry(CraftingManager.recipes);
@@ -135,11 +134,11 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 				return new CRShapedRecipe<>((ShapedRecipes) r);
 			} else if (r instanceof ShapelessRecipes) {
 				return new CRShapelessRecipe<>((ShapelessRecipes) r);
-			} else {
-				//unknown type of recipe.
-				//best we can do is return a generic crafting recipe 
-				return new CRCraftingRecipe<>(r);
-			}
+			} 
+			
+			//unknown type of recipe.
+			//best we can do is return a generic crafting recipe 
+			return new CRCraftingRecipe<>(r);
 		});
 	}
 	

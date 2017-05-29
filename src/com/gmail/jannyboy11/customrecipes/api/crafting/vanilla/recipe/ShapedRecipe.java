@@ -26,7 +26,7 @@ public interface ShapedRecipe extends CraftingRecipe {
 	
 	/**
 	 * Get the ingredients of the recipe.
-	 * The size of the list should be equal to getWidth() * getHeight();
+	 * The size of the list must be equal to getWidth() * getHeight();
 	 * 
 	 * @return the ingredients
 	 */

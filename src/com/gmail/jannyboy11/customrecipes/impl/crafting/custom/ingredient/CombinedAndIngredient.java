@@ -4,9 +4,9 @@ import java.util.function.Predicate;
 
 import net.minecraft.server.v1_12_R1.ItemStack;
 
-public class CombinedIngredient extends InjectedIngredient {
+public class CombinedAndIngredient extends InjectedIngredient {
 
-	public CombinedIngredient(Predicate<? super ItemStack> p1, Predicate<? super ItemStack> p2) {
+	public CombinedAndIngredient(Predicate<? super ItemStack> p1, Predicate<? super ItemStack> p2) {
 		super(itemStack -> p1.test(itemStack) && p2.test(itemStack));
 	}
 

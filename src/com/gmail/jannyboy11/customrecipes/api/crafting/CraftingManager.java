@@ -13,13 +13,19 @@ public interface CraftingManager {
 	 */
 	public boolean addRecipe(CraftingRecipe recipe);
 
-	/*
-	 * TODO document this
+	/**
+	 * Remove a CraftingRecipe from the crafting manager by its key.
+	 * 
+	 * @param key the key of the recipe
+	 * @return true if a recipe with an equal key was found and removed, otherwise false
 	 */
 	public boolean removeRecipe(NamespacedKey key);
 
-	/*
-	 * TODO document this
+	/**
+	 * Get a CraftingRecipe by its key.
+	 * 
+	 * @param key the key of the recipe
+	 * @return the CraftingRecipe that has the same key, or null if no recipe with that key was found
 	 */
 	public CraftingRecipe getRecipe(NamespacedKey key);
 

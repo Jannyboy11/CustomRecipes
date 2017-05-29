@@ -14,10 +14,10 @@ import org.bukkit.inventory.ItemStack;
 public interface CraftingIngredient extends Predicate<ItemStack> {
 	
 	/**
-	 * Tests whether an itemstack matches as an ingredient for the associated crafting recipe.
+	 * Tests whether an ItemStack matches as an ingredient for the associated crafting recipe.
 	 * 
-	 * @param itemStack the itemstack to test
-	 * @return whether the itemstack is an ingredient
+	 * @param itemStack the ItemSack to test
+	 * @return whether the ItemStack is an ingredient
 	 */
 	public boolean isIngredient(ItemStack itemStack);
 	
