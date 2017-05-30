@@ -11,7 +11,7 @@ import net.minecraft.server.v1_12_R1.IRecipe;
 import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.RegistryMaterials;
 
-public class CRRecipeRegistry extends RegistryMaterials<MinecraftKey, IRecipe> {
+public class CRRecipeRegistry extends RegistryMaterials {
 
 	private final RegistryMaterials<MinecraftKey, IRecipe> registry;
 

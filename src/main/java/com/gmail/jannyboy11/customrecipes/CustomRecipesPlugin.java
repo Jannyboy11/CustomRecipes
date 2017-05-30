@@ -19,6 +19,7 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessR
 import com.gmail.jannyboy11.customrecipes.commands.AddRecipeCommandExecutor;
 import com.gmail.jannyboy11.customrecipes.commands.RemoveRecipeCommandExecutor;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingManager;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.NBTAdder;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.InjectedIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapedAdder;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapelessAdder;
@@ -45,7 +46,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		
 		addAdder("shaped", new ShapedAdder(this));
 		addAdder("shapeless", new ShapelessAdder(this));
-		//TODO nbt
+		addAdder("nbt", new NBTAdder(this));
 		//TODO permission
 		//TODO furnace
 		
@@ -59,7 +60,9 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	@Override
 	public void onEnable() {
 		getCommand("addrecipe").setExecutor(new AddRecipeCommandExecutor(Collections.unmodifiableNavigableMap(adders)));
-		getCommand("removerecipe").setExecutor(new RemoveRecipeCommandExecutor(Collections.unmodifiableNavigableMap(removers)));		
+		getCommand("removerecipe").setExecutor(new RemoveRecipeCommandExecutor(Collections.unmodifiableNavigableMap(removers)));
+		
+		//TODO /list <type> ---> opens a gui
 	}
 	
 	public static CustomRecipesPlugin getInstance() {

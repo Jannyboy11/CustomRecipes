@@ -31,3 +31,6 @@ bin/*
 .idea/*
 CustomRecipes.iml
 out/*
+
+# Maven
+target/*
