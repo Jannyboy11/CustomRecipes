@@ -91,7 +91,7 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 		return registeredCraftingRecipes.computeIfAbsent(recipe , r -> {
 			//check if the recipe class was a custom implementation
 			if (customImplementations.containsValue(r.getClass())) {
-				//fall back to generic CRCrafting recipe if the recipe was not registered.
+				//fall back to generic CRCraftingRecipe if the recipe was not registered.
 				return registeredCraftingRecipes.getOrDefault(r, new CRCraftingRecipe<>(r));
 			}
 			
@@ -147,9 +147,12 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 		return removeRecipe(nmsRecipe);
 	}
 	
+	//I'm not exactly sure if this is useful since most IRecipe implementations don't override the equals method
+	//Maybe I can change the implentation to use the MinecraftKey instead?
 	private boolean removeRecipe(IRecipe recipe) {
 		return removeRecipe(p -> Objects.equals(recipe, p));
 	}
+	
 	
 	private boolean removeRecipe(Predicate<? super IRecipe> predicate) {
 		ensureLimited();

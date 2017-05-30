@@ -29,6 +29,7 @@ import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRVanilla
 import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceManager;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
+import net.minecraft.server.v1_12_R1.IRecipe;
 import net.minecraft.server.v1_12_R1.ShapedRecipes;
 import net.minecraft.server.v1_12_R1.ShapelessRecipes;
 
@@ -81,7 +82,10 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 
 	@Override
 	public boolean isVanillaRecipeType(CraftingRecipe recipe) {
-		return recipe instanceof CRVanillaRecipe;
+		if (!(recipe instanceof CRVanillaRecipe)) return false;
+		
+		CRVanillaRecipe<? extends IRecipe> vanillaWrapper = (CRVanillaRecipe<? extends IRecipe>) recipe;
+		return vanillaWrapper.getHandle().getClass().getName().startsWith("net.minecraft.server");
 	}
 	
 	@Override

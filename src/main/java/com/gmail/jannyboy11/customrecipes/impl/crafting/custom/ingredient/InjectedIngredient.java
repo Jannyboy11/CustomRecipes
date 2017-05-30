@@ -20,7 +20,7 @@ public class InjectedIngredient implements Predicate<ItemStack> {
 		RecipeItemStackClassLoader loader = new RecipeItemStackClassLoader();
 		try {
 			recipeItemStackInjectedClass = (Class<? extends RecipeItemStack>) loader
-					.defineClass("net/minecraft/server/v1_12_R1/RecipeItemStackInjected", RecipeItemStackInjectedDump.dump());
+					.defineClass("net.minecraft.server.v1_12_R1.RecipeItemStackInjected", RecipeItemStackInjectedDump.dump());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

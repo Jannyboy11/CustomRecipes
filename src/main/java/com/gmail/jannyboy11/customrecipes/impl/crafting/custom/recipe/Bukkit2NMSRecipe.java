@@ -171,7 +171,7 @@ public class Bukkit2NMSRecipe extends IRecipe {
 			
 		}
 		
-		//Recipe was neither a Shaped nor a Shapeless recipe, return a generic Recipe.'
+		//Recipe was neither a Shaped nor a Shapeless recipe, return a generic Recipe.
 		//Bukkit and other plugins will not like this.
 		return bukkitRecipe::getResult;
 	}	
