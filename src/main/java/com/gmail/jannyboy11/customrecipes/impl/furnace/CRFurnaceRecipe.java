@@ -5,8 +5,6 @@ import java.util.Objects;
 
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 
-import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe;
-
 import net.minecraft.server.v1_12_R1.ItemStack;
 
 public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe {
@@ -78,6 +76,21 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 		return Objects.hash(getIngredient(), getResult(), getXp());
 	}
 	
+	public static CRFurnaceRecipe fromSimple(com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe simple, Map<ItemStack, ItemStack> results, Map<ItemStack, Float> xps) {
+		if (simple instanceof CRFurnaceRecipe) {
+			return (CRFurnaceRecipe) simple;
+		}
+		
+		ItemStack nmsIngredient = CraftItemStack.asNMSCopy(simple.getIngredient());
+		ItemStack nmsResult = CraftItemStack.asNMSCopy(simple.getResult());
+		float xp = simple.getXp();
+		
+		results.put(nmsIngredient, nmsResult);
+		if (xp > 0F) xps.put(nmsIngredient, xp);
+		
+		return new CRFurnaceRecipe(new FurnaceRecipe(results, xps, nmsIngredient));
+	}
+	
 	
 	public static class FurnaceRecipe {
 		
@@ -115,7 +128,8 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 		}
 
 		public float getXp() {
-			return xps.get(source);
+			Float xp = xps.get(source);
+			return xp == null ? 0 : xp.floatValue();
 		}
 
 		public ItemStack getResult() {

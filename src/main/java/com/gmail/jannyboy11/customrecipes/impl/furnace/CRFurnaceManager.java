@@ -88,6 +88,33 @@ public class CRFurnaceManager implements FurnaceManager {
 	}
 	
 	@Override
+	public boolean removeRecipe(org.bukkit.inventory.ItemStack ingredient) {
+		return removeCustomRecipe(ingredient) || removeVanillaRecipe(ingredient);
+	}
+
+	@Override
+	public boolean removeVanillaRecipe(org.bukkit.inventory.ItemStack ingredient) {
+		RecipesFurnace recipesFurnace = RecipesFurnace.getInstance();
+		ItemStack nmsStack = CraftItemStack.asNMSCopy(ingredient);
+		
+		boolean removed = recipesFurnace.recipes.remove(nmsStack) != null;
+		if (removed) vanillaXp(recipesFurnace).remove(nmsStack);
+		
+		return removed;
+	}
+
+	@Override
+	public boolean removeCustomRecipe(org.bukkit.inventory.ItemStack ingredient) {
+		RecipesFurnace recipesFurnace = RecipesFurnace.getInstance();
+		ItemStack nmsStack = CraftItemStack.asNMSCopy(ingredient);
+		
+		boolean removed = recipesFurnace.customRecipes.remove(nmsStack) != null;
+		if (removed) recipesFurnace.customExperience.remove(nmsStack);
+		
+		return removed;
+	}
+	
+	@Override
 	public Iterator<CRFurnaceRecipe> customIterator() {
 		RecipesFurnace recipesFurnace = RecipesFurnace.getInstance();
 		
@@ -95,10 +122,29 @@ public class CRFurnaceManager implements FurnaceManager {
 				.map(ingr -> new CRFurnaceRecipe(new FurnaceRecipe(recipesFurnace.customRecipes, recipesFurnace.customExperience, ingr)))
 				.iterator();
 	}
+
+	@Override
+	public CRFurnaceRecipe addCustomRecipe(com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe furnaceRecipe) {
+		RecipesFurnace recipesFurnace = RecipesFurnace.getInstance();
+
+		org.bukkit.inventory.ItemStack ingredient = furnaceRecipe.getIngredient();
+		if (ingredient == null) return null;
+		
+		return CRFurnaceRecipe.fromSimple(furnaceRecipe, recipesFurnace.customRecipes, recipesFurnace.customExperience);
+	}
+
+	@Override
+	public CRFurnaceRecipe addVanillaRecipe(com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe furnaceRecipe) {
+		RecipesFurnace recipesFurnace = RecipesFurnace.getInstance();
+
+		org.bukkit.inventory.ItemStack ingredient = furnaceRecipe.getIngredient();
+		if (ingredient == null) return null;
+		
+		return CRFurnaceRecipe.fromSimple(furnaceRecipe, recipesFurnace.recipes, vanillaXp(recipesFurnace));
+	}
+
 	
-	//TODO add methods
-	
-	private Map<ItemStack, Float> vanillaXp(RecipesFurnace recipesFurnace) {
+	private static Map<ItemStack, Float> vanillaXp(RecipesFurnace recipesFurnace) {
 		return (Map<ItemStack, Float>) ReflectionUtil.getDeclaredFieldValue(recipesFurnace, "experience");
 	}
 

@@ -2,6 +2,12 @@ package com.gmail.jannyboy11.customrecipes.api.crafting;
 
 import org.bukkit.NamespacedKey;
 
+/**
+ * Represents the crafting manager, the almighty manager of all crafting
+ * 
+ * @author Jan
+ *
+ */
 public interface CraftingManager extends Iterable<CraftingRecipe> {
 
 	/**

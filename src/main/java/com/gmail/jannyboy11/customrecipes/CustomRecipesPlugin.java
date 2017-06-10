@@ -16,6 +16,8 @@ import com.gmail.jannyboy11.customrecipes.api.CustomRecipesApi;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessRecipe;
+import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe;
+import com.gmail.jannyboy11.customrecipes.api.furnace.SimpleFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.commands.AddRecipeCommandExecutor;
 import com.gmail.jannyboy11.customrecipes.commands.RemoveRecipeCommandExecutor;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingManager;
@@ -27,6 +29,7 @@ import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapedR
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRVanillaRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceManager;
+import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
 import net.minecraft.server.v1_12_R1.IRecipe;
@@ -102,6 +105,14 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		return new CRShapelessRecipe<>(nmsRecipe);
 	}
 	
+	@Override
+	public FurnaceRecipe asCustomRecipesMirror(org.bukkit.inventory.FurnaceRecipe bukkitRecipe) {
+		SimpleFurnaceRecipe simple = new SimpleFurnaceRecipe(bukkitRecipe.getInput(), bukkitRecipe.getResult(), bukkitRecipe.getExperience());
+		
+		CRFurnaceRecipe recipe = furnaceManager.getRecipe(bukkitRecipe.getInput());
+		return simple.equals(recipe) ? recipe : simple;
+	}
+	
 	
 	
 	//for NMS developers
@@ -113,5 +124,6 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	public void setFurnaceManager(CRFurnaceManager furnaceManager) {
 		this.furnaceManager = Objects.requireNonNull(furnaceManager);
 	}
+
 
 }

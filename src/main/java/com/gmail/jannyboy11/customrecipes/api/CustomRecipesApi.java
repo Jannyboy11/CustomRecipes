@@ -5,6 +5,7 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceManager;
+import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe;
 
 /**
  * The Custom Recipes application programming interface
@@ -28,6 +29,14 @@ public interface CustomRecipesApi {
 	 * @return the CustomRecipes variant
 	 */
 	public ShapelessRecipe asCustomRecipesMirror(org.bukkit.inventory.ShapelessRecipe bukkitRecipe);
+	
+	/**
+	 * Translate a bukkit furnace recipe to a CustomRecipes furnace recipe.
+	 * 
+	 * @param bukkitRecipe
+	 * @return the CustomRecipes variant
+	 */
+	public FurnaceRecipe asCustomRecipesMirror(org.bukkit.inventory.FurnaceRecipe bukkitRecipe);
 
 	/**
 	 * Tests whether the crafting recipe is a vanilla kind.
