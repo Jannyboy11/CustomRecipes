@@ -9,7 +9,6 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryCrafting;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
 import org.bukkit.inventory.Recipe;
 
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
@@ -24,10 +23,11 @@ import net.minecraft.server.v1_12_R1.IInventory;
 import net.minecraft.server.v1_12_R1.IRecipe;
 import net.minecraft.server.v1_12_R1.InventoryCrafting;
 import net.minecraft.server.v1_12_R1.ItemStack;
+import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.NonNullList;
 import net.minecraft.server.v1_12_R1.World;
 
-public class Bukkit2NMSRecipe extends IRecipe {
+public class Bukkit2NMSRecipe implements IRecipe {
 	
 	//dirty hacks!
 	private static final String CUSTOM_RECIPES_BUKKITRECIPE_KEY = "customrecipes-bukkitrecipe-";
@@ -37,7 +37,6 @@ public class Bukkit2NMSRecipe extends IRecipe {
 
 	public Bukkit2NMSRecipe(CraftingRecipe bukkitRecipe) {
 		this.bukkitRecipe = Objects.requireNonNull(bukkitRecipe);
-		this.key = CraftNamespacedKey.toMinecraft(bukkitRecipe.getKey());
 	}
 	
 	public static CraftInventoryCrafting getBukkitCraftingInventory(InventoryCrafting inventoryCrafting) {
@@ -174,6 +173,14 @@ public class Bukkit2NMSRecipe extends IRecipe {
 		//Recipe was neither a Shaped nor a Shapeless recipe, return a generic Recipe.
 		//Bukkit and other plugins will not like this.
 		return bukkitRecipe::getResult;
-	}	
+	}
+
+	
+	@Override
+	public void setKey(MinecraftKey minecraftKey) {
+		//nothing to do here, this method is used by bukkit when recipes are added using Bukkits API.
+	}
+	
+	
 
 }

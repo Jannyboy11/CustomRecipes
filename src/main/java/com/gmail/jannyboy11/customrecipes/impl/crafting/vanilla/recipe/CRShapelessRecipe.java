@@ -3,6 +3,9 @@ package com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.bukkit.NamespacedKey;
+import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
+
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient.CRChoiceIngredient;
@@ -18,6 +21,7 @@ public class CRShapelessRecipe<R extends ShapelessRecipes> extends CRVanillaReci
 		super(nmsRecipe);
 	}
 	
+	@Override
 	public List<CRChoiceIngredient> getIngredients() {
 		return nmsIngredients().stream().map(CRCraftingIngredient::getVanilla).collect(Collectors.toList());
 	}
@@ -25,6 +29,11 @@ public class CRShapelessRecipe<R extends ShapelessRecipes> extends CRVanillaReci
 	@SuppressWarnings("unchecked")
 	private NonNullList<RecipeItemStack> nmsIngredients() {
 		return (NonNullList<RecipeItemStack>) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "ingredients");
+	}
+	
+	@Override
+	public NamespacedKey getKey() {
+		return CraftNamespacedKey.fromMinecraft(nmsRecipe.key);
 	}
 
 }

@@ -27,7 +27,14 @@ public class CRCraftingIngredient<I extends RecipeItemStack> implements Crafting
 		return this.nmsIngredient.test(CraftItemStack.asNMSCopy(itemStack));
 	}
 
-	public static RecipeItemStack asNMSCopy(CraftingIngredient ingredient) {
+	public static RecipeItemStack asNMSIngredient(CraftingIngredient ingredient) {
+		if (ingredient instanceof CRCraftingIngredient) {
+			@SuppressWarnings("unchecked")
+			CRCraftingIngredient<RecipeItemStack> crIngredient = (CRCraftingIngredient<RecipeItemStack>) ingredient;
+			return crIngredient.nmsIngredient;
+		}
+		
+		//fallback
 		return new Bukkit2NMSIngredient(ingredient).asNMSIngredient();
 	}
 

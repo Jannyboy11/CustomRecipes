@@ -39,7 +39,8 @@ public final class InventoryUtils {
 	}
 	
 	public static boolean isEmpty(Inventory inventory) {
-		return StreamSupport.stream(Spliterators.spliterator(inventory.iterator(), inventory.getSize(), Spliterator.SIZED), false)
+		return StreamSupport.stream(Spliterators.spliterator(inventory.iterator(),
+				inventory.getSize(), Spliterator.SIZED), false)
 			.allMatch(InventoryUtils::isEmptyStack);
 	}
 

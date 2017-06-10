@@ -85,7 +85,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		if (!(recipe instanceof CRVanillaRecipe)) return false;
 		
 		CRVanillaRecipe<? extends IRecipe> vanillaWrapper = (CRVanillaRecipe<? extends IRecipe>) recipe;
-		return vanillaWrapper.getHandle().getClass().getName().startsWith("net.minecraft.server");
+		return vanillaWrapper.getHandle().getClass().getName().startsWith("net.minecraft.server.");
 	}
 	
 	@Override

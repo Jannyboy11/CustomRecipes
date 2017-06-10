@@ -15,19 +15,16 @@ import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
 import net.minecraft.server.v1_12_R1.IRecipe;
 import net.minecraft.server.v1_12_R1.InventoryCrafting;
+import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.WorldServer;
 
-public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe, Comparable<CRCraftingRecipe<?>> {
+public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe {
 	
 	protected final R nmsRecipe;
+	protected MinecraftKey key; //this is a dirty hack that Spigot uses 
 	
 	public CRCraftingRecipe(R nmsRecipe) {
 		this.nmsRecipe = Objects.requireNonNull(nmsRecipe);
-	}
-
-	@Override
-	public int compareTo(CRCraftingRecipe<?> o) {
-		return nmsRecipe.compareTo(o.nmsRecipe);
 	}
 
 	@Override
@@ -93,7 +90,8 @@ public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe, Comp
 
 	@Override
 	public NamespacedKey getKey() {
-		return CraftNamespacedKey.fromMinecraft(nmsRecipe.key);
+		if (key == null) return null;
+		return CraftNamespacedKey.fromMinecraft(key);
 	}
 	
 }

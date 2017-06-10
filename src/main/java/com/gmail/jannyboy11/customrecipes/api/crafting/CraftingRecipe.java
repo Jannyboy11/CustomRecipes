@@ -16,11 +16,11 @@ import org.bukkit.inventory.ItemStack;
 public interface CraftingRecipe {
 	
 	/**
-	 * Tests whether the items in the crafting recipe match to a crafting recipe.
+	 * Tests whether the items in the crafting inventory match to this crafting recipe.
 	 * 
 	 * @param craftingInventory the crafting inventory - either a 3x3 workbench inventory, or the 2x2 hand crafting inventory
-	 * @param world the world where crafting takes place
-	 * @return whether there is a match to a crafting recipe
+	 * @param world the world in which crafting takes place
+	 * @return the recipe accepts the inventory and world as valid input for the result ItemStack
 	 */
 	public boolean matches(CraftingInventory craftingInventory, World world);
 	
@@ -78,8 +78,9 @@ public interface CraftingRecipe {
 	 */
 	public String getGroup();
 	
+	
 	/**
-	 * Get the key of the recipe. Recipe keys must be unique.
+	 * Get the key of the recipe
 	 * 
 	 * @return the key
 	 */
