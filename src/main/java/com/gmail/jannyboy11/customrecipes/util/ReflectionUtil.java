@@ -2,6 +2,7 @@ package com.gmail.jannyboy11.customrecipes.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
 public final class ReflectionUtil {
@@ -44,6 +45,21 @@ public final class ReflectionUtil {
     public static void setDeclaredFieldValue(Object object, String fieldName, Object value) {
         Field field = ReflectionUtil.getDeclaredField(object, fieldName);
         try {
+            field.set(object, value);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+    
+    public static void setFinalFieldValue(Object object, String fieldName, Object value) {
+    	Field field = ReflectionUtil.getDeclaredField(object, fieldName);
+        try {
+        	Field modifiersField = Field.class.getDeclaredField("modifiers");
+        	modifiersField.setAccessible(true);
+        	modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+        	
             field.set(object, value);
         }
         catch (Exception e) {

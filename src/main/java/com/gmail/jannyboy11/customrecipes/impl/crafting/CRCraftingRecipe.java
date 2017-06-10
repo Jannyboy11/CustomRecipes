@@ -49,7 +49,7 @@ public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe {
 			
 		if (this.key == null) {
 			CustomRecipesPlugin plugin = CustomRecipesPlugin.getInstance();
-			plugin.getLogger().warning("Some NMS plugin used a custom crafting recipe implementation without providing a Key!");
+			plugin.getLogger().warning("Some NMS plugin used a custom crafting recipe implementation without providing a key!");
 		}
 	}
 	
