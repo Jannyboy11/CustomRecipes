@@ -5,14 +5,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryCrafting;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
 import org.bukkit.inventory.Recipe;
 
-import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.custom.recipe.ProxyRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessRecipe;
@@ -29,11 +29,7 @@ import net.minecraft.server.v1_12_R1.World;
 
 public class Bukkit2NMSRecipe implements IRecipe {
 	
-	//dirty hacks!
-	private static final String CUSTOM_RECIPES_BUKKITRECIPE_KEY = "customrecipes-bukkitrecipe-";
-	private static final AtomicInteger keyCount = new AtomicInteger(0);
-	
-	private final CraftingRecipe bukkitRecipe;
+	private CraftingRecipe bukkitRecipe;
 
 	public Bukkit2NMSRecipe(CraftingRecipe bukkitRecipe) {
 		this.bukkitRecipe = Objects.requireNonNull(bukkitRecipe);
@@ -109,8 +105,7 @@ public class Bukkit2NMSRecipe implements IRecipe {
 			//try our very best to do something useful
 			ShapedRecipe shapedRecipe = (ShapedRecipe) bukkitRecipe;
 			
-			NamespacedKey pluginKey = new NamespacedKey(CustomRecipesPlugin.getInstance(), CUSTOM_RECIPES_BUKKITRECIPE_KEY + keyCount.getAndIncrement());
-			org.bukkit.inventory.ShapedRecipe bukkitShapedRecipe = new org.bukkit.inventory.ShapedRecipe(pluginKey, bukkitRecipe.getResult());
+			org.bukkit.inventory.ShapedRecipe bukkitShapedRecipe = new org.bukkit.inventory.ShapedRecipe(bukkitRecipe.getKey(), bukkitRecipe.getResult());
 			
 			AtomicInteger character = new AtomicInteger('a');
 			List<StringBuilder> shapeBuilder = new ArrayList<>();
@@ -153,8 +148,7 @@ public class Bukkit2NMSRecipe implements IRecipe {
 			//try our very best to do something useful
 			ShapelessRecipe shapelessRecipe = (ShapelessRecipe) bukkitRecipe;
 			
-			NamespacedKey pluginKey = new NamespacedKey(CustomRecipesPlugin.getInstance(), CUSTOM_RECIPES_BUKKITRECIPE_KEY + keyCount.getAndIncrement());
-			org.bukkit.inventory.ShapelessRecipe bukkitShapelessRecipe = new org.bukkit.inventory.ShapelessRecipe(pluginKey, bukkitRecipe.getResult());
+			org.bukkit.inventory.ShapelessRecipe bukkitShapelessRecipe = new org.bukkit.inventory.ShapelessRecipe(bukkitRecipe.getKey(), bukkitRecipe.getResult());
 			
 			for (ChoiceIngredient ingr : shapelessRecipe.getIngredients()) {
 				Iterator<? extends org.bukkit.inventory.ItemStack> choiceIterator = ingr.getChoices().iterator();
@@ -171,16 +165,28 @@ public class Bukkit2NMSRecipe implements IRecipe {
 		}
 		
 		//Recipe was neither a Shaped nor a Shapeless recipe, return a generic Recipe.
-		//Bukkit and other plugins will not like this.
+		//Bukkit and other plugins will not like this, but it's the best we can do.
 		return bukkitRecipe::getResult;
 	}
 
+
+	
+	
+	//Spigot why you enforce this key on me? 
 	
 	@Override
-	public void setKey(MinecraftKey minecraftKey) {
-		//nothing to do here, this method is used by bukkit when recipes are added using Bukkits API.
+	public void setKey(MinecraftKey key) {		
+		this.bukkitRecipe = new ProxyRecipe(bukkitRecipe::matches,
+				bukkitRecipe::craftItem,
+				bukkitRecipe::getResult,
+				bukkitRecipe::getLeftOverItems,
+				bukkitRecipe::isHidden,
+				bukkitRecipe::getGroup,
+				() -> CraftNamespacedKey.fromMinecraft(key));
 	}
 	
-	
+	public MinecraftKey getKey() {
+		return CraftNamespacedKey.toMinecraft(bukkitRecipe.getKey());
+	}
 
 }

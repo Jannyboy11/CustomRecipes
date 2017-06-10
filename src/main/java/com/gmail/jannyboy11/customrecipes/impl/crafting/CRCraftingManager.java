@@ -1,5 +1,6 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting;
 
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -9,6 +10,7 @@ import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.Bukkit2NMSRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.*;
+import com.gmail.jannyboy11.customrecipes.util.MapIterator;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
@@ -41,15 +43,24 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 	}
 	
 	private boolean putRecipe(CraftingRecipe recipe) {
+		if (recipe == null) return false;
+		
 		if (recipe instanceof CRCraftingRecipe) {
 			@SuppressWarnings("rawtypes")
 			CRCraftingRecipe wrapper = (CRCraftingRecipe) recipe;
-			return registeredCraftingRecipes.putIfAbsent(wrapper.getHandle(), wrapper) == null;
+			return addRecipe(wrapper.getHandle(), wrapper);
 		} else {
 			BiMap<CraftingRecipe, IRecipe> inverse = registeredCraftingRecipes.inverse();
 			Bukkit2NMSRecipe nmsifiedRecipe = new Bukkit2NMSRecipe(recipe);
 			return inverse.putIfAbsent(recipe, nmsifiedRecipe) == null;
 		}
+	}
+	
+	//for NMS developers
+	public boolean addRecipe(IRecipe nmsRecipe, CraftingRecipe crWrapper) {
+		boolean success = nmsRecipe != null && crWrapper != null;
+		if (success) registeredCraftingRecipes.put(nmsRecipe, crWrapper);
+		return success;
 	}
 	
 	// for NMS developers
@@ -85,13 +96,14 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 	/*
 	 * This method could be private.
 	 * But I like other NMS developers to override it in their plugins if that's desired.
+	 * TODO should this method be statefull?
 	 */
 	public CraftingRecipe fromNMSRecipe(IRecipe recipe) {
 		if (recipe == null) return null;
 		return registeredCraftingRecipes.computeIfAbsent(recipe , r -> {
 			//check if the recipe class was a custom implementation
 			if (customImplementations.containsValue(r.getClass())) {
-				//fall back to generic CRCraftingRecipe if the recipe was not registered.
+				//return the implementation that was registered, or fall back to generic CRCraftingRecipe if the recipe was not registered.
 				return registeredCraftingRecipes.getOrDefault(r, new CRCraftingRecipe<>(r));
 			}
 			
@@ -147,6 +159,12 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 		return removeRecipe(nmsRecipe);
 	}
 	
+	@Override
+	public Iterator<CraftingRecipe> iterator() {
+		return new MapIterator<>(CraftingManager.recipes.iterator(), this::fromNMSRecipe);
+	}
+	
+	
 	//I'm not exactly sure if this is useful since most IRecipe implementations don't override the equals method
 	//Maybe I can change the implentation to use the MinecraftKey instead?
 	private boolean removeRecipe(IRecipe recipe) {
@@ -157,7 +175,7 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 	private boolean removeRecipe(Predicate<? super IRecipe> predicate) {
 		ensureLimited();
 		
-		return limiter.disableRecipe(predicate);
+		return limiter.disableIf(predicate);
 	}
 	
 	private void ensureLimited() {

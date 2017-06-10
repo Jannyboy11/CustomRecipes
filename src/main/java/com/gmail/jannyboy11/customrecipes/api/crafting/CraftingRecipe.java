@@ -2,6 +2,7 @@ package com.gmail.jannyboy11.customrecipes.api.crafting;
 
 import java.util.List;
 
+import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.inventory.CraftingInventory;
@@ -13,7 +14,7 @@ import org.bukkit.inventory.ItemStack;
  * @author Jan
  *
  */
-public interface CraftingRecipe {
+public interface CraftingRecipe extends Keyed {
 	
 	/**
 	 * Tests whether the items in the crafting inventory match to this crafting recipe.
@@ -82,7 +83,7 @@ public interface CraftingRecipe {
 	/**
 	 * Get the key of the recipe
 	 * 
-	 * @return the key
+	 * @return the key if present, or null if the recipe was not registered
 	 */
 	public NamespacedKey getKey();
 

@@ -15,14 +15,14 @@ public class CRRecipeRegistry extends RegistryMaterials {
 
 	private final RegistryMaterials<MinecraftKey, IRecipe> registry;
 
-	private final Set<Predicate<? super IRecipe>> disabledRecipes = new HashSet<>();
+	private final Set<Predicate<? super IRecipe>> disablers = new HashSet<>();
 
 	public CRRecipeRegistry(RegistryMaterials<MinecraftKey, IRecipe> registry) {
 		this.registry = registry;
 	}
 	
-	public boolean disableRecipe(Predicate<? super IRecipe> predicate) {
-		return disabledRecipes.add(predicate);
+	public boolean disableIf(Predicate<? super IRecipe> predicate) {
+		return disablers.add(predicate);
 	}
 	
 
@@ -51,7 +51,7 @@ public class CRRecipeRegistry extends RegistryMaterials {
 	}
 
 	public Iterator<IRecipe> iterator() {
-		return Iterators.filter(registry.iterator(), r -> disabledRecipes.stream().noneMatch(p -> p.test(r)));
+		return Iterators.filter(registry.iterator(), r -> disablers.stream().noneMatch(p -> p.test(r)));
 	}
 
 }

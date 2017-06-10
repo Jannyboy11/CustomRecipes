@@ -2,7 +2,7 @@ package com.gmail.jannyboy11.customrecipes.api.crafting;
 
 import org.bukkit.NamespacedKey;
 
-public interface CraftingManager {
+public interface CraftingManager extends Iterable<CraftingRecipe> {
 
 	/**
 	 * Register a CraftingRecipe to the crafting manager. This enables the recipe to work in crafting inventories.

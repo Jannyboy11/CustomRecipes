@@ -41,7 +41,7 @@ public class InjectedIngredient implements Predicate<ItemStack> {
 	public RecipeItemStack asNMSIngredient() {
 		try {
 			Constructor<? extends RecipeItemStack> constructor = recipeItemStackInjectedClass.getConstructor(Predicate.class);
-			RecipeItemStack recipeItemStackInjected = constructor.newInstance(this);
+			RecipeItemStack recipeItemStackInjected = constructor.newInstance(tester);
 			return recipeItemStackInjected;
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {

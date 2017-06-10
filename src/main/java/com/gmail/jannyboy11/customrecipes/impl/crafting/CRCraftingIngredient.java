@@ -18,13 +18,13 @@ public class CRCraftingIngredient<I extends RecipeItemStack> implements Crafting
 		this.nmsIngredient = nmsIngredient;
 	}
 
-	public static CRChoiceIngredient getVanilla(RecipeItemStack ingredient) {
-		return ingredient == RecipeItemStack.a ? CREmptyIngredient.INSTANCE : new CRChoiceIngredient(ingredient);
-	}
-
 	@Override
 	public boolean isIngredient(ItemStack itemStack) {
-		return this.nmsIngredient.test(CraftItemStack.asNMSCopy(itemStack));
+		return this.nmsIngredient.a(CraftItemStack.asNMSCopy(itemStack));
+	}
+
+	public static CRChoiceIngredient getVanilla(RecipeItemStack ingredient) {
+		return ingredient == RecipeItemStack.a ? CREmptyIngredient.INSTANCE : new CRChoiceIngredient(ingredient);
 	}
 
 	public static RecipeItemStack asNMSIngredient(CraftingIngredient ingredient) {
