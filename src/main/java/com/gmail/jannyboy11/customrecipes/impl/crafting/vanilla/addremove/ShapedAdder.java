@@ -157,7 +157,7 @@ public class ShapedAdder implements BiConsumer<Player, List<String>> {
 			}
 			
 			ShapedRecipes recipe = new ShapedRecipes(group, width, height, ingredients, result);
-			recipe.key = this.key;
+			recipe.setKey(key);
 			return recipe;
 		}
 		

@@ -5,7 +5,7 @@ import java.util.Iterator;
 import org.bukkit.inventory.ItemStack;
 
 /**
- * Represents the furnace recipe manager, , the almighty manager of all furnaces
+ * Represents the furnace recipe manager, the almighty manager of all furnaces.
  * 
  * @author Jan
  */

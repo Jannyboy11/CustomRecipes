@@ -19,6 +19,7 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessR
 import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.api.furnace.SimpleFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.commands.AddRecipeCommandExecutor;
+import com.gmail.jannyboy11.customrecipes.commands.ListRecipesCommandExecutor;
 import com.gmail.jannyboy11.customrecipes.commands.RemoveRecipeCommandExecutor;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingManager;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.NBTAdder;
@@ -65,8 +66,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	public void onEnable() {
 		getCommand("addrecipe").setExecutor(new AddRecipeCommandExecutor(Collections.unmodifiableNavigableMap(adders)));
 		getCommand("removerecipe").setExecutor(new RemoveRecipeCommandExecutor(Collections.unmodifiableNavigableMap(removers)));
-		
-		//TODO /list <type> ---> opens a gui
+		//getCommand("listrecipes").setExecutor(new ListRecipesCommandExecutor());
 	}
 	
 	public static CustomRecipesPlugin getInstance() {
@@ -94,6 +94,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	@Override
 	public ShapedRecipe asCustomRecipesMirror(org.bukkit.inventory.ShapedRecipe bukkitRecipe) {
 		CraftShapedRecipe craftShapedRecipe = CraftShapedRecipe.fromBukkitRecipe(bukkitRecipe);
+		//TODO this is still null
 		ShapedRecipes nmsRecipe = (ShapedRecipes) ReflectionUtil.getDeclaredFieldValue(craftShapedRecipe, "recipe");
 		return new CRShapedRecipe<>(nmsRecipe);
 	}
@@ -101,6 +102,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	@Override
 	public ShapelessRecipe asCustomRecipesMirror(org.bukkit.inventory.ShapelessRecipe bukkitRecipe) {
 		CraftShapelessRecipe craftShapelessRecipe = CraftShapelessRecipe.fromBukkitRecipe(bukkitRecipe);
+		//TODO this is still null
 		ShapelessRecipes nmsRecipe = (ShapelessRecipes) ReflectionUtil.getDeclaredFieldValue(craftShapelessRecipe, "recipe");
 		return new CRShapelessRecipe<>(nmsRecipe);
 	}

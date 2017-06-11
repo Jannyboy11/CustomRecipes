@@ -5,7 +5,7 @@ import java.util.function.Predicate;
 import org.bukkit.inventory.ItemStack;
 
 /**
- * Represents an ingredient for a CraftingRecipe
+ * Represents an ingredient for a CraftingRecipe.
  * 
  * @author Jan
  *

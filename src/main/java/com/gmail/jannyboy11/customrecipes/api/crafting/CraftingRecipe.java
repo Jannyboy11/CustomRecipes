@@ -1,20 +1,25 @@
 package com.gmail.jannyboy11.customrecipes.api.crafting;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import com.gmail.jannyboy11.customrecipes.api.RepresentableRecipe;
 
 /**
- * Represents a crafting recipe
+ * Represents a crafting recipe.
  * 
  * @author Jan
  *
  */
-public interface CraftingRecipe extends Keyed {
+public interface CraftingRecipe extends Keyed, RepresentableRecipe {
 	
 	/**
 	 * Tests whether the items in the crafting inventory match to this crafting recipe.
@@ -81,10 +86,28 @@ public interface CraftingRecipe extends Keyed {
 	
 	
 	/**
-	 * Get the key of the recipe
+	 * Get the key of the recipe.
 	 * 
-	 * @return the key if present, or null if the recipe was not registered
+	 * @return the key, which may be randomly generated if no key was present.
 	 */
 	public NamespacedKey getKey();
+	
+	
+	@Override
+	public default ItemStack getRepresentation() {
+		ItemStack representation = getResult().clone();
+		ItemMeta meta = representation.getItemMeta();
+
+		List<String> lore = new ArrayList<>();
+		String group = getGroup();
+		if (group != null && !"".equals(group)) lore.add(ChatColor.DARK_GRAY + "Group: " + group);
+		lore.add(ChatColor.DARK_GRAY + "Hidden: " + isHidden());
+		
+		meta.setDisplayName(ChatColor.GRAY + getKey().toString());
+		meta.setLore(lore);
+		
+		representation.setItemMeta(meta);
+		return representation;
+	}
 
 }

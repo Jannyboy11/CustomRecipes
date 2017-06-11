@@ -109,7 +109,11 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 		}
 
 		public void setXp(float xp) {
-			xps.put(source, xp);
+			if (xp < Float.MIN_VALUE) {
+				xps.remove(source);
+			} else {
+				xps.put(source, xp);
+			}
 		}
 
 		public void setResult(ItemStack result) {
@@ -128,8 +132,7 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 		}
 
 		public float getXp() {
-			Float xp = xps.get(source);
-			return xp == null ? 0 : xp.floatValue();
+			return xps.getOrDefault(source, 0F);
 		}
 
 		public ItemStack getResult() {

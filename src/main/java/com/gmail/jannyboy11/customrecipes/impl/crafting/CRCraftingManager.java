@@ -50,16 +50,18 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 			CRCraftingRecipe wrapper = (CRCraftingRecipe) recipe;
 			return addRecipe(wrapper.getHandle(), wrapper);
 		} else {
-			BiMap<CraftingRecipe, IRecipe> inverse = registeredCraftingRecipes.inverse();
 			Bukkit2NMSRecipe nmsifiedRecipe = new Bukkit2NMSRecipe(recipe);
-			return inverse.putIfAbsent(recipe, nmsifiedRecipe) == null;
+			return addRecipe(nmsifiedRecipe, recipe);
 		}
 	}
 	
 	//for NMS developers
 	public boolean addRecipe(IRecipe nmsRecipe, CraftingRecipe crWrapper) {
 		boolean success = nmsRecipe != null && crWrapper != null;
-		if (success) registeredCraftingRecipes.put(nmsRecipe, crWrapper);
+		if (success) {
+			registeredCraftingRecipes.put(nmsRecipe, crWrapper);
+			CraftingManager.a(CraftNamespacedKey.toMinecraft(crWrapper.getKey()), nmsRecipe);
+		}
 		return success;
 	}
 	

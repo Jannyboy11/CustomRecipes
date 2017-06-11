@@ -98,12 +98,20 @@ public class ShapelessAdder implements BiConsumer<Player, List<String>> {
 
 				List<List<String>> recipeIngredients = shapelessRecipe
 					.getIngredients().stream().map((CRChoiceIngredient ingr) -> ingr.getChoices().stream()
-						.map(InventoryUtils::getItemName).collect(Collectors.toList()))
+						.map(InventoryUtils::getItemName)
+						.collect(Collectors.toList()))
 					.collect(Collectors.toList());
 				String recipeString = recipeIngredients + "" + ChatColor.RESET + " -> "
 						+ InventoryUtils.getItemName(shapelessRecipe.getResult());
 
-				holder.plugin.getCraftingManager().addRecipe(shapelessRecipe);
+				//TODO
+				//TODO
+				//TODO
+				//TODO debug this. recipe isn't getting added. :(
+				//TODO
+				//TODO
+				//TODO
+				holder.plugin.getCraftingManager().addRecipe(nmsRecipe, shapelessRecipe);
 				holder.callbackPlayer.sendMessage(String.format("%sAdded shapeless recipe: %s%s%s!",
 						ChatColor.GREEN, ChatColor.WHITE, recipeString, ChatColor.WHITE));
 
@@ -122,7 +130,7 @@ public class ShapelessAdder implements BiConsumer<Player, List<String>> {
 					.collect(Collectors.toCollection(NonNullList::a));
 			
 			ShapelessRecipes recipe = new ShapelessRecipes(group, result, ingredients);
-			recipe.key = this.key;
+			recipe.setKey(key);
 			return recipe;
 		}
 

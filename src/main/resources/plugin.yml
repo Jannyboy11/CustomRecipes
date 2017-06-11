@@ -14,6 +14,10 @@ commands:
     description: Remove a recipe
     usage: /removerecipe <type> <args>
     permission: customrecipes.removerecipe
+  listrecipes:
+    description: List all recipes of a type
+    usage: /listrecipes <type>
+    permission: customrecipes.listrecipes
 
 permissions:
   customrecipes.addrecipe:
@@ -22,3 +26,7 @@ permissions:
   customrecipes.removerecipe:
     description: Allows access to /removerecipe
     default: op
+
+  customrecipes.listrecipes:
+    description: Allows access to /listrecipes
+    default: true

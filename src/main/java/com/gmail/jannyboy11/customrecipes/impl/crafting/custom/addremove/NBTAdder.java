@@ -165,7 +165,7 @@ public class NBTAdder implements BiConsumer<Player, List<String>> {
 			}
 			
 			NBTRecipe nbtRecipe = new NBTRecipe(group, width, height, ingredients, result, tags);
-			nbtRecipe.key = this.key;
+			nbtRecipe.setKey(key);
 			return nbtRecipe;
 		}
 		
