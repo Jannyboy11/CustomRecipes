@@ -88,6 +88,15 @@ public class CRFurnaceManager implements FurnaceManager {
 	}
 	
 	@Override
+	public Iterator<CRFurnaceRecipe> customIterator() {
+		RecipesFurnace recipesFurnace = RecipesFurnace.getInstance();
+		
+		return recipesFurnace.customRecipes.keySet().stream()
+				.map(ingr -> new CRFurnaceRecipe(new FurnaceRecipe(recipesFurnace.customRecipes, recipesFurnace.customExperience, ingr)))
+				.iterator();
+	}
+	
+	@Override
 	public boolean removeRecipe(org.bukkit.inventory.ItemStack ingredient) {
 		return removeCustomRecipe(ingredient) || removeVanillaRecipe(ingredient);
 	}
@@ -112,15 +121,6 @@ public class CRFurnaceManager implements FurnaceManager {
 		if (removed) recipesFurnace.customExperience.remove(nmsStack);
 		
 		return removed;
-	}
-	
-	@Override
-	public Iterator<CRFurnaceRecipe> customIterator() {
-		RecipesFurnace recipesFurnace = RecipesFurnace.getInstance();
-		
-		return recipesFurnace.recipes.keySet().stream()
-				.map(ingr -> new CRFurnaceRecipe(new FurnaceRecipe(recipesFurnace.customRecipes, recipesFurnace.customExperience, ingr)))
-				.iterator();
 	}
 
 	@Override

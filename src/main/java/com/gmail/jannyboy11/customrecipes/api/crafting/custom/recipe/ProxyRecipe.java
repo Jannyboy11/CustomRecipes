@@ -26,7 +26,6 @@ public class ProxyRecipe implements CraftingRecipe {
 	private final Supplier<? extends ItemStack> result;
 	private final Function<? super CraftingInventory, ? extends List<? extends ItemStack>> leftover;
 	private final BooleanSupplier hidden;
-	private final Supplier<String> group;
 	private final Supplier<NamespacedKey> key;
 	
 	/**
@@ -37,7 +36,6 @@ public class ProxyRecipe implements CraftingRecipe {
 	 * @param result used in {@link ProxyRecipe#getResult()}
 	 * @param leftover used in {@link ProxyRecipe#getLeftOverItems(CraftingInventory)}
 	 * @param hidden used in {@link ProxyRecipe#isHidden()}
-	 * @param group used in {@link ProxyRecipe#getGroup()}
 	 * @param key used in {@link ProxyRecipe#getKey()}
 	 */
 	public ProxyRecipe(BiPredicate<? super CraftingInventory, ? super World> matcher,
@@ -45,7 +43,6 @@ public class ProxyRecipe implements CraftingRecipe {
 			Supplier<? extends ItemStack> result,
 			Function<? super CraftingInventory, ? extends List<? extends ItemStack>> leftover,
 			BooleanSupplier hidden,
-			Supplier<String> group,
 			Supplier<NamespacedKey> key) {
 		
 		this.matcher = Objects.requireNonNull(matcher);
@@ -53,7 +50,6 @@ public class ProxyRecipe implements CraftingRecipe {
 		this.result = Objects.requireNonNull(result);
 		this.leftover = Objects.requireNonNull(leftover);
 		this.hidden = Objects.requireNonNull(hidden);
-		this.group = Objects.requireNonNull(group);
 		this.key = Objects.requireNonNull(key);
 	}
 
@@ -95,14 +91,6 @@ public class ProxyRecipe implements CraftingRecipe {
 	@Override
 	public boolean isHidden() {
 		return hidden.getAsBoolean();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getGroup() {
-		return group.get();
 	}
 
 	/**

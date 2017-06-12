@@ -4,42 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
-import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
-
-
-public class ListRecipesInventoryHolder implements InventoryHolder, Listener {
+public class ListRecipesInventoryHolder implements InventoryHolder {
 	
 	private static final int MAX_RECIPES_PER_PAGE = 9 * 5;
-	private static final ItemStack NEXT = new ItemStack(Material.MAGENTA_GLAZED_TERRACOTTA);
-	private static final ItemStack PREVIOUS = new ItemStack(Material.MAGENTA_GLAZED_TERRACOTTA);
-	static {
-		ItemMeta nextMeta = NEXT.getItemMeta();
-		nextMeta.setDisplayName("NEXT");
-		NEXT.setItemMeta(nextMeta);
-		
-		ItemMeta previousMeta = PREVIOUS.getItemMeta();
-		previousMeta.setDisplayName("PREVIOUS");
-		PREVIOUS.setItemMeta(previousMeta);
-	}
 	
 	private final List<ItemStack> recipeItems = new ArrayList<>();
 	private final List<Inventory> pages = new ArrayList<>();
 	private int pageNr = 0;
 	
 	public ListRecipesInventoryHolder(String type, Iterable<? extends ItemStack> items) {
-		Bukkit.getPluginManager().registerEvents(this, CustomRecipesPlugin.getInstance());
 		items.forEach(recipeItems::add);
 		
 		//fill page inventories
@@ -59,10 +36,10 @@ public class ListRecipesInventoryHolder implements InventoryHolder, Listener {
 		for (int pageNr = 0; pageNr < pages.size(); pageNr++) {
 			Inventory page = pages.get(pageNr);
 			if (pageNr != 0) {
-				page.setItem(45, PREVIOUS);
+				page.setItem(45, ListRecipesListener.previousItem());
 			}
 			if (pageNr != pages.size() - 1) {
-				page.setItem(53, NEXT);
+				page.setItem(53, ListRecipesListener.nextItem());
 			}
 		}
 	}
@@ -71,36 +48,13 @@ public class ListRecipesInventoryHolder implements InventoryHolder, Listener {
 	public Inventory getInventory() {
 		return pages.get(pageNr);
 	}
-	
-	@EventHandler
-	public void onInventoryClick(InventoryClickEvent event) {
-		if (event.getView().getTopInventory().getHolder() == this) {
-			event.setCancelled(true);
-			
-			if (NEXT.isSimilar(event.getCurrentItem())) {
-				event.getWhoClicked().closeInventory();
-				pageNr++;
-				event.getWhoClicked().openInventory(getInventory());
-			} else if (PREVIOUS.isSimilar(event.getCurrentItem())) {
-				event.getWhoClicked().closeInventory();
-				pageNr--;
-				event.getWhoClicked().openInventory(getInventory());
-			}
-		}
+
+	public void nextPage() {
+		this.pageNr = Math.min(pageNr + 1, pages.size());
 	}
-	
-	@EventHandler
-	public void onClose(InventoryCloseEvent event) {
-		if (event.getView().getTopInventory().getHolder() == this) {
-			HandlerList.unregisterAll(this);
-		}
-	}
-	
-	@EventHandler
-	public void onOpen(InventoryOpenEvent event) {
-		if (event.getView().getTopInventory().getHolder() == this) {
-			Bukkit.getPluginManager().registerEvents(this, CustomRecipesPlugin.getInstance());
-		}
+
+	public void previousPage() {
+		this.pageNr = Math.max(pageNr - 1, 0);
 	}
 
 }

@@ -18,7 +18,7 @@ import net.minecraft.server.v1_12_R1.ShapedRecipes;
 public class CRShapedRecipe<R extends ShapedRecipes> extends CRVanillaRecipe<R> implements ShapedRecipe {
 
 	public CRShapedRecipe(R nmsRecipe) {
-		super(nmsRecipe);
+		super(nmsRecipe, nmsRecipe.key);
 	}
 	
 	@Override
@@ -44,6 +44,11 @@ public class CRShapedRecipe<R extends ShapedRecipes> extends CRVanillaRecipe<R> 
 	@Override
 	public NamespacedKey getKey() {
 		return CraftNamespacedKey.fromMinecraft(nmsRecipe.key);
+	}
+
+	@Override
+	public String getGroup() {
+		return (String) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "e");
 	}
 
 }

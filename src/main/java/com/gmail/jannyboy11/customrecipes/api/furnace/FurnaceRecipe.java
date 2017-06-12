@@ -3,7 +3,6 @@ package com.gmail.jannyboy11.customrecipes.api.furnace;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -64,18 +63,23 @@ public interface FurnaceRecipe extends Representable, Recipe {
 	 */
 	public void setXp(float xp);
 	
-	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public default ItemStack getRepresentation() {
+	public default ItemStack getRepresentation() {		
 		ItemStack result = getResult();
-		ItemStack representation = result == null ? new ItemStack(Material.AIR) : result.clone();
+		
+		ItemStack representation = (result == null || result.getType() == Material.AIR) ? new ItemStack(Material.AIR) : result.clone();
+		if (representation.getType() == Material.AIR) return null;
 		
 		ItemMeta meta = representation.getItemMeta();
-		if (!meta.hasDisplayName()) meta.setDisplayName(representation.getType().name()); //NullPointerExcpetion
+		if (!meta.hasDisplayName()) meta.setDisplayName(ChatColor.GRAY + representation.getType().name());
 		List<String> lore = new ArrayList<>();
 		lore.add(ChatColor.DARK_GRAY + "Ingredient: " + getIngredient().getType().name());
 		lore.add(ChatColor.DARK_GRAY + "Result: " + getResult().getType().name());
-		float xp = getXp(); if (xp > Float.MIN_VALUE) lore.add(ChatColor.DARK_GRAY + "Experience: " + xp);
+		float xp = getXp(); if (xp > 0F) lore.add(ChatColor.DARK_GRAY + "Experience: " + xp);
+		meta.setLore(lore);
 		
 		representation.setItemMeta(meta);
 		return representation;

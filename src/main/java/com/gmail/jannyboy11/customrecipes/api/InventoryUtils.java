@@ -1,4 +1,4 @@
-package com.gmail.jannyboy11.customrecipes.util;
+package com.gmail.jannyboy11.customrecipes.api;
 
 import java.util.Spliterator;
 import java.util.Spliterators;

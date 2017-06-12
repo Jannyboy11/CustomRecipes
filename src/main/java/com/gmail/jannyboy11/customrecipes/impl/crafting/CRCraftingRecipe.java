@@ -14,6 +14,7 @@ import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
 import org.bukkit.inventory.CraftingInventory;
 
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
+import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.Bukkit2NMSRecipe;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
@@ -46,7 +47,7 @@ public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe {
 		this.key = nmsRecipe instanceof ShapedRecipes ? ((ShapedRecipes) nmsRecipe).key :
 			nmsRecipe instanceof ShapelessRecipes ? ((ShapelessRecipes) nmsRecipe).key :
 			nmsRecipe instanceof Bukkit2NMSRecipe ? ((Bukkit2NMSRecipe) nmsRecipe).getKey() : null;
-			
+		
 		if (this.key == null) {
 			CustomRecipesPlugin plugin = CustomRecipesPlugin.getInstance();
 			plugin.getLogger().warning("Some NMS plugin used a custom crafting recipe implementation without providing a key!");
@@ -83,11 +84,6 @@ public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe {
 	public boolean isHidden() {
 		return nmsRecipe.c();
 	}
-	
-	@Override
-	public String getGroup() {
-		return (String) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "a");
-	}
 
 	@Override
 	public List<CraftItemStack> getLeftOverItems(CraftingInventory craftingInventory) {
@@ -123,6 +119,15 @@ public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe {
 	@Override
 	public int hashCode() {
 		return nmsRecipe.hashCode();
+	}
+	
+	@Override
+	public String toString() {
+		return getClass().getName() + "{" +
+				"key()=" + getKey() +
+				",result()=" + InventoryUtils.getItemName(getResult()) +
+				",hidden()=" + isHidden() +
+				"}";
 	}
 	
 }

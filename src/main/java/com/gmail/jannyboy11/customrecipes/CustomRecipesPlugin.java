@@ -1,7 +1,6 @@
 package com.gmail.jannyboy11.customrecipes;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -24,7 +23,7 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.gmail.jannyboy11.customrecipes.api.CustomRecipesApi;
-import com.gmail.jannyboy11.customrecipes.api.Representable;
+import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessRecipe;
@@ -33,6 +32,7 @@ import com.gmail.jannyboy11.customrecipes.api.furnace.SimpleFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.commands.AddRecipeCommandExecutor;
 import com.gmail.jannyboy11.customrecipes.commands.ListRecipesCommandExecutor;
 import com.gmail.jannyboy11.customrecipes.commands.RemoveRecipeCommandExecutor;
+import com.gmail.jannyboy11.customrecipes.gui.ListRecipesListener;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingManager;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.NBTAdder;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.InjectedIngredient;
@@ -43,10 +43,8 @@ import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapele
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRVanillaRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceManager;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceRecipe;
-import com.gmail.jannyboy11.customrecipes.util.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
-import net.minecraft.server.v1_12_R1.CraftingManager;
 import net.minecraft.server.v1_12_R1.IRecipe;
 import net.minecraft.server.v1_12_R1.ShapedRecipes;
 import net.minecraft.server.v1_12_R1.ShapelessRecipes;
@@ -123,15 +121,15 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		
 		//recipe providers
 		recipeSuppliers.put("shaped", () -> StreamSupport.stream(Spliterators.spliteratorUnknownSize(craftingManager.iterator(),
-					Spliterator.NONNULL | Spliterator.SIZED), false)
+					Spliterator.NONNULL), false)
 					.filter(recipe -> recipe instanceof ShapedRecipe)
 					.collect(Collectors.toList()));
 		recipeSuppliers.put("shapeless", () -> StreamSupport.stream(Spliterators.spliteratorUnknownSize(craftingManager.iterator(),
-				Spliterator.NONNULL | Spliterator.SIZED), false)
+				Spliterator.NONNULL), false)
 				.filter(recipe -> recipe instanceof ShapelessRecipe)
 				.collect(Collectors.toList()));
 		recipeSuppliers.put("furnace", () -> StreamSupport.stream(Spliterators.spliteratorUnknownSize(furnaceManager.iterator(),
-				Spliterator.NONNULL | Spliterator.SIZED), false)
+				Spliterator.NONNULL), false)
 				.collect(Collectors.toList()));
 	}
 	
@@ -149,6 +147,8 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		getCommand("listrecipes").setExecutor(new ListRecipesCommandExecutor(this::getRecipes,
 				Collections.unmodifiableMap(recipeToItemMap),
 				Collections.unmodifiableMap(recipeToCommandSenderDiplayMap)));
+		
+		getServer().getPluginManager().registerEvents(new ListRecipesListener(), this);
 	}
 	
 	

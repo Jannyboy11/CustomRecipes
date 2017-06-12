@@ -4,7 +4,7 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedReci
 
 public interface NBTRecipe extends ShapedRecipe {
 	
-	//TODO add method to obtain List<Compound>
+	//TODO add method to obtain List<Compound> for the ingredients
 	//TODO I could use an existing NBT library such as JNBT for this
 
 }

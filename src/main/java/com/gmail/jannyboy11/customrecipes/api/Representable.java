@@ -12,7 +12,7 @@ public interface Representable {
 	/**
 	 * Get the representation.
 	 * 
-	 * @return the representation
+	 * @return the representation or null if there is no suitable representation
 	 */
 	public ItemStack getRepresentation();
 

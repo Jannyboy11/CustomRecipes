@@ -81,6 +81,11 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 		return Objects.hash(getIngredient(), getResult(), getXp());
 	}
 	
+	@Override
+	public String toString() {
+		return getClass().getName() + "{nmsRecipe=" + nmsRecipe + "}";
+	}
+	
 	public static CRFurnaceRecipe fromSimple(com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe simple, Map<ItemStack, ItemStack> results, Map<ItemStack, Float> xps) {
 		if (simple instanceof CRFurnaceRecipe) {
 			return (CRFurnaceRecipe) simple;
@@ -114,10 +119,10 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 		}
 
 		public void setXp(float xp) {
-			if (xp < Float.MIN_VALUE) {
-				xps.remove(source);
-			} else {
+			if (xp > 0F) {
 				xps.put(source, xp);
+			} else {
+				xps.remove(source);
 			}
 		}
 
@@ -150,6 +155,14 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 		
 		public boolean hasXp() {
 			return xps.containsKey(source);
+		}
+		
+		@Override
+		public String toString() {
+			return getClass().getName() + "{source= " + source +
+					",result()=" + getResult() +
+					",xp()=" + xps.get(source) +
+					"}";
 		}
 		
 	}

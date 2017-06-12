@@ -131,5 +131,14 @@ public class SimpleFurnaceRecipe implements FurnaceRecipe {
 	public int hashCode() {
 		return Objects.hash(ingredient, output, xp);
 	}
+	
+	@Override
+	public String toString() {
+		return "SimpleFurnaceRecipe{" +
+				"ingredient=" + ingredient +
+				",output=" + output +
+				",xp=" + xp +
+				"}";
+	}
 
 }

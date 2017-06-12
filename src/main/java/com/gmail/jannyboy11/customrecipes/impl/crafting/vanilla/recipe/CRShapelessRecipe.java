@@ -18,7 +18,7 @@ import net.minecraft.server.v1_12_R1.ShapelessRecipes;
 public class CRShapelessRecipe<R extends ShapelessRecipes> extends CRVanillaRecipe<R> implements ShapelessRecipe {
 
 	public CRShapelessRecipe(R nmsRecipe) {
-		super(nmsRecipe);
+		super(nmsRecipe, nmsRecipe.key);
 	}
 	
 	@Override
@@ -34,6 +34,11 @@ public class CRShapelessRecipe<R extends ShapelessRecipes> extends CRVanillaReci
 	@Override
 	public NamespacedKey getKey() {
 		return CraftNamespacedKey.fromMinecraft(nmsRecipe.key);
+	}
+	
+	@Override
+	public String getGroup() {
+		return (String) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "c");
 	}
 
 }

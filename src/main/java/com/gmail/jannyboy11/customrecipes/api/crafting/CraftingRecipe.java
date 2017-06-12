@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Keyed;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.inventory.CraftingInventory;
@@ -74,17 +75,7 @@ public interface CraftingRecipe extends Keyed, Representable, Recipe {
 	 * 
 	 * @return whether the recipe is special
 	 */
-	public boolean isHidden();
-
-	/**
-	 * Get the group of the recipe. Groups are used for grouping recipes together in the Recipe Book.
-	 * Examples of vanilla recipes with a group are recipes that take different kinds of wood, or different colors of wool.
-	 * The recipe book display mechanic is client side only, <a href="https://twitter.com/dinnerbone/status/856505341479145472">but is subject to change in Minecraft 1.13</a>.
-	 * 
-	 * @return the group identifier, or the empty string if the recipe has no group
-	 */
-	public String getGroup();
-	
+	public boolean isHidden();	
 	
 	/**
 	 * Get the key of the recipe.
@@ -93,15 +84,19 @@ public interface CraftingRecipe extends Keyed, Representable, Recipe {
 	 */
 	public NamespacedKey getKey();
 	
-	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public default ItemStack getRepresentation() {
-		ItemStack representation = getResult().clone();
+		ItemStack result = getResult();
+		
+		ItemStack representation = (result == null || result.getType() == Material.AIR) ? new ItemStack(Material.AIR) : result.clone();
+		if (representation.getType() == Material.AIR) return null;
+		
 		ItemMeta meta = representation.getItemMeta();
 
 		List<String> lore = new ArrayList<>();
-		String group = getGroup();
-		if (group != null && !"".equals(group)) lore.add(ChatColor.DARK_GRAY + "Group: " + group);
 		lore.add(ChatColor.DARK_GRAY + "Hidden: " + isHidden());
 		
 		meta.setDisplayName(ChatColor.GRAY + getKey().toString());
@@ -109,16 +104,6 @@ public interface CraftingRecipe extends Keyed, Representable, Recipe {
 		
 		representation.setItemMeta(meta);
 		return representation;
-	}
-	
-	/**
-	 * Get whether the crafting recipe has a group.
-	 * 
-	 * @return true if the recipe has a group, otherwise false
-	 */
-	public default boolean hasGroup() {
-		String group = getGroup();
-		return !(group == null || "".equals(group));
 	}
 
 }
