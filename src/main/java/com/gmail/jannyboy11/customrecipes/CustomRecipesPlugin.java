@@ -220,7 +220,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 
 	
 	public List<? extends Recipe> getRecipes(String type) {
-		return recipeSuppliers.get(type).get();
+		return recipeSuppliers.getOrDefault(type, Collections::emptyList).get();
 	}
 
 }

@@ -1,6 +1,7 @@
 package com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,7 +55,14 @@ public interface ShapelessRecipe extends CraftingRecipe {
 		ItemStack result = getResult();
 		
 		ItemStack representation = (result == null || result.getType() == Material.AIR) ? new ItemStack(Material.AIR) : result.clone();
-		if (representation.getType() == Material.AIR) return null;
+		if (representation.getType() == Material.AIR) {
+			representation = new ItemStack(Material.STRUCTURE_BLOCK);
+			ItemMeta meta = representation.getItemMeta();
+			meta.setDisplayName(ChatColor.GRAY + getKey().toString());
+			meta.setLore(Arrays.asList("Result: UNKNOWN"));
+			representation.setItemMeta(meta);
+			return representation;
+		}
 		
 		ItemMeta meta = representation.getItemMeta();
 
@@ -64,7 +72,7 @@ public interface ShapelessRecipe extends CraftingRecipe {
 		if (!ingredients.isEmpty()) {
 			lore.add(ChatColor.DARK_GRAY + "Ingredients:");
 			for (ChoiceIngredient ingredient : ingredients) {
-				lore.add(ingredient.getChoices().stream().map(InventoryUtils::getItemName)
+				lore.add(ChatColor.DARK_GRAY + ingredient.getChoices().stream().map(InventoryUtils::getItemName)
 						.collect(Collectors.joining(", " + ChatColor.DARK_GRAY)));
 			}
 		}
