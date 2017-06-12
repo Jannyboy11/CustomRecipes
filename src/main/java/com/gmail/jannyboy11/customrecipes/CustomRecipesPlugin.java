@@ -1,18 +1,30 @@
 package com.gmail.jannyboy11.customrecipes;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Objects;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
+import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftShapedRecipe;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftShapelessRecipe;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.gmail.jannyboy11.customrecipes.api.CustomRecipesApi;
+import com.gmail.jannyboy11.customrecipes.api.Representable;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessRecipe;
@@ -31,8 +43,10 @@ import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapele
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRVanillaRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceManager;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceRecipe;
+import com.gmail.jannyboy11.customrecipes.util.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
+import net.minecraft.server.v1_12_R1.CraftingManager;
 import net.minecraft.server.v1_12_R1.IRecipe;
 import net.minecraft.server.v1_12_R1.ShapedRecipes;
 import net.minecraft.server.v1_12_R1.ShapelessRecipes;
@@ -42,13 +56,19 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	private final NavigableMap<String, BiConsumer<? super Player, ? super List<String>>> adders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	private final NavigableMap<String, BiConsumer<? super Player, ? super List<String>>> removers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	
+	private final Map<String, Supplier<? extends List<? extends Recipe>>> recipeSuppliers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+	private final Map<String, Function<? super Recipe, ? extends ItemStack>> recipeToItemMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+	private final Map<String, BiConsumer<? super Recipe, ? super CommandSender>> recipeToCommandSenderDiplayMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+	
 	private CRCraftingManager craftingManager = new CRCraftingManager();
 	private CRFurnaceManager furnaceManager = new CRFurnaceManager();
 	
 	@Override
 	public void onLoad() {
+		//define RecipeItemstackInjected subclass
 		InjectedIngredient.inject();
 		
+		//adders and removers
 		addAdder("shaped", new ShapedAdder(this));
 		addAdder("shapeless", new ShapelessAdder(this));
 		addAdder("nbt", new NBTAdder(this));
@@ -56,22 +76,91 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		//TODO furnace
 		
 		//TODO add standard removers
+		
+		
+		//representations for the listrecipes menu
+		recipeToItemMap.put("shaped", recipe -> ((ShapedRecipe) recipe).getRepresentation());
+		recipeToItemMap.put("shapeless", recipe -> ((ShapelessRecipe) recipe).getRepresentation());
+		recipeToItemMap.put("furnace", recipe -> ((FurnaceRecipe) recipe).getRepresentation());
+		
+		//recipe displayers
+		recipeToCommandSenderDiplayMap.put("shaped", (recipe, commandSender) -> {
+			ShapedRecipe shapedRecipe = (ShapedRecipe) recipe;
+			commandSender.sendMessage("---Shaped Recipe---");
+			commandSender.sendMessage("Key: " + shapedRecipe.getKey());
+			commandSender.sendMessage("Result: " + InventoryUtils.getItemName(shapedRecipe.getResult()));
+			commandSender.sendMessage("Width: " + shapedRecipe.getWidth());
+			commandSender.sendMessage("Height: " + shapedRecipe.getHeight());
+			commandSender.sendMessage("Ingredients: " + shapedRecipe.getIngredients().stream()
+					.map(ingr -> ingr.getChoices().stream().map(InventoryUtils::getItemName).collect(Collectors.toList()))
+					.collect(Collectors.toList()));
+			if (shapedRecipe.hasGroup()) commandSender.sendMessage("Group: " + shapedRecipe.getGroup());
+			if (shapedRecipe.isHidden()) commandSender.sendMessage("Hidden: true");
+			commandSender.sendMessage("---Shaped Recipe---");
+		});
+		
+		recipeToCommandSenderDiplayMap.put("shapeless", (recipe, commandSender) -> {
+			ShapelessRecipe shapelessRecipe = (ShapelessRecipe) recipe;
+			commandSender.sendMessage("---Shapeless Recipe---");
+			commandSender.sendMessage("Key: " + shapelessRecipe.getKey());
+			commandSender.sendMessage("Result: " + InventoryUtils.getItemName(shapelessRecipe.getResult()));
+			commandSender.sendMessage("Ingredients: " + shapelessRecipe.getIngredients().stream()
+					.map(ingr -> ingr.getChoices().stream().map(InventoryUtils::getItemName).collect(Collectors.toList()))
+					.collect(Collectors.toList()));
+			if (shapelessRecipe.hasGroup()) commandSender.sendMessage("Group: " + shapelessRecipe.getGroup());
+			if (shapelessRecipe.isHidden()) commandSender.sendMessage("Hidden: true");
+			commandSender.sendMessage("---Shapeless Recipe---");
+		});
+		
+		recipeToCommandSenderDiplayMap.put("furnace", (recipe, commandSender) -> {
+			FurnaceRecipe furnaceRecipe = (FurnaceRecipe) recipe;
+			commandSender.sendMessage("---Shapeless Recipe---");
+			commandSender.sendMessage("Ingredient: " + InventoryUtils.getItemName(furnaceRecipe.getIngredient()));
+			commandSender.sendMessage("Result: " + InventoryUtils.getItemName(furnaceRecipe.getResult()));
+			if (furnaceRecipe.hasXp()) commandSender.sendMessage("XP: " + furnaceRecipe.getXp());
+			commandSender.sendMessage("---Shapeless Recipe---");
+		});
+		
+		//recipe providers
+		recipeSuppliers.put("shaped", () -> StreamSupport.stream(Spliterators.spliteratorUnknownSize(craftingManager.iterator(),
+					Spliterator.NONNULL | Spliterator.SIZED), false)
+					.filter(recipe -> recipe instanceof ShapedRecipe)
+					.collect(Collectors.toList()));
+		recipeSuppliers.put("shapeless", () -> StreamSupport.stream(Spliterators.spliteratorUnknownSize(craftingManager.iterator(),
+				Spliterator.NONNULL | Spliterator.SIZED), false)
+				.filter(recipe -> recipe instanceof ShapelessRecipe)
+				.collect(Collectors.toList()));
+		recipeSuppliers.put("furnace", () -> StreamSupport.stream(Spliterators.spliteratorUnknownSize(furnaceManager.iterator(),
+				Spliterator.NONNULL | Spliterator.SIZED), false)
+				.collect(Collectors.toList()));
 	}
+	
 	
 	public boolean addAdder(String recipeType, BiConsumer<? super Player, ? super List<String>> adder) {
 		return adders.putIfAbsent(recipeType, adder) == null;
 	}
 	
+	
+	
 	@Override
 	public void onEnable() {
 		getCommand("addrecipe").setExecutor(new AddRecipeCommandExecutor(Collections.unmodifiableNavigableMap(adders)));
 		getCommand("removerecipe").setExecutor(new RemoveRecipeCommandExecutor(Collections.unmodifiableNavigableMap(removers)));
-		//getCommand("listrecipes").setExecutor(new ListRecipesCommandExecutor());
+		getCommand("listrecipes").setExecutor(new ListRecipesCommandExecutor(this::getRecipes,
+				Collections.unmodifiableMap(recipeToItemMap),
+				Collections.unmodifiableMap(recipeToCommandSenderDiplayMap)));
 	}
+	
+	
+	
+	
 	
 	public static CustomRecipesPlugin getInstance() {
 		return JavaPlugin.getPlugin(CustomRecipesPlugin.class);
 	}
+	
+	
+	
 	
 	@Override
 	public CRCraftingManager getCraftingManager() {
@@ -83,6 +172,8 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		return furnaceManager;
 	}
 
+	
+	
 	@Override
 	public boolean isVanillaRecipeType(CraftingRecipe recipe) {
 		if (!(recipe instanceof CRVanillaRecipe)) return false;
@@ -127,5 +218,9 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		this.furnaceManager = Objects.requireNonNull(furnaceManager);
 	}
 
+	
+	public List<? extends Recipe> getRecipes(String type) {
+		return recipeSuppliers.get(type).get();
+	}
 
 }

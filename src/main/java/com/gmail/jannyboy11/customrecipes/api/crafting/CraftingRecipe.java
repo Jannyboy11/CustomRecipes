@@ -9,9 +9,10 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.gmail.jannyboy11.customrecipes.api.RepresentableRecipe;
+import com.gmail.jannyboy11.customrecipes.api.Representable;
 
 /**
  * Represents a crafting recipe.
@@ -19,7 +20,7 @@ import com.gmail.jannyboy11.customrecipes.api.RepresentableRecipe;
  * @author Jan
  *
  */
-public interface CraftingRecipe extends Keyed, RepresentableRecipe {
+public interface CraftingRecipe extends Keyed, Representable, Recipe {
 	
 	/**
 	 * Tests whether the items in the crafting inventory match to this crafting recipe.
@@ -108,6 +109,16 @@ public interface CraftingRecipe extends Keyed, RepresentableRecipe {
 		
 		representation.setItemMeta(meta);
 		return representation;
+	}
+	
+	/**
+	 * Get whether the crafting recipe has a group.
+	 * 
+	 * @return true if the recipe has a group, otherwise false
+	 */
+	public default boolean hasGroup() {
+		String group = getGroup();
+		return !(group == null || "".equals(group));
 	}
 
 }

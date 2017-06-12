@@ -3,19 +3,21 @@ package com.gmail.jannyboy11.customrecipes.api.furnace;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.gmail.jannyboy11.customrecipes.api.RepresentableRecipe;
+import com.gmail.jannyboy11.customrecipes.api.Representable;
 
 /**
  * Represents a furnace recipe.
  * 
  * @author Jan
  */
-public interface FurnaceRecipe extends RepresentableRecipe {
+public interface FurnaceRecipe extends Representable, Recipe {
 	
 	/**
 	 * Get the ingredient of the recipe.
@@ -69,7 +71,7 @@ public interface FurnaceRecipe extends RepresentableRecipe {
 		ItemStack representation = result == null ? new ItemStack(Material.AIR) : result.clone();
 		
 		ItemMeta meta = representation.getItemMeta();
-		meta.setDisplayName("");
+		if (!meta.hasDisplayName()) meta.setDisplayName(representation.getType().name()); //NullPointerExcpetion
 		List<String> lore = new ArrayList<>();
 		lore.add(ChatColor.DARK_GRAY + "Ingredient: " + getIngredient().getType().name());
 		lore.add(ChatColor.DARK_GRAY + "Result: " + getResult().getType().name());
@@ -77,6 +79,15 @@ public interface FurnaceRecipe extends RepresentableRecipe {
 		
 		representation.setItemMeta(meta);
 		return representation;
+	}
+
+	/**
+	 * Get whether this furnace recipe has an experience reward.
+	 * 
+	 * @return true if this recipe has an experience reward, otherwise false
+	 */
+	public default boolean hasXp() {
+		return getXp() > 0;
 	}
 
 }

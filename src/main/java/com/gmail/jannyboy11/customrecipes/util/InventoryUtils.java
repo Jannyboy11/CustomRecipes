@@ -4,6 +4,7 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -20,7 +21,7 @@ public final class InventoryUtils {
 		if (itemStack == null) return Material.AIR.name();
 		
 		if (itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName()) {
-			return itemStack.getItemMeta().getDisplayName();
+			return itemStack.getItemMeta().getDisplayName() + ChatColor.RESET;
 		}
 		
 		return itemStack.getType().name();

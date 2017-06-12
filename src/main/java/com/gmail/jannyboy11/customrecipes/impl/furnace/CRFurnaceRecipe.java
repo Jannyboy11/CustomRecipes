@@ -62,6 +62,11 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 	}
 	
 	@Override
+	public boolean hasXp() {
+		return nmsRecipe.hasXp();
+	}
+	
+	@Override
 	public boolean equals(Object o) {
 		if (!(o instanceof FurnaceRecipe)) return false;
 		
@@ -141,6 +146,10 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 
 		public ItemStack getIngredient() {
 			return source;
+		}
+		
+		public boolean hasXp() {
+			return xps.containsKey(source);
 		}
 		
 	}
