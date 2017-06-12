@@ -9,7 +9,7 @@ import org.bukkit.inventory.ItemStack;
  * 
  * @author Jan
  */
-public class SimpleFurnaceRecipe implements FurnaceRecipe {
+public final class SimpleFurnaceRecipe implements FurnaceRecipe {
 	
 	private ItemStack ingredient;
 	private ItemStack output;

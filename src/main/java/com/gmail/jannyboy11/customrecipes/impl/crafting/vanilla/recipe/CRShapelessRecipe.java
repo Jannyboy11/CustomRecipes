@@ -1,6 +1,7 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.bukkit.NamespacedKey;
@@ -39,6 +40,33 @@ public class CRShapelessRecipe<R extends ShapelessRecipes> extends CRVanillaReci
 	@Override
 	public String getGroup() {
 		return (String) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "c");
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o == this) return true;
+		if (!(o instanceof ShapelessRecipe)) return false;
+		ShapelessRecipe that = (ShapelessRecipe) o;
+		
+		return Objects.equals(this.getKey(), that.getKey()) && Objects.equals(this.getResult(), that.getResult()) &&
+				Objects.equals(this.getIngredients(), that.getIngredients()) && Objects.equals(this.isHidden(), that.isHidden()) &&
+				Objects.equals(this.getGroup(), that.getGroup());
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(key, getResult(), getIngredients(), isHidden(), getGroup());
+	}
+	
+	@Override
+	public String toString() {
+		return getClass().getName() + "{" + 
+			"key=" + key +
+			",result()=" + getResult() +
+			",ingredients()=" + getIngredients() +
+			",hidden()=" + isHidden() +
+			",group()=" + getGroup() +				
+			"}";
 	}
 
 }

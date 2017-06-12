@@ -105,5 +105,26 @@ public interface CraftingRecipe extends Keyed, Representable, Recipe {
 		representation.setItemMeta(meta);
 		return representation;
 	}
+	
+	/**
+	 * Get the group of the recipe. Groups are used for grouping recipes together in the Recipe Book.
+	 * Examples of vanilla recipes with a group are recipes that take different kinds of wood, or different colors of wool.
+	 * The recipe book display mechanic is client side only, <a href="https://twitter.com/dinnerbone/status/856505341479145472">but is subject to change in Minecraft 1.13</a>.
+	 * 
+	 * @return the group identifier, or the empty string if the recipe has no group
+	 */
+	public default String getGroup() {
+		return "";
+	}
+	
+	/**
+	 * Check whether this recipe has a group.
+	 * 
+	 * @return true if the shaped recipe has a group, otherwise false
+	 */
+	public default boolean hasGroup() {
+		String group = getGroup();
+		return !(group == null || group.isEmpty());
+	}
 
 }

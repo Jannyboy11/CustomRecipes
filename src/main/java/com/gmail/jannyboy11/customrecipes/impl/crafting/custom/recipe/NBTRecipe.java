@@ -28,6 +28,7 @@ public class NBTRecipe extends ShapedRecipes {
 		for (int i = 0; i < ingredients.size(); i++) {
 			RecipeItemStack originalIngredient = ingredients.get(i);
 			NBTTagCompound compound = to.get(i);
+			//TODO Make a wrapper type for the NBT ingredient when I'm including an NBT api
 			CombinedIngredient combinedIngredient = new CombinedIngredient(originalIngredient,
 					itemStack -> Objects.equals(itemStack.getTag(), compound),
 					Boolean::logicalAnd);

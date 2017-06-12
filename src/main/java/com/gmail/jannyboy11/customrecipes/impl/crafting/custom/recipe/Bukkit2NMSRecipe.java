@@ -181,6 +181,7 @@ public class Bukkit2NMSRecipe implements IRecipe {
 				bukkitRecipe::getResult,
 				bukkitRecipe::getLeftOverItems,
 				bukkitRecipe::isHidden,
+				bukkitRecipe::getGroup,
 				() -> CraftNamespacedKey.fromMinecraft(key));
 	}
 	

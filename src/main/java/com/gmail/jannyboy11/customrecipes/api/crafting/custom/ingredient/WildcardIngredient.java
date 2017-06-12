@@ -11,13 +11,20 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingIngredient;
  */
 public final class WildcardIngredient implements CraftingIngredient {
 	
-	/**
-	 * The singleton instance
-	 */
-	public static final WildcardIngredient INSTANCE = new WildcardIngredient();
+	private static final WildcardIngredient INSTANCE = new WildcardIngredient();
 	
 	private WildcardIngredient() {
 	}
+	
+	/**
+	 * Get the singleton instance.
+	 * 
+	 * @return the singleton instance
+	 */
+	public static WildcardIngredient getInstance() {
+		return INSTANCE;
+	}
+	
 
 	/**
 	 * Tests whether the ItemStack is an ingredient.

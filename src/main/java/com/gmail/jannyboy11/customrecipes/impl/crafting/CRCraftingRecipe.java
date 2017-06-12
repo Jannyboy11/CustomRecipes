@@ -124,7 +124,7 @@ public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe {
 	@Override
 	public String toString() {
 		return getClass().getName() + "{" +
-				"key()=" + getKey() +
+				"key=" + key +
 				",result()=" + InventoryUtils.getItemName(getResult()) +
 				",hidden()=" + isHidden() +
 				"}";

@@ -1,7 +1,5 @@
 package com.gmail.jannyboy11.customrecipes.api.crafting.custom.ingredient;
 
-import java.util.Objects;
-
 import org.bukkit.inventory.ItemStack;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingIngredient;
@@ -22,7 +20,7 @@ public class SimilarIngredient implements CraftingIngredient {
 	 * @param itemStack the ItemStack that is used for similarity checks - cannot be null
 	 */
 	public SimilarIngredient(ItemStack itemStack) {
-		this.itemStack = Objects.requireNonNull(itemStack).clone();
+		this.itemStack = itemStack;
 	}
 
 	/**
@@ -30,7 +28,7 @@ public class SimilarIngredient implements CraftingIngredient {
 	 */
 	@Override
 	public boolean isIngredient(ItemStack itemStack) {
-		return this.itemStack.isSimilar(itemStack);
+		return this.itemStack == null ? itemStack == null : this.itemStack.isSimilar(itemStack);
 	}
 
 }

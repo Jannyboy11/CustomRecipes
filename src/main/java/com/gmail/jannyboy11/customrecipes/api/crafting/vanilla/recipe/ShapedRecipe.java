@@ -88,7 +88,7 @@ public interface ShapedRecipe extends CraftingRecipe {
 			lore.add(ChatColor.DARK_GRAY + "Ingredients:");
 			for (ChoiceIngredient ingredient : ingredients) {
 				lore.add(ChatColor.DARK_GRAY + ingredient.getChoices().stream().map(InventoryUtils::getItemName)
-						.collect(Collectors.joining(", " + ChatColor.DARK_GRAY)));
+						.collect(Collectors.joining(ChatColor.DARK_GRAY + ", ")));
 			}
 		}
 		

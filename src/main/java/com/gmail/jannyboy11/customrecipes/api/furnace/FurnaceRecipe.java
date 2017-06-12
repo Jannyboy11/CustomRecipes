@@ -1,6 +1,7 @@
 package com.gmail.jannyboy11.customrecipes.api.furnace;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.ChatColor;
@@ -71,7 +72,13 @@ public interface FurnaceRecipe extends Representable, Recipe {
 		ItemStack result = getResult();
 		
 		ItemStack representation = (result == null || result.getType() == Material.AIR) ? new ItemStack(Material.AIR) : result.clone();
-		if (representation.getType() == Material.AIR) return null;
+		if (representation.getType() == Material.AIR) {
+			representation = new ItemStack(Material.STRUCTURE_BLOCK);
+			ItemMeta meta = representation.getItemMeta();
+			meta.setLore(Arrays.asList("Result: UNKNOWN"));
+			representation.setItemMeta(meta);
+			return representation;
+		}
 		
 		ItemMeta meta = representation.getItemMeta();
 		if (!meta.hasDisplayName()) meta.setDisplayName(ChatColor.GRAY + representation.getType().name());

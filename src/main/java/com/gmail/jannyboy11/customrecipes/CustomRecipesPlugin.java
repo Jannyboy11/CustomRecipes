@@ -1,5 +1,6 @@
 package com.gmail.jannyboy11.customrecipes;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.gmail.jannyboy11.customrecipes.api.CustomRecipesApi;
 import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.SimpleChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.api.crafting.SimpleShapedRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.SimpleShapelessRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe;
@@ -84,7 +89,6 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		//recipe displayers
 		recipeToCommandSenderDiplayMap.put("shaped", (recipe, commandSender) -> {
 			ShapedRecipe shapedRecipe = (ShapedRecipe) recipe;
-			commandSender.sendMessage("---Shaped Recipe---");
 			commandSender.sendMessage("Key: " + shapedRecipe.getKey());
 			commandSender.sendMessage("Result: " + InventoryUtils.getItemName(shapedRecipe.getResult()));
 			commandSender.sendMessage("Width: " + shapedRecipe.getWidth());
@@ -94,12 +98,11 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 					.collect(Collectors.toList()));
 			if (shapedRecipe.hasGroup()) commandSender.sendMessage("Group: " + shapedRecipe.getGroup());
 			if (shapedRecipe.isHidden()) commandSender.sendMessage("Hidden: true");
-			commandSender.sendMessage("---Shaped Recipe---");
+			commandSender.sendMessage("");
 		});
 		
 		recipeToCommandSenderDiplayMap.put("shapeless", (recipe, commandSender) -> {
 			ShapelessRecipe shapelessRecipe = (ShapelessRecipe) recipe;
-			commandSender.sendMessage("---Shapeless Recipe---");
 			commandSender.sendMessage("Key: " + shapelessRecipe.getKey());
 			commandSender.sendMessage("Result: " + InventoryUtils.getItemName(shapelessRecipe.getResult()));
 			commandSender.sendMessage("Ingredients: " + shapelessRecipe.getIngredients().stream()
@@ -107,16 +110,15 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 					.collect(Collectors.toList()));
 			if (shapelessRecipe.hasGroup()) commandSender.sendMessage("Group: " + shapelessRecipe.getGroup());
 			if (shapelessRecipe.isHidden()) commandSender.sendMessage("Hidden: true");
-			commandSender.sendMessage("---Shapeless Recipe---");
+			commandSender.sendMessage("");
 		});
 		
 		recipeToCommandSenderDiplayMap.put("furnace", (recipe, commandSender) -> {
 			FurnaceRecipe furnaceRecipe = (FurnaceRecipe) recipe;
-			commandSender.sendMessage("---Shapeless Recipe---");
 			commandSender.sendMessage("Ingredient: " + InventoryUtils.getItemName(furnaceRecipe.getIngredient()));
 			commandSender.sendMessage("Result: " + InventoryUtils.getItemName(furnaceRecipe.getResult()));
 			if (furnaceRecipe.hasXp()) commandSender.sendMessage("XP: " + furnaceRecipe.getXp());
-			commandSender.sendMessage("---Shapeless Recipe---");
+			commandSender.sendMessage("");
 		});
 		
 		//recipe providers
@@ -173,7 +175,6 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	}
 
 	
-	
 	@Override
 	public boolean isVanillaRecipeType(CraftingRecipe recipe) {
 		if (!(recipe instanceof CRVanillaRecipe)) return false;
@@ -184,18 +185,31 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	
 	@Override
 	public ShapedRecipe asCustomRecipesMirror(org.bukkit.inventory.ShapedRecipe bukkitRecipe) {
-		CraftShapedRecipe craftShapedRecipe = CraftShapedRecipe.fromBukkitRecipe(bukkitRecipe);
-		//TODO this is still null
-		ShapedRecipes nmsRecipe = (ShapedRecipes) ReflectionUtil.getDeclaredFieldValue(craftShapedRecipe, "recipe");
-		return new CRShapedRecipe<>(nmsRecipe);
+		String[] shape = bukkitRecipe.getShape();
+		Map<Character, ItemStack> map = bukkitRecipe.getIngredientMap();
+		List<? extends ChoiceIngredient> ingredients = Arrays.stream(shape)
+				.flatMapToInt(s -> s.chars())
+				.mapToObj(i -> map.getOrDefault((char) i, null))
+				.map(SimpleChoiceIngredient::fromItemStacks)
+				.collect(Collectors.toList());
+		
+		int width = shape[0].length();
+		int height = shape.length;
+
+		SimpleShapedRecipe simple = new SimpleShapedRecipe(bukkitRecipe.getKey(), bukkitRecipe.getResult(), width, height, ingredients);
+		CraftingRecipe byKey = craftingManager.getRecipe(bukkitRecipe.getKey()); //TODO can we do better? get by result and by ingredients?
+		return simple.equals(byKey) ? (ShapedRecipe) byKey : simple;
 	}
 	
 	@Override
 	public ShapelessRecipe asCustomRecipesMirror(org.bukkit.inventory.ShapelessRecipe bukkitRecipe) {
-		CraftShapelessRecipe craftShapelessRecipe = CraftShapelessRecipe.fromBukkitRecipe(bukkitRecipe);
-		//TODO this is still null
-		ShapelessRecipes nmsRecipe = (ShapelessRecipes) ReflectionUtil.getDeclaredFieldValue(craftShapelessRecipe, "recipe");
-		return new CRShapelessRecipe<>(nmsRecipe);
+		List<? extends ChoiceIngredient> ingredients = bukkitRecipe.getIngredientList().stream()
+				.map(SimpleChoiceIngredient::fromItemStacks)
+				.collect(Collectors.toList());
+		
+		SimpleShapelessRecipe simple = new SimpleShapelessRecipe(bukkitRecipe.getKey(), bukkitRecipe.getResult(), ingredients);
+		CraftingRecipe byKey = craftingManager.getRecipe(bukkitRecipe.getKey()); //TODO can we do better? get by result and by ingredients?
+		return simple.equals(byKey) ? (ShapelessRecipe) byKey : simple;
 	}
 	
 	@Override
