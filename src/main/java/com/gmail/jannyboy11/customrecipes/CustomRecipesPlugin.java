@@ -16,8 +16,6 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftShapedRecipe;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftShapelessRecipe;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
@@ -43,16 +41,10 @@ import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.NBTAdde
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.InjectedIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapedAdder;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapelessAdder;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapedRecipe;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRVanillaRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceManager;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceRecipe;
-import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
-
 import net.minecraft.server.v1_12_R1.IRecipe;
-import net.minecraft.server.v1_12_R1.ShapedRecipes;
-import net.minecraft.server.v1_12_R1.ShapelessRecipes;
 
 public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi {
 	

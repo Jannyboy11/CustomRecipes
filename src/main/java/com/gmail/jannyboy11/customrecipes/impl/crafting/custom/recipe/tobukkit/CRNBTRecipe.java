@@ -11,6 +11,8 @@ public class CRNBTRecipe extends CRShapedRecipe<NBTRecipe> implements com.gmail.
 
 	//TODO add method to obtain List<Compound>
 	//TODO I could use an existing NBT library such as JNBT for this
-	//TODO I may want do use this anyway to allow for proper serialization and deserialization.
-
+	//TODO in that case, also override getRepresentation
+	//TODO I may want do use this anyway to allow for proper serialization and deserialization
+	//TODO also override equals and hashcode, as well as toString
+	
 }
