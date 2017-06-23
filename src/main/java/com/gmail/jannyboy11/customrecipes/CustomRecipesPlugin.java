@@ -81,7 +81,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		//recipe displayers
 		recipeToCommandSenderDiplayMap.put("shaped", (recipe, commandSender) -> {
 			ShapedRecipe shapedRecipe = (ShapedRecipe) recipe;
-			commandSender.sendMessage("Key: " + shapedRecipe.getKey());
+			commandSender.sendMessage("Key: " + craftingManager.getKey(shapedRecipe));
 			commandSender.sendMessage("Result: " + InventoryUtils.getItemName(shapedRecipe.getResult()));
 			commandSender.sendMessage("Width: " + shapedRecipe.getWidth());
 			commandSender.sendMessage("Height: " + shapedRecipe.getHeight());
@@ -95,7 +95,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		
 		recipeToCommandSenderDiplayMap.put("shapeless", (recipe, commandSender) -> {
 			ShapelessRecipe shapelessRecipe = (ShapelessRecipe) recipe;
-			commandSender.sendMessage("Key: " + shapelessRecipe.getKey());
+			commandSender.sendMessage("Key: " + craftingManager.getKey(shapelessRecipe));
 			commandSender.sendMessage("Result: " + InventoryUtils.getItemName(shapelessRecipe.getResult()));
 			commandSender.sendMessage("Ingredients: " + shapelessRecipe.getIngredients().stream()
 					.map(ingr -> ingr.getChoices().stream().map(InventoryUtils::getItemName).collect(Collectors.toList()))
@@ -182,13 +182,13 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		List<? extends ChoiceIngredient> ingredients = Arrays.stream(shape)
 				.flatMapToInt(s -> s.chars())
 				.mapToObj(i -> map.getOrDefault((char) i, null))
-				.map(SimpleChoiceIngredient::fromItemStacks)
+				.map(SimpleChoiceIngredient::fromChoices)
 				.collect(Collectors.toList());
 		
 		int width = shape[0].length();
 		int height = shape.length;
 
-		SimpleShapedRecipe simple = new SimpleShapedRecipe(bukkitRecipe.getKey(), bukkitRecipe.getResult(), width, height, ingredients);
+		SimpleShapedRecipe simple = new SimpleShapedRecipe(bukkitRecipe.getResult(), width, height, ingredients);
 		CraftingRecipe byKey = craftingManager.getRecipe(bukkitRecipe.getKey()); //TODO can we do better? get by result and by ingredients?
 		return simple.equals(byKey) ? (ShapedRecipe) byKey : simple;
 	}
@@ -196,10 +196,10 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	@Override
 	public ShapelessRecipe asCustomRecipesMirror(org.bukkit.inventory.ShapelessRecipe bukkitRecipe) {
 		List<? extends ChoiceIngredient> ingredients = bukkitRecipe.getIngredientList().stream()
-				.map(SimpleChoiceIngredient::fromItemStacks)
+				.map(SimpleChoiceIngredient::fromChoices)
 				.collect(Collectors.toList());
 		
-		SimpleShapelessRecipe simple = new SimpleShapelessRecipe(bukkitRecipe.getKey(), bukkitRecipe.getResult(), ingredients);
+		SimpleShapelessRecipe simple = new SimpleShapelessRecipe(bukkitRecipe.getResult(), ingredients);
 		CraftingRecipe byKey = craftingManager.getRecipe(bukkitRecipe.getKey()); //TODO can we do better? get by result and by ingredients?
 		return simple.equals(byKey) ? (ShapelessRecipe) byKey : simple;
 	}

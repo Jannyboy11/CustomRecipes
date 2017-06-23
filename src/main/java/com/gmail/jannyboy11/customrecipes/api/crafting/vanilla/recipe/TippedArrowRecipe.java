@@ -1,7 +1,5 @@
 package com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe;
 
-import java.util.Arrays;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -22,7 +20,6 @@ public interface TippedArrowRecipe extends ShapedRecipe {
 		ItemStack stack = new ItemStack(Material.TIPPED_ARROW);
 		ItemMeta meta = stack.getItemMeta();
 		meta.setDisplayName(ChatColor.GRAY + "Tipped Arrow");
-		meta.setLore(Arrays.asList(ChatColor.DARK_GRAY + "Key: " + getKey()));
 		stack.setItemMeta(meta);
 		return stack;
 	}

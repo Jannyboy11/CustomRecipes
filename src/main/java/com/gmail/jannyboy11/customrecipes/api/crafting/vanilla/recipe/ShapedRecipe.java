@@ -71,7 +71,6 @@ public interface ShapedRecipe extends CraftingRecipe {
 		if (representation.getType() == Material.AIR) {
 			representation = new ItemStack(Material.STRUCTURE_BLOCK);
 			ItemMeta meta = representation.getItemMeta();
-			meta.setDisplayName(ChatColor.GRAY + getKey().toString());
 			meta.setLore(Arrays.asList("Result: UNKNOWN"));
 			representation.setItemMeta(meta);
 			return representation;
@@ -95,7 +94,6 @@ public interface ShapedRecipe extends CraftingRecipe {
 		lore.add(ChatColor.DARK_GRAY + "Hidden: " + isHidden());
 		if (hasGroup()) lore.add(ChatColor.DARK_GRAY + "Group: " + getGroup());
 		
-		meta.setDisplayName(ChatColor.GRAY + getKey().toString());
 		meta.setLore(lore);
 		
 		representation.setItemMeta(meta);

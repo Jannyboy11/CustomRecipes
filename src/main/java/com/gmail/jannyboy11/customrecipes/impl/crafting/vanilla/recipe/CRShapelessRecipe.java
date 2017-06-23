@@ -4,9 +4,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.bukkit.NamespacedKey;
-import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
-
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient.CRChoiceIngredient;
@@ -19,7 +16,7 @@ import net.minecraft.server.v1_12_R1.ShapelessRecipes;
 public class CRShapelessRecipe<R extends ShapelessRecipes> extends CRVanillaRecipe<R> implements ShapelessRecipe {
 
 	public CRShapelessRecipe(R nmsRecipe) {
-		super(nmsRecipe, nmsRecipe.key);
+		super(nmsRecipe);
 	}
 	
 	@Override
@@ -33,11 +30,6 @@ public class CRShapelessRecipe<R extends ShapelessRecipes> extends CRVanillaReci
 	}
 	
 	@Override
-	public NamespacedKey getKey() {
-		return CraftNamespacedKey.fromMinecraft(nmsRecipe.key);
-	}
-	
-	@Override
 	public String getGroup() {
 		return (String) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "c");
 	}
@@ -46,23 +38,23 @@ public class CRShapelessRecipe<R extends ShapelessRecipes> extends CRVanillaReci
 	public boolean equals(Object o) {
 		if (o == this) return true;
 		if (!(o instanceof ShapelessRecipe)) return false;
+		if (o instanceof CRShapelessRecipe) return Objects.equals(this.nmsRecipe, ((CRShapelessRecipe<?>) o).nmsRecipe);
+		
 		ShapelessRecipe that = (ShapelessRecipe) o;
 		
-		return Objects.equals(this.getKey(), that.getKey()) && Objects.equals(this.getResult(), that.getResult()) &&
-				Objects.equals(this.getIngredients(), that.getIngredients()) && Objects.equals(this.isHidden(), that.isHidden()) &&
-				Objects.equals(this.getGroup(), that.getGroup());
+		return Objects.equals(this.getResult(), that.getResult()) && Objects.equals(this.getIngredients(), that.getIngredients()) &&
+				Objects.equals(this.isHidden(), that.isHidden()) && Objects.equals(this.getGroup(), that.getGroup());
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(key, getResult(), getIngredients(), isHidden(), getGroup());
+		return Objects.hash(getResult(), getIngredients(), isHidden(), getGroup());
 	}
 	
 	@Override
 	public String toString() {
 		return getClass().getName() + "{" + 
-			"key=" + key +
-			",result()=" + getResult() +
+			"result()=" + getResult() +
 			",ingredients()=" + getIngredients() +
 			",hidden()=" + isHidden() +
 			",group()=" + getGroup() +				

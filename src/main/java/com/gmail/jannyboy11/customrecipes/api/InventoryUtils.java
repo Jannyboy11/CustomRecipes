@@ -7,6 +7,7 @@ import java.util.stream.StreamSupport;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.MaterialData;
 
 public final class InventoryUtils {
 	
@@ -15,7 +16,7 @@ public final class InventoryUtils {
 	/**
 	 * Checks whether the given ItemStack is empty.
 	 * 
-	 * 
+	 * @return true when the given ItemStack is empty, otherwise false
 	 */
 	public static boolean isEmptyStack(ItemStack itemStack) {
 		return itemStack == null || itemStack.getType() == Material.AIR;
@@ -73,6 +74,29 @@ public final class InventoryUtils {
 		return StreamSupport.stream(Spliterators.spliterator(inventory.iterator(),
 				inventory.getSize(), Spliterator.SIZED), false)
 			.allMatch(InventoryUtils::isEmptyStack);
+	}
+	
+	/**
+	 * Get the MaterialData that vanilla crafting recipes leave in a crafting inventory if the ingredient is of stack size 1.
+	 * For most materials the returned data will have Material.AIR, but there are exceptions for filled buckets and dragons breath.
+	 * 
+	 * @param ingredient the material data used as a crafting ingredient.
+	 * @return the material data that vanilla recipes would give back upon crafting
+	 */
+	public static MaterialData getSingleIngredientResult(MaterialData ingredient) {
+		if (ingredient == null) return new MaterialData(Material.AIR);
+		
+		switch(ingredient.getItemType()) {
+			case MILK_BUCKET:
+			case WATER_BUCKET:
+			case LAVA_BUCKET:
+				return new MaterialData(Material.BUCKET);
+				
+			case DRAGONS_BREATH:
+				return new MaterialData(Material.GLASS_BOTTLE);
+				
+			default: return new MaterialData(Material.AIR);
+		}
 	}
 
 }

@@ -111,7 +111,7 @@ public class ShapelessAdder implements BiConsumer<Player, List<String>> {
 				//TODO
 				//TODO
 				//TODO
-				holder.plugin.getCraftingManager().addRecipe(nmsRecipe, shapelessRecipe);
+				holder.plugin.getCraftingManager().addRecipe(holder.key, nmsRecipe, shapelessRecipe);
 				holder.callbackPlayer.sendMessage(String.format("%sAdded shapeless recipe: %s%s%s!",
 						ChatColor.GREEN, ChatColor.WHITE, recipeString, ChatColor.WHITE));
 

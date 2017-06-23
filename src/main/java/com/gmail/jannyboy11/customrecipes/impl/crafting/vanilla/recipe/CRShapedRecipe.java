@@ -4,9 +4,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.bukkit.NamespacedKey;
-import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
-
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient.CRChoiceIngredient;
@@ -19,7 +16,7 @@ import net.minecraft.server.v1_12_R1.ShapedRecipes;
 public class CRShapedRecipe<R extends ShapedRecipes> extends CRVanillaRecipe<R> implements ShapedRecipe {
 
 	public CRShapedRecipe(R nmsRecipe) {
-		super(nmsRecipe, nmsRecipe.key);
+		super(nmsRecipe);
 	}
 	
 	@Override
@@ -41,11 +38,6 @@ public class CRShapedRecipe<R extends ShapedRecipes> extends CRVanillaRecipe<R> 
 	private NonNullList<RecipeItemStack> nmsIngredients() {
 		return (NonNullList<RecipeItemStack>) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "items");
 	}
-	
-	@Override
-	public NamespacedKey getKey() {
-		return CraftNamespacedKey.fromMinecraft(nmsRecipe.key);
-	}
 
 	@Override
 	public String getGroup() {
@@ -56,24 +48,24 @@ public class CRShapedRecipe<R extends ShapedRecipes> extends CRVanillaRecipe<R> 
 	public boolean equals(Object o) {
 		if (o == this) return true;
 		if (!(o instanceof ShapedRecipe)) return false;
+		if (o instanceof CRShapedRecipe) return Objects.equals(this.nmsRecipe, ((CRShapedRecipe<?>) o).nmsRecipe);
+		
 		ShapedRecipe that = (ShapedRecipe) o;
 		
-		return Objects.equals(this.getKey(), that.getKey()) && Objects.equals(this.getResult(), that.getResult()) &&
+		return Objects.equals(this.getResult(), that.getResult()) && Objects.equals(this.getIngredients(), that.getIngredients()) &&
 				Objects.equals(this.getWidth(), that.getWidth()) && Objects.equals(this.getHeight(), that.getHeight()) &&
-				Objects.equals(this.getIngredients(), that.getIngredients()) && Objects.equals(this.isHidden(), that.isHidden()) &&
-				Objects.equals(this.getGroup(), that.getGroup());
+				Objects.equals(this.isHidden(), that.isHidden()) && Objects.equals(this.getGroup(), that.getGroup());
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(key, getResult(), getWidth(), getHeight(), getIngredients(), isHidden(), getGroup());
+		return Objects.hash(getResult(), getWidth(), getHeight(), getIngredients(), isHidden(), getGroup());
 	}
 	
 	@Override
 	public String toString() {
 		return getClass().getName() + "{" + 
-			"key=" + key +
-			",result()=" + getResult() +
+			"result()=" + getResult() +
 			",width()=" + getWidth() +
 			",heigth()=" + getHeight() +
 			",ingredients()=" + getIngredients() +

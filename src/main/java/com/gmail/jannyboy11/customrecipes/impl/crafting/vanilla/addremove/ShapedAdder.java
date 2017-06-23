@@ -107,7 +107,7 @@ public class ShapedAdder implements BiConsumer<Player, List<String>> {
 					ChatColor.RESET + " -> " +
 					InventoryUtils.getItemName(shapedRecipe.getResult());
 				
-				holder.plugin.getCraftingManager().addRecipe(shapedRecipe);
+				holder.plugin.getCraftingManager().addRecipe(holder.key, nmsRecipe, shapedRecipe);
 				holder.callbackPlayer.sendMessage(String.format("%sAdded shaped recipe: %s%s%s!",
 						ChatColor.GREEN, ChatColor.WHITE, recipeString, ChatColor.WHITE));
 				

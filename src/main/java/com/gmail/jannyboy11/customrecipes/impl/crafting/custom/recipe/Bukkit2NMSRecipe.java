@@ -4,18 +4,21 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryCrafting;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
 import org.bukkit.inventory.Recipe;
 
+import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
-import com.gmail.jannyboy11.customrecipes.api.crafting.custom.recipe.ProxyRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingManager;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapelessRecipe;
 
@@ -29,10 +32,20 @@ import net.minecraft.server.v1_12_R1.World;
 
 public class Bukkit2NMSRecipe implements IRecipe {
 	
-	private CraftingRecipe bukkitRecipe;
+	//dirty hacks!
+	private static final String CUSTOM_RECIPES_BUKKITRECIPE_KEY = "cr-bukkit2nmsrecipe-";
+	private static final AtomicInteger keyCount = new AtomicInteger(0);
+	
+	private static NamespacedKey newNamespacedKey() {
+		CustomRecipesPlugin plugin = CustomRecipesPlugin.getInstance();
+		return new NamespacedKey(plugin, CUSTOM_RECIPES_BUKKITRECIPE_KEY + keyCount.getAndIncrement() + UUID.randomUUID().toString());
+	}
+	
+	
+	private CraftingRecipe crRecipe;
 
 	public Bukkit2NMSRecipe(CraftingRecipe bukkitRecipe) {
-		this.bukkitRecipe = Objects.requireNonNull(bukkitRecipe);
+		this.crRecipe = Objects.requireNonNull(bukkitRecipe);
 	}
 	
 	public static CraftInventoryCrafting getBukkitCraftingInventory(InventoryCrafting inventoryCrafting) {
@@ -45,21 +58,20 @@ public class Bukkit2NMSRecipe implements IRecipe {
 		CraftInventoryCrafting bukkitInventory = getBukkitCraftingInventory(inventoryCrafting);
 		CraftWorld bukkitWorld = world.getWorld();		
 		
-		return bukkitRecipe.matches(bukkitInventory, bukkitWorld);
+		return crRecipe.matches(bukkitInventory, bukkitWorld);
 	}
 
 	@Override
 	public ItemStack b() {
-		return CraftItemStack.asNMSCopy(bukkitRecipe.getResult());
+		return CraftItemStack.asNMSCopy(crRecipe.getResult());
 	}
 
 	@Override
 	public NonNullList<ItemStack> b(InventoryCrafting inventoryCrafting) {
 		CraftInventoryCrafting bukkitInventory = getBukkitCraftingInventory(inventoryCrafting);
 
-		List<? extends org.bukkit.inventory.ItemStack> bukkitLeftovers = bukkitRecipe.getLeftOverItems(bukkitInventory);
-		
-		ItemStack[] nmsLeftovers = bukkitLeftovers.toArray(new ItemStack[bukkitLeftovers.size()]);
+		List<? extends org.bukkit.inventory.ItemStack> bukkitLeftovers = crRecipe.getLeftOverItems(bukkitInventory);
+		ItemStack[] nmsLeftovers = bukkitLeftovers.stream().map(CraftItemStack::asNMSCopy).toArray(size -> new ItemStack[size]);
 		return NonNullList.a(ItemStack.a, nmsLeftovers);
 	}
 
@@ -67,12 +79,12 @@ public class Bukkit2NMSRecipe implements IRecipe {
 	public ItemStack craftItem(InventoryCrafting inventoryCrafting) {
 		CraftInventoryCrafting bukkitInventory = getBukkitCraftingInventory(inventoryCrafting);
 		
-		return CraftItemStack.asNMSCopy(bukkitRecipe.craftItem(bukkitInventory));
+		return CraftItemStack.asNMSCopy(crRecipe.craftItem(bukkitInventory));
 	}
 	
 	@Override
 	public boolean c() {
-		return bukkitRecipe.isHidden();
+		return crRecipe.isHidden();
 	}
 	
 	@Override
@@ -80,12 +92,12 @@ public class Bukkit2NMSRecipe implements IRecipe {
 		if (object == null) return false;
 		if (!(object instanceof Bukkit2NMSRecipe)) return false;
 		Bukkit2NMSRecipe that = (Bukkit2NMSRecipe) object;
-		return this.bukkitRecipe.equals(that.bukkitRecipe);
+		return this.crRecipe.equals(that.crRecipe);
 	}
 	
 	@Override
 	public int hashCode() {
-		return bukkitRecipe.hashCode();
+		return crRecipe.hashCode();
 	}
 	
 
@@ -94,18 +106,20 @@ public class Bukkit2NMSRecipe implements IRecipe {
 	public Recipe toBukkitRecipe() {
 		//we try the best we can to do something meaningful.
 		
-		if (bukkitRecipe instanceof CRShapedRecipe) {
-			return ((CRShapedRecipe) bukkitRecipe).getHandle().toBukkitRecipe();
+		if (crRecipe instanceof CRShapedRecipe) {
+			return ((CRShapedRecipe) crRecipe).getHandle().toBukkitRecipe();
 			
-		} else if (bukkitRecipe instanceof CRShapelessRecipe) {
-			return ((CRShapelessRecipe) bukkitRecipe).getHandle().toBukkitRecipe();
+		} else if (crRecipe instanceof CRShapelessRecipe) {
+			return ((CRShapelessRecipe) crRecipe).getHandle().toBukkitRecipe();
 			
 			
-		} else if (bukkitRecipe instanceof ShapedRecipe) {
+		} else if (crRecipe instanceof ShapedRecipe) {
 			//try our very best to do something useful
-			ShapedRecipe shapedRecipe = (ShapedRecipe) bukkitRecipe;
+			ShapedRecipe shapedRecipe = (ShapedRecipe) crRecipe;
+			NamespacedKey namespacedKey = CustomRecipesPlugin.getInstance().getCraftingManager().getKey(shapedRecipe);
+			if (namespacedKey == null) namespacedKey = newNamespacedKey();
 			
-			org.bukkit.inventory.ShapedRecipe bukkitShapedRecipe = new org.bukkit.inventory.ShapedRecipe(bukkitRecipe.getKey(), bukkitRecipe.getResult());
+			org.bukkit.inventory.ShapedRecipe bukkitShapedRecipe = new org.bukkit.inventory.ShapedRecipe(namespacedKey, crRecipe.getResult());
 			
 			AtomicInteger character = new AtomicInteger('a');
 			List<StringBuilder> shapeBuilder = new ArrayList<>();
@@ -144,11 +158,13 @@ public class Bukkit2NMSRecipe implements IRecipe {
 			
 			return bukkitShapedRecipe;
 			
-		} else if (bukkitRecipe instanceof ShapelessRecipe) {
+		} else if (crRecipe instanceof ShapelessRecipe) {
 			//try our very best to do something useful
-			ShapelessRecipe shapelessRecipe = (ShapelessRecipe) bukkitRecipe;
+			ShapelessRecipe shapelessRecipe = (ShapelessRecipe) crRecipe;
+			NamespacedKey namespacedKey = CustomRecipesPlugin.getInstance().getCraftingManager().getKey(shapelessRecipe);
+			if (namespacedKey == null) namespacedKey = newNamespacedKey();
 			
-			org.bukkit.inventory.ShapelessRecipe bukkitShapelessRecipe = new org.bukkit.inventory.ShapelessRecipe(bukkitRecipe.getKey(), bukkitRecipe.getResult());
+			org.bukkit.inventory.ShapelessRecipe bukkitShapelessRecipe = new org.bukkit.inventory.ShapelessRecipe(namespacedKey, crRecipe.getResult());
 			
 			for (ChoiceIngredient ingr : shapelessRecipe.getIngredients()) {
 				Iterator<? extends org.bukkit.inventory.ItemStack> choiceIterator = ingr.getChoices().iterator();
@@ -161,32 +177,23 @@ public class Bukkit2NMSRecipe implements IRecipe {
 			}
 			
 			return bukkitShapelessRecipe;
-			
 		}
 		
-		//Recipe was neither a Shaped nor a Shapeless recipe, return a generic Recipe.
-		//Bukkit and other plugins will not like this, but it's the best we can do.
-		return bukkitRecipe::getResult;
+		//Recipe was neither a Shaped nor a Shapeless recipe, return the generic crafting recipe.
+		//Bukkit and other plugins will not like this, but it's the best we can do instead of returning null.
+		return crRecipe;
 	}
 
 
-	
-	
-	//Spigot why you enforce this key on me? 
 	
 	@Override
 	public void setKey(MinecraftKey key) {		
-		this.bukkitRecipe = new ProxyRecipe(bukkitRecipe::matches,
-				bukkitRecipe::craftItem,
-				bukkitRecipe::getResult,
-				bukkitRecipe::getLeftOverItems,
-				bukkitRecipe::isHidden,
-				bukkitRecipe::getGroup,
-				() -> CraftNamespacedKey.fromMinecraft(key));
+		//no spigot pls. fuck you. the key is not part of the recipe itself dangit!
 	}
 	
 	public MinecraftKey getKey() {
-		return CraftNamespacedKey.toMinecraft(bukkitRecipe.getKey());
+		CRCraftingManager craftingManager = CustomRecipesPlugin.getInstance().getCraftingManager();
+		return craftingManager.getKey(this);
 	}
 
 }

@@ -134,7 +134,7 @@ public final class SimpleFurnaceRecipe implements FurnaceRecipe {
 	
 	@Override
 	public String toString() {
-		return "SimpleFurnaceRecipe{" +
+		return getClass().getName() + "{" +
 				"ingredient=" + ingredient +
 				",output=" + output +
 				",xp=" + xp +

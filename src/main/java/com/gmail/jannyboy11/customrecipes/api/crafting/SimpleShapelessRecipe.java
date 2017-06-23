@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.MaterialData;
 
 import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.ingredient.ChoiceIngredient;
@@ -18,23 +20,20 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessR
 
 public final class SimpleShapelessRecipe implements ShapelessRecipe {
 	
-	private final NamespacedKey key;
 	private ItemStack result;
 	private List<ChoiceIngredient> ingredients = new ArrayList<>();
 	private boolean hidden;
 	private String group = "";
 	
-	public SimpleShapelessRecipe(NamespacedKey key) {
-		this.key = key;
+	public SimpleShapelessRecipe() {
 	}
 	
-	public SimpleShapelessRecipe(NamespacedKey key, ItemStack result) {
-		this(key);
+	public SimpleShapelessRecipe(ItemStack result) {
 		this.result = result;
 	}
 	
-	public SimpleShapelessRecipe(NamespacedKey key, ItemStack result, List<? extends ChoiceIngredient> ingredients) {
-		this(key, result);
+	public SimpleShapelessRecipe(ItemStack result, List<? extends ChoiceIngredient> ingredients) {
+		this(result);
 		setIngredients(ingredients);
 	}
 	
@@ -62,7 +61,7 @@ public final class SimpleShapelessRecipe implements ShapelessRecipe {
 	public boolean matches(CraftingInventory craftingInventory, World world) {
 		final List<ChoiceIngredient> ingredients = new ArrayList<>(this.ingredients);
 		final List<ItemStack> contents = Arrays.asList(craftingInventory.getMatrix())
-				.stream().filter(i -> InventoryUtils.isEmptyStack(i))
+				.stream().filter(i -> !InventoryUtils.isEmptyStack(i))
 				.collect(Collectors.toList());
 		
 		for (ItemStack stack : contents) {
@@ -76,11 +75,11 @@ public final class SimpleShapelessRecipe implements ShapelessRecipe {
 				}
 			}
 			
-			//there was no matching ingredient for the current itemstack
+			//there was no matching ingredient for the current ItemStack
 			if (!match) return false;
 		}
 		
-		//return true if there are no unused ingredients leftover
+		//return true if there are no unused ingredients left over
 		return ingredients.isEmpty();
 	}
 
@@ -98,8 +97,14 @@ public final class SimpleShapelessRecipe implements ShapelessRecipe {
 	public List<? extends ItemStack> getLeftOverItems(CraftingInventory craftingInventory) {
 		return Arrays.stream(craftingInventory.getMatrix())
 				.map(itemStack -> {
-					if (itemStack == null || itemStack.getAmount() <= 1) return null;
+					if (itemStack == null) return null;					
 					ItemStack clone = itemStack.clone();
+					MaterialData craftingResult = InventoryUtils.getSingleIngredientResult(itemStack.getData());
+					if (craftingResult.getItemType() != Material.AIR) {
+						clone.setData(craftingResult);
+						return clone;
+					}
+					if (itemStack.getAmount() <= 1) return null;
 					clone.setAmount(itemStack.getAmount() - 1);
 					return clone;
 				}).collect(Collectors.toList());
@@ -108,11 +113,6 @@ public final class SimpleShapelessRecipe implements ShapelessRecipe {
 	@Override
 	public boolean isHidden() {
 		return hidden;
-	}
-
-	@Override
-	public NamespacedKey getKey() {
-		return key;
 	}
 
 	@Override
@@ -131,20 +131,18 @@ public final class SimpleShapelessRecipe implements ShapelessRecipe {
 		if (!(o instanceof ShapelessRecipe)) return false;
 		ShapelessRecipe that = (ShapelessRecipe) o;
 		
-		return Objects.equals(this.key, that.getKey()) && Objects.equals(this.result, that.getResult()) &&
-				Objects.equals(this.ingredients, that.getIngredients()) && Objects.equals(this.hidden, that.isHidden()) &&
-				Objects.equals(this.group, that.getGroup());
+		return Objects.equals(this.result, that.getResult()) && Objects.equals(this.ingredients, that.getIngredients()) &&
+				Objects.equals(this.hidden, that.isHidden()) && Objects.equals(this.group, that.getGroup());
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(key, result, ingredients, hidden, group);
+		return Objects.hash(result, ingredients, hidden, group);
 	}
 	
 	@Override
 	public String toString() {
 		return getClass().getName() + "{" + 
-			"key=" + key +
 			",result=" + result +
 			",ingredients=" + ingredients +
 			",hidden=" + hidden +

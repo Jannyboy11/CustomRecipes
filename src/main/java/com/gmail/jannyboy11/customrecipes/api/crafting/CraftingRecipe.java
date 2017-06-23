@@ -1,10 +1,10 @@
 package com.gmail.jannyboy11.customrecipes.api.crafting;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Keyed;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.api.Representable;
 
 /**
@@ -21,7 +22,7 @@ import com.gmail.jannyboy11.customrecipes.api.Representable;
  * @author Jan
  *
  */
-public interface CraftingRecipe extends Keyed, Representable, Recipe {
+public interface CraftingRecipe extends Representable, Recipe {
 	
 	/**
 	 * Tests whether the items in the crafting inventory match to this crafting recipe.
@@ -78,13 +79,6 @@ public interface CraftingRecipe extends Keyed, Representable, Recipe {
 	public boolean isHidden();	
 	
 	/**
-	 * Get the key of the recipe.
-	 * 
-	 * @return the key, which may be randomly generated if no key was present.
-	 */
-	public NamespacedKey getKey();
-	
-	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -92,14 +86,21 @@ public interface CraftingRecipe extends Keyed, Representable, Recipe {
 		ItemStack result = getResult();
 		
 		ItemStack representation = (result == null || result.getType() == Material.AIR) ? new ItemStack(Material.AIR) : result.clone();
-		if (representation.getType() == Material.AIR) return null;
+		if (representation.getType() == Material.AIR) {
+			representation = new ItemStack(Material.STRUCTURE_BLOCK);
+			ItemMeta meta = representation.getItemMeta();
+			meta.setDisplayName(InventoryUtils.getItemName(getResult()));
+			meta.setLore(Arrays.asList("Result: UNKNOWN"));
+			representation.setItemMeta(meta);
+			return representation;
+		}
 		
 		ItemMeta meta = representation.getItemMeta();
 
 		List<String> lore = new ArrayList<>();
 		lore.add(ChatColor.DARK_GRAY + "Hidden: " + isHidden());
 		
-		meta.setDisplayName(ChatColor.GRAY + getKey().toString());
+		meta.setDisplayName(ChatColor.GRAY + InventoryUtils.getItemName(getResult()));
 		meta.setLore(lore);
 		
 		representation.setItemMeta(meta);

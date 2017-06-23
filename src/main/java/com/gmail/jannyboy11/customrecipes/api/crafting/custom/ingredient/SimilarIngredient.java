@@ -1,5 +1,7 @@
 package com.gmail.jannyboy11.customrecipes.api.crafting.custom.ingredient;
 
+import java.util.Objects;
+
 import org.bukkit.inventory.ItemStack;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingIngredient;
@@ -17,10 +19,10 @@ public class SimilarIngredient implements CraftingIngredient {
 	/**
 	 * Constructs the SimilarIngredient with the given ItemStack as similarity checker.
 	 * 
-	 * @param itemStack the ItemStack that is used for similarity checks - cannot be null
+	 * @param itemStack the ItemStack that is used for similarity checks, can be null
 	 */
 	public SimilarIngredient(ItemStack itemStack) {
-		this.itemStack = itemStack;
+		this.itemStack = itemStack == null ? null : itemStack.clone();
 	}
 
 	/**
@@ -29,6 +31,15 @@ public class SimilarIngredient implements CraftingIngredient {
 	@Override
 	public boolean isIngredient(ItemStack itemStack) {
 		return this.itemStack == null ? itemStack == null : this.itemStack.isSimilar(itemStack);
+	}
+	
+	/**
+	 * Gets the item that is used for similarity checks.
+	 * 
+	 * @return the checker ItemStack, or null if no ItemStack was present
+	 */
+	public ItemStack getCheckingItem() {
+		return itemStack == null ? null : itemStack.clone();
 	}
 
 }

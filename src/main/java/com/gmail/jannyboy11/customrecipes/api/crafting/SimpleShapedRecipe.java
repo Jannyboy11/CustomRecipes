@@ -6,11 +6,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.MaterialData;
 
 import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.ingredient.ChoiceIngredient;
@@ -18,7 +21,6 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedReci
 
 public final class SimpleShapedRecipe implements ShapedRecipe {
 	
-	private final NamespacedKey key;
 	private ItemStack result;
 	private int width = 3;
 	private int heigth = 3;
@@ -33,17 +35,15 @@ public final class SimpleShapedRecipe implements ShapedRecipe {
 	private boolean hidden;
 	private String group = "";
 	
-	public SimpleShapedRecipe(NamespacedKey key) {
-		this.key = Objects.requireNonNull(key);
+	public SimpleShapedRecipe() {
 	}
 	
-	public SimpleShapedRecipe(NamespacedKey key, ItemStack result) {
-		this(key);
+	public SimpleShapedRecipe(ItemStack result) {
 		setResult(result);
 	}
 	
-	public SimpleShapedRecipe(NamespacedKey key, ItemStack result, int width, int heigth, List<? extends ChoiceIngredient> ingredients) {
-		this(key, result);
+	public SimpleShapedRecipe(ItemStack result, int width, int heigth, List<? extends ChoiceIngredient> ingredients) {
+		this(result);
 		setIngredients(width, heigth, ingredients);
 	}
 	
@@ -93,10 +93,10 @@ public final class SimpleShapedRecipe implements ShapedRecipe {
 		
 		for (int w = 0; w <= width - this.width; w++) {
 			for (int h = 0; h <= heigth - this.heigth; h++) {
-				if (matrixMatch(craftingInventory, world, w, h, true)) {
+				if (matrixMatch(craftingInventory, w, h, true)) {
 					return true;
 				}
-				if (matrixMatch(craftingInventory, world, w, h, false)) {
+				if (matrixMatch(craftingInventory, w, h, false)) {
 					return true;
 				}
 			}
@@ -105,7 +105,8 @@ public final class SimpleShapedRecipe implements ShapedRecipe {
         return false;
 	}
 	
-	private boolean matrixMatch(CraftingInventory craftingInventory, World world, int maxColumns, int maxRows, boolean mirrored) {
+	
+	private boolean matrixMatch(CraftingInventory craftingInventory, int maxColumns, int maxRows, boolean mirrored) {
 		for (int c = 0; c < 3; c++) {
 			for (int r = 0; r < 3; r++) {
 				int colNum = c - maxColumns;
@@ -141,8 +142,14 @@ public final class SimpleShapedRecipe implements ShapedRecipe {
 	public List<? extends ItemStack> getLeftOverItems(CraftingInventory craftingInventory) {
 		return Arrays.stream(craftingInventory.getMatrix())
 				.map(itemStack -> {
-					if (itemStack == null || itemStack.getAmount() <= 1) return null;
+					if (itemStack == null) return null;					
 					ItemStack clone = itemStack.clone();
+					MaterialData craftingResult = InventoryUtils.getSingleIngredientResult(itemStack.getData());
+					if (craftingResult.getItemType() != Material.AIR) {
+						clone.setData(craftingResult);
+						return clone;
+					}
+					if (itemStack.getAmount() <= 1) return null;
 					clone.setAmount(itemStack.getAmount() - 1);
 					return clone;
 				}).collect(Collectors.toList());
@@ -151,11 +158,6 @@ public final class SimpleShapedRecipe implements ShapedRecipe {
 	@Override
 	public boolean isHidden() {
 		return hidden;
-	}
-
-	@Override
-	public NamespacedKey getKey() {
-		return key;
 	}
 
 	@Override
@@ -184,21 +186,19 @@ public final class SimpleShapedRecipe implements ShapedRecipe {
 		if (!(o instanceof ShapedRecipe)) return false;
 		ShapedRecipe that = (ShapedRecipe) o;
 		
-		return Objects.equals(this.key, that.getKey()) && Objects.equals(this.result, that.getResult()) &&
+		return Objects.equals(this.result, that.getResult()) && Objects.equals(this.ingredients, that.getIngredients()) &&
 				Objects.equals(this.width, that.getWidth()) && Objects.equals(this.heigth, that.getHeight()) &&
-				Objects.equals(this.ingredients, that.getIngredients()) && Objects.equals(this.hidden, that.isHidden()) &&
-				Objects.equals(this.group, that.getGroup());
+				Objects.equals(this.hidden, that.isHidden()) &&	Objects.equals(this.group, that.getGroup());
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(key, result, width, heigth, ingredients, hidden, group);
+		return Objects.hash(result, width, heigth, ingredients, hidden, group);
 	}
 	
 	@Override
 	public String toString() {
 		return getClass().getName() + "{" + 
-			"key=" + key +
 			",result=" + result +
 			",width=" + width +
 			",heigth=" + heigth +

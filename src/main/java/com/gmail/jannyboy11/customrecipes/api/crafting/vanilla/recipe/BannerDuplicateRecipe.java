@@ -1,7 +1,5 @@
 package com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe;
 
-import java.util.Arrays;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -22,7 +20,6 @@ public interface BannerDuplicateRecipe extends ShapelessRecipe {
 		ItemStack stack = new ItemStack(Material.BANNER);
 		ItemMeta meta = stack.getItemMeta();
 		meta.setDisplayName(ChatColor.GRAY + "Banner Duplicate Pattern");
-		meta.setLore(Arrays.asList(ChatColor.DARK_GRAY + "Key: " + getKey()));
 		stack.setItemMeta(meta);
 		return stack;
 	}

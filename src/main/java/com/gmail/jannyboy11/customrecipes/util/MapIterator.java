@@ -23,5 +23,10 @@ public class MapIterator<T, R> implements Iterator<R> {
 	public R next() {
 		return mapper.apply(source.next());
 	}
+	
+	@Override
+	public void remove() {
+		source.remove();
+	}
 
 }

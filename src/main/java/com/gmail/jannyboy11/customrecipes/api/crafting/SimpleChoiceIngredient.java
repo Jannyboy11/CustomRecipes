@@ -29,14 +29,14 @@ public class SimpleChoiceIngredient implements ChoiceIngredient {
 		this.choices = Objects.requireNonNull(choices);
 	}
 	
-	public static ChoiceIngredient fromItemStacks(ItemStack... choices) {
+	public static ChoiceIngredient fromChoices(ItemStack... choices) {
 		if (choices == null || choices.length == 0) return ACCEPTING_EMPTY;
 		return new SimpleChoiceIngredient(Arrays.asList(choices));
 	}
 
 	@Override
 	public boolean isIngredient(ItemStack itemStack) {
-		return choices.stream().anyMatch(choice -> Objects.equals(itemStack, choice));
+		return choices.stream().anyMatch(choice -> choice == null ? itemStack == null : choice.isSimilar(itemStack));
 	}
 
 	@Override

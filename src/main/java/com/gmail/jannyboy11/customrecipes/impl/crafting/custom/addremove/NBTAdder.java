@@ -111,7 +111,7 @@ public class NBTAdder implements BiConsumer<Player, List<String>> {
 					ChatColor.RESET + " -> " +
 					InventoryUtils.getItemName(nbtRecipe.getResult());
 				
-				holder.plugin.getCraftingManager().addRecipe(nbtRecipe);
+				holder.plugin.getCraftingManager().addRecipe(holder.key, nmsRecipe, nbtRecipe);
 				holder.callbackPlayer.sendMessage(String.format("%sAdded NBT recipe: %s%s%s!",
 						ChatColor.GREEN, ChatColor.WHITE, recipeString, ChatColor.WHITE));
 				

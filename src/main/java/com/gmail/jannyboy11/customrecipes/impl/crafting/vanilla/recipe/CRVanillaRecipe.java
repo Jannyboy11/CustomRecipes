@@ -12,8 +12,8 @@ import net.minecraft.server.v1_12_R1.MinecraftKey;
 @Deprecated
 public class CRVanillaRecipe<R extends IRecipe> extends CRCraftingRecipe<R> implements CraftingRecipe {
 
-	public CRVanillaRecipe(R nmsRecipe, MinecraftKey key) {
-		super(nmsRecipe, key);
+	public CRVanillaRecipe(R nmsRecipe) {
+		super(nmsRecipe);
 	}
 
 }

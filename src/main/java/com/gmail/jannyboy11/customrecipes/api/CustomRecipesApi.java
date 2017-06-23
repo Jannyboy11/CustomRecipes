@@ -8,7 +8,17 @@ import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceManager;
 import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe;
 
 /**
- * The Custom Recipes application programming interface
+ * The Custom Recipes application programming interface.
+ *
+ * This interface is implemented by the CustomRecipes plugin's main class,
+ * So the instance can easily be acquired using Bukkit's PluginManager API.
+ * <pre>
+ * {@code
+ * Plugin customRecipesPlugin = Bukkit.getPluginManager().getPlugin("CustomRecipes");
+ * CustomRecipesApi api = (CustomRecipesApi) customRecipesPlugin;
+ * }
+ * </pre> 
+ * 
  * @author Jan
  *
  */
