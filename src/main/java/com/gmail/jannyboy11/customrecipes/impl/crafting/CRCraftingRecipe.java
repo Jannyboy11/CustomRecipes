@@ -2,8 +2,6 @@ package com.gmail.jannyboy11.customrecipes.impl.crafting;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.bukkit.NamespacedKey;
@@ -23,7 +21,7 @@ import net.minecraft.server.v1_12_R1.InventoryCrafting;
 import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.WorldServer;
 
-//TODO override getRepresentation in all subclasses
+//TODO override getRepresentation in all subclasses to include the key in the lore
 public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe {
 	
 	protected final R nmsRecipe;

@@ -1,7 +1,5 @@
 package com.gmail.jannyboy11.customrecipes.api.crafting.custom.ingredient;
 
-import java.util.Objects;
-
 import org.bukkit.inventory.ItemStack;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingIngredient;

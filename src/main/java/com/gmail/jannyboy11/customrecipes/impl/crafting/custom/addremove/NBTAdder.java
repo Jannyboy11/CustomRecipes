@@ -148,8 +148,8 @@ public class NBTAdder implements BiConsumer<Player, List<String>> {
 				}
 			}
 			
-			int height = maxNonEmptyRownum - minNonEmptyRownum;
-			int width = maxNonEmptyColnum - minNonEmptyColnum;
+			int height = maxNonEmptyRownum - minNonEmptyRownum + 1;
+			int width = maxNonEmptyColnum - minNonEmptyColnum + 1;
 			
 			NonNullList<RecipeItemStack> ingredients = NonNullList.a(height * width, RecipeItemStack.a);
 			for (int h = 0; h < height; h++) {

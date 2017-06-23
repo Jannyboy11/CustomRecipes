@@ -35,3 +35,6 @@ out/*
 # Maven
 target/*
 dependency-reduced-pom.xml
+
+# JavaDoc
+doc/*

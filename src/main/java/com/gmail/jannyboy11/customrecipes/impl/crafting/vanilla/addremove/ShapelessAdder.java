@@ -104,13 +104,6 @@ public class ShapelessAdder implements BiConsumer<Player, List<String>> {
 				String recipeString = recipeIngredients + "" + ChatColor.RESET + " -> "
 						+ InventoryUtils.getItemName(shapelessRecipe.getResult());
 
-				//TODO
-				//TODO
-				//TODO
-				//TODO debug this. recipe isn't getting added. :(
-				//TODO
-				//TODO
-				//TODO
 				holder.plugin.getCraftingManager().addRecipe(holder.key, nmsRecipe, shapelessRecipe);
 				holder.callbackPlayer.sendMessage(String.format("%sAdded shapeless recipe: %s%s%s!",
 						ChatColor.GREEN, ChatColor.WHITE, recipeString, ChatColor.WHITE));

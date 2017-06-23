@@ -212,6 +212,10 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		return simple.equals(recipe) ? recipe : simple;
 	}
 	
+	public List<? extends Recipe> getRecipes(String type) {
+		return recipeSuppliers.getOrDefault(type, Collections::emptyList).get();
+	}
+
 	
 	
 	//for NMS developers
@@ -222,11 +226,6 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	
 	public void setFurnaceManager(CRFurnaceManager furnaceManager) {
 		this.furnaceManager = Objects.requireNonNull(furnaceManager);
-	}
-
-	
-	public List<? extends Recipe> getRecipes(String type) {
-		return recipeSuppliers.getOrDefault(type, Collections::emptyList).get();
 	}
 
 }

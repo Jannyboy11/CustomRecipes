@@ -116,6 +116,7 @@ public class ShapedAdder implements BiConsumer<Player, List<String>> {
 		}
 
 
+		//TODO fix this :-)
 		private ShapedRecipes toRecipe() {
 			CraftInventoryCustom dispenserInventory = (CraftInventoryCustom) this.dispenserInventory;
 			IInventory minecraftInventory = (IInventory) ReflectionUtil.getDeclaredFieldValue(dispenserInventory, "inventory");
@@ -140,8 +141,8 @@ public class ShapedAdder implements BiConsumer<Player, List<String>> {
 				}
 			}
 			
-			int height = maxNonEmptyRownum - minNonEmptyRownum;
-			int width = maxNonEmptyColnum - minNonEmptyColnum;
+			int height = maxNonEmptyRownum - minNonEmptyRownum + 1;
+			int width = maxNonEmptyColnum - minNonEmptyColnum + 1;
 			
 			NonNullList<RecipeItemStack> ingredients = NonNullList.a(height * width, RecipeItemStack.a);
 			for (int h = 0; h < height; h++) {

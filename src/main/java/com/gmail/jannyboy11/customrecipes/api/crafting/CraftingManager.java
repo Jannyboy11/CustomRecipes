@@ -3,7 +3,7 @@ package com.gmail.jannyboy11.customrecipes.api.crafting;
 import org.bukkit.NamespacedKey;
 
 /**
- * Represents the crafting manager, the almighty manager of all crafting.
+ * Represents the crafting manager, the almighty manager of all crafting recipes.
  * 
  * @author Jan
  *

@@ -56,7 +56,7 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 	protected boolean putRecipe(MinecraftKey key, CraftingRecipe recipe) {
 		if (recipe == null || key == null) return false;
 		
-		//should I care about implementations that don't extends CRCraftingRecipe?
+		//should I care about implementations that don't extend CRCraftingRecipe?
 
 		if (recipe instanceof CRCraftingRecipe) {
 			@SuppressWarnings("rawtypes")

@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.CraftingInventory;
@@ -199,7 +198,7 @@ public final class SimpleShapedRecipe implements ShapedRecipe {
 	@Override
 	public String toString() {
 		return getClass().getName() + "{" + 
-			",result=" + result +
+			"result=" + result +
 			",width=" + width +
 			",heigth=" + heigth +
 			",ingredients=" + ingredients +

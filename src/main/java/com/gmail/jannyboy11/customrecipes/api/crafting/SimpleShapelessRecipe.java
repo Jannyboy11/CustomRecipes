@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
@@ -143,7 +142,7 @@ public final class SimpleShapelessRecipe implements ShapelessRecipe {
 	@Override
 	public String toString() {
 		return getClass().getName() + "{" + 
-			",result=" + result +
+			"result=" + result +
 			",ingredients=" + ingredients +
 			",hidden=" + hidden +
 			",group=" + group +				
