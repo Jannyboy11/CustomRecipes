@@ -144,7 +144,7 @@ public class CRFurnaceManager implements FurnaceManager {
 	}
 
 	
-	private static Map<ItemStack, Float> vanillaXp(RecipesFurnace recipesFurnace) {
+	public static Map<ItemStack, Float> vanillaXp(RecipesFurnace recipesFurnace) {
 		return (Map<ItemStack, Float>) ReflectionUtil.getDeclaredFieldValue(recipesFurnace, "experience");
 	}
 

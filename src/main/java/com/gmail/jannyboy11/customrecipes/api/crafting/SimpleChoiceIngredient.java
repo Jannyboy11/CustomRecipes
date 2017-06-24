@@ -36,7 +36,7 @@ public class SimpleChoiceIngredient implements ChoiceIngredient {
 
 	@Override
 	public boolean isIngredient(ItemStack itemStack) {
-		return choices.stream().anyMatch(choice -> choice == null ? itemStack == null : choice.isSimilar(itemStack));
+		return choices.stream().anyMatch(choice -> choice == null ? itemStack == null : choice.getData().equals(itemStack.getData()));
 	}
 
 	@Override

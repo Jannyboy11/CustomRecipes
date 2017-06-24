@@ -115,8 +115,6 @@ public class ShapedAdder implements BiConsumer<Player, List<String>> {
 			}
 		}
 
-
-		//TODO fix this :-)
 		private ShapedRecipes toRecipe() {
 			CraftInventoryCustom dispenserInventory = (CraftInventoryCustom) this.dispenserInventory;
 			IInventory minecraftInventory = (IInventory) ReflectionUtil.getDeclaredFieldValue(dispenserInventory, "inventory");

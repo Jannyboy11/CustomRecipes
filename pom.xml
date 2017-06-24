@@ -8,7 +8,7 @@
   
   <build>
     <plugins>
-	
+    
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.6.1</version>
@@ -17,7 +17,7 @@
           <target>1.8</target>
         </configuration>
       </plugin>
-	  
+      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
@@ -31,9 +31,9 @@
           </execution>
         </executions>
       </plugin>
-	  
+      
     </plugins>
-	
+    
   </build>
   
   <dependencies>
@@ -42,13 +42,13 @@
       <artifactId>asm</artifactId>
       <version>5.2</version>
     </dependency>
-	
-	<dependency>
-	  <groupId>org.spigotmc</groupId>
+    
+    <dependency>
+      <groupId>org.spigotmc</groupId>
       <artifactId>Spigot</artifactId>
       <version>1.12-R0.1-SNAPSHOT</version>
-	  <scope>provided</scope>
-	</dependency>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   
 </project>

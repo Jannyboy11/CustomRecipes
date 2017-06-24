@@ -38,12 +38,15 @@ import com.gmail.jannyboy11.customrecipes.commands.RemoveRecipeCommandExecutor;
 import com.gmail.jannyboy11.customrecipes.gui.ListRecipesListener;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingManager;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.NBTAdder;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.PermissionAdder;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.InjectedIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapedAdder;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapelessAdder;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRVanillaRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceManager;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.furnace.addremove.FurnaceAdder;
+
 import net.minecraft.server.v1_12_R1.IRecipe;
 
 public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi {
@@ -67,8 +70,8 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		addAdder("shaped", new ShapedAdder(this));
 		addAdder("shapeless", new ShapelessAdder(this));
 		addAdder("nbt", new NBTAdder(this));
-		//TODO permission
-		//TODO furnace
+		addAdder("permission", new PermissionAdder(this));
+		addAdder("furnace", new FurnaceAdder(this));
 		
 		//TODO add standard removers
 		
