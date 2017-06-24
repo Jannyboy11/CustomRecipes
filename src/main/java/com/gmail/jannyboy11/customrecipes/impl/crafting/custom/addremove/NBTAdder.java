@@ -1,5 +1,6 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -20,6 +21,7 @@ import org.bukkit.inventory.InventoryHolder;
 
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.NBTIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.NBTRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.tobukkit.CRNBTRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient.CRChoiceIngredient;
@@ -123,17 +125,15 @@ public class NBTAdder implements BiConsumer<Player, List<String>> {
 		private NBTRecipe toRecipe() {
 			CraftInventoryCustom dispenserInventory = (CraftInventoryCustom) this.dispenserInventory;
 			IInventory minecraftInventory = (IInventory) ReflectionUtil.getDeclaredFieldValue(dispenserInventory, "inventory");
-			NonNullList<ItemStack> itemStacks = (NonNullList<ItemStack>) ReflectionUtil.getDeclaredFieldValue(minecraftInventory, "items");
-			
-			List<NBTTagCompound> tags = itemStacks.stream().map(ItemStack::getTag).collect(Collectors.toList());
+			NonNullList<ItemStack> dispenserInventoryContents = (NonNullList<ItemStack>) ReflectionUtil.getDeclaredFieldValue(minecraftInventory, "items");
 			
 			int minNonEmptyRownum = 2;
 			int minNonEmptyColnum = 2;
 			int maxNonEmptyRownum = 0;
 			int maxNonEmptyColnum = 0;
 			
-			for (int index = 0; index < itemStacks.size(); index++) {
-				ItemStack stack = itemStacks.get(index);
+			for (int index = 0; index < dispenserInventoryContents.size(); index++) {
+				ItemStack stack = dispenserInventoryContents.get(index);
 				if (!stack.isEmpty()) {
 					int[] rownumColnum = InventoryUtils.inventoryRownumColnum(3, index);
 					int rowNum = rownumColnum[0];
@@ -150,16 +150,20 @@ public class NBTAdder implements BiConsumer<Player, List<String>> {
 			int width = maxNonEmptyColnum - minNonEmptyColnum + 1;
 			
 			NonNullList<RecipeItemStack> ingredients = NonNullList.a(height * width, RecipeItemStack.a);
+			List<NBTTagCompound> tags = new ArrayList<>();
 			for (int h = 0; h < height; h++) {
 				for (int w = 0; w < width; w++) {
 					int index = InventoryUtils.inventoryIndex(width, new int[] {h, w});
 					
-					ItemStack ingredientStack = itemStacks.get(InventoryUtils.inventoryIndex(3,
+					ItemStack ingredientStack = dispenserInventoryContents.get(InventoryUtils.inventoryIndex(3,
 							new int[] {h + minNonEmptyRownum, w + minNonEmptyColnum}));
-					//TODO use NBTIngredient.
-					RecipeItemStack ingredient = RecipeItemStack.a(new ItemStack[] {ingredientStack});
+
+					RecipeItemStack vanillaIngredient = RecipeItemStack.a(new ItemStack[] {ingredientStack});
+					NBTTagCompound tag = ingredientStack.getTag();
+					RecipeItemStack nbtIngredient = new NBTIngredient(vanillaIngredient, tag).asNMSIngredient();
 					
-					ingredients.set(index, ingredient);
+					ingredients.set(index, nbtIngredient);
+					tags.add(tag);
 				}
 			}
 			
