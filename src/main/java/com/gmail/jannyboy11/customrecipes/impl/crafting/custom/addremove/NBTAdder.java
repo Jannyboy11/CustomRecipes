@@ -40,7 +40,6 @@ public class NBTAdder implements BiConsumer<Player, List<String>> {
 		this.plugin = plugin;
 	}
 	
-
 	@Override
 	public void accept(Player player, List<String> args) {
 		org.bukkit.inventory.ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
@@ -81,6 +80,7 @@ public class NBTAdder implements BiConsumer<Player, List<String>> {
 			this.group = group;
 			this.callbackPlayer = callbackPlayer;
 			this.dispenserInventory = plugin.getServer().createInventory(this, InventoryType.DISPENSER, "Create an NBT recipe!");
+			plugin.getServer().getPluginManager().registerEvents(this, plugin);
 		}
 
 		@Override
@@ -118,8 +118,6 @@ public class NBTAdder implements BiConsumer<Player, List<String>> {
 				HandlerList.unregisterAll(holder);
 			}
 		}
-		
-		
 		
 
 		private NBTRecipe toRecipe() {

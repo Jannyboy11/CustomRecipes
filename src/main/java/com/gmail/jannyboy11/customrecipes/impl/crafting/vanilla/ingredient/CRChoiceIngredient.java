@@ -1,6 +1,7 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -21,6 +22,7 @@ public class CRChoiceIngredient extends CRCraftingIngredient<RecipeItemStack> im
 
 	@Override
 	public List<? extends ItemStack> getChoices() {
+		if (nmsIngredient.choices == null) return Collections.emptyList();
 		return Arrays.stream(nmsIngredient.choices).map(CraftItemStack::asCraftMirror).collect(Collectors.toList());
 	}
 	
@@ -32,6 +34,7 @@ public class CRChoiceIngredient extends CRCraftingIngredient<RecipeItemStack> im
 			net.minecraft.server.v1_12_R1.ItemStack[] thisChoices = nmsIngredient.choices;
 			net.minecraft.server.v1_12_R1.ItemStack[] thatChoices = that.nmsIngredient.choices;
 			
+			if (thisChoices == null || thatChoices == null) return false;
 			if (thisChoices.length != thatChoices.length) return false;
 			
 			for (int i = 0; i < thisChoices.length; i++) {

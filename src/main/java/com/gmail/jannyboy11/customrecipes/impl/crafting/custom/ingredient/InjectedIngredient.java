@@ -78,7 +78,7 @@ public class InjectedIngredient implements Predicate<ItemStack> {
 	 * 		private final Predicate<? super ItemStack> predicate;
 	 *
 	 * 		public RecipeItemStackInjected(Predicate<? super ItemStack> injection) {
-	 *     		super(new ItemStack[0], null);
+	 *     		super(new ItemStack[0], null); //TODO fix this. this super constructor does not exist. dangit.
 	 *     		this.predicate = Objects.requireNonNull(injection);
 	 * 		}
 	 *
@@ -101,29 +101,30 @@ public class InjectedIngredient implements Predicate<ItemStack> {
 	 *	}
 	 *
 	 *	THANKS ASM!
-	 * 
 	 */
 
 	private static final class RecipeItemStackInjectedDump implements Opcodes {
 
-		public static byte[] dump() throws Exception {
+		public static byte[] dump () throws Exception {
 
 			ClassWriter cw = new ClassWriter(0);
 			FieldVisitor fv;
 			MethodVisitor mv;
 
-			cw.visit(52, ACC_PUBLIC + ACC_SUPER, "net/minecraft/server/v1_12_R1/RecipeItemStackInjected",
-					"Lnet/minecraft/server/v1_12_R1/RecipeItemStack;Ljava/util/function/Predicate<Lnet/minecraft/server/v1_12_R1/ItemStack;>;",
-					"net/minecraft/server/v1_12_R1/RecipeItemStack", new String[] { "java/util/function/Predicate" });
+			cw.visit(52, ACC_PUBLIC + ACC_SUPER, "net/minecraft/server/v1_12_R1/RecipeItemStackInjected", "Lnet/minecraft/server/v1_12_R1/RecipeItemStack;Ljava/util/function/Predicate<Lnet/minecraft/server/v1_12_R1/ItemStack;>;", "net/minecraft/server/v1_12_R1/RecipeItemStack", new String[] { "java/util/function/Predicate" });
+
+			cw.visitSource("RecipeItemStackInjected.java", null);
 
 			{
-				fv = cw.visitField(ACC_PRIVATE + ACC_FINAL, "predicate", "Ljava/util/function/Predicate;",
-						"Ljava/util/function/Predicate<-Lnet/minecraft/server/v1_12_R1/ItemStack;>;", null);
+				fv = cw.visitField(ACC_PRIVATE + ACC_FINAL, "predicate", "Ljava/util/function/Predicate;", "Ljava/util/function/Predicate<-Lnet/minecraft/server/v1_12_R1/ItemStack;>;", null);
 				fv.visitEnd();
 			}
 			{
-				mv = cw.visitMethod(0, "<init>", "(Ljava/util/function/Predicate;)V", "(Ljava/util/function/Predicate<-Lnet/minecraft/server/v1_12_R1/ItemStack;>;)V", null);
+				mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(Ljava/util/function/Predicate;)V", "(Ljava/util/function/Predicate<-Lnet/minecraft/server/v1_12_R1/ItemStack;>;)V", null);
 				mv.visitCode();
+				
+				//what if we don't visit the constructor? :D THAT IS EVIL!!
+				
 				Label l0 = new Label();
 				mv.visitLabel(l0);
 				mv.visitLineNumber(11, l0);
@@ -131,7 +132,7 @@ public class InjectedIngredient implements Predicate<ItemStack> {
 				mv.visitInsn(ICONST_0);
 				mv.visitTypeInsn(ANEWARRAY, "net/minecraft/server/v1_12_R1/ItemStack");
 				mv.visitInsn(ACONST_NULL);
-				mv.visitMethodInsn(INVOKESPECIAL, "net/minecraft/server/v1_12_R1/RecipeItemStack", "<init>", "([Lnet/minecraft/server/v1_12_R1/ItemStack;Ljava/lang/Object;)V", false);
+				mv.visitMethodInsn(INVOKESPECIAL, "net/minecraft/server/v1_12_R1/RecipeItemStack", "<init>", "([Lnet/minecraft/server/v1_12_R1/ItemStack;Lnet/minecraft/server/v1_12_R1/RecipeItemStack$1;)V", false);
 				Label l1 = new Label();
 				mv.visitLabel(l1);
 				mv.visitLineNumber(12, l1);
@@ -201,7 +202,7 @@ public class InjectedIngredient implements Predicate<ItemStack> {
 				Label l1 = new Label();
 				mv.visitLabel(l1);
 				mv.visitLocalVariable("this", "Lnet/minecraft/server/v1_12_R1/RecipeItemStackInjected;", null, l0, l1, 0);
-				mv.visitLocalVariable("itemStack", "Lnet/minecraft/server/ItemStack;", null, l0, l1, 1);
+				mv.visitLocalVariable("itemStack", "Lnet/minecraft/server/v1_12_R1/ItemStack;", null, l0, l1, 1);
 				mv.visitMaxs(2, 2);
 				mv.visitEnd();
 			}

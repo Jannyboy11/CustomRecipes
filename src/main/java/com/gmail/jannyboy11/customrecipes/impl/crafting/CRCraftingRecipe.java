@@ -1,27 +1,32 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
 import org.bukkit.inventory.CraftingInventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
-import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
+import net.minecraft.server.v1_12_R1.CraftingManager;
 import net.minecraft.server.v1_12_R1.IRecipe;
 import net.minecraft.server.v1_12_R1.InventoryCrafting;
 import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.WorldServer;
 
-//TODO override getRepresentation in all subclasses to include the key in the lore
 public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe {
 	
 	protected final R nmsRecipe;
@@ -78,10 +83,41 @@ public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe {
 	 * @return the key if this recipe is registered, otherwise null
 	 */
 	public final NamespacedKey getKey() {
-		CRCraftingManager craftingManager = CustomRecipesPlugin.getInstance().getCraftingManager();
-		MinecraftKey mcKey = craftingManager.getKey(nmsRecipe);
+		MinecraftKey mcKey = getMinecraftKey();
 		return mcKey == null ? null : CraftNamespacedKey.fromMinecraft(mcKey);
 	}
+	
+	private MinecraftKey getMinecraftKey() {
+		return CraftingManager.recipes.b(nmsRecipe);
+	}
+	
+	@Override
+	public ItemStack getRepresentation() {
+		ItemStack result = getResult();
+		
+		ItemStack representation = (result == null || result.getType() == Material.AIR) ? new ItemStack(Material.AIR) : result.clone();
+		if (representation.getType() == Material.AIR) {
+			representation = new ItemStack(Material.STRUCTURE_BLOCK);
+			ItemMeta meta = representation.getItemMeta();
+			meta.setDisplayName(InventoryUtils.getItemName(getResult()));
+			meta.setLore(Arrays.asList("Result: UNKNOWN", ChatColor.DARK_GRAY + "Key: " + getMinecraftKey()));
+			representation.setItemMeta(meta);
+			return representation;
+		}
+		
+		ItemMeta meta = representation.getItemMeta();
+
+		List<String> lore = new ArrayList<>();
+		lore.add(ChatColor.DARK_GRAY + "Hidden: " + isHidden());
+		lore.add(ChatColor.DARK_GRAY + "Key: " + getMinecraftKey());
+		
+		meta.setDisplayName(ChatColor.GRAY + InventoryUtils.getItemName(getResult()));
+		meta.setLore(lore);
+		
+		representation.setItemMeta(meta);
+		return representation;
+	}
+	
 
 	@Override
 	public boolean equals(Object object) {
