@@ -1,7 +1,6 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.function.Predicate;
 
 import org.objectweb.asm.ClassWriter;
@@ -10,17 +9,28 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
+
 import net.minecraft.server.v1_12_R1.ItemStack;
 import net.minecraft.server.v1_12_R1.RecipeItemStack;
+import sun.misc.Unsafe;
 
 public class InjectedIngredient implements Predicate<ItemStack> {
 
 	private static Class<? extends RecipeItemStack> recipeItemStackInjectedClass;
+	
+	private static Unsafe unsafe;
+	
 	public static void inject() {
 		RecipeItemStackClassLoader loader = new RecipeItemStackClassLoader();
 		try {
 			recipeItemStackInjectedClass = (Class<? extends RecipeItemStack>) loader
 					.defineClass("net.minecraft.server.v1_12_R1.RecipeItemStackInjected", RecipeItemStackInjectedDump.dump());
+			
+			Constructor<Unsafe> unsafeConstructor = Unsafe.class.getDeclaredConstructor();
+			unsafeConstructor.setAccessible(true);
+			unsafe = unsafeConstructor.newInstance();
+			
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -40,11 +50,19 @@ public class InjectedIngredient implements Predicate<ItemStack> {
 
 	public RecipeItemStack asNMSIngredient() {
 		try {
-			Constructor<? extends RecipeItemStack> constructor = recipeItemStackInjectedClass.getConstructor(Predicate.class);
-			RecipeItemStack recipeItemStackInjected = constructor.newInstance(tester);
+			RecipeItemStack recipeItemStackInjected = (RecipeItemStack) unsafe.allocateInstance(recipeItemStackInjectedClass);
+			ReflectionUtil.setDeclaredFieldValue(recipeItemStackInjected, "predicate", tester);
+			ReflectionUtil.setFinalFieldValue(recipeItemStackInjected, "choices", new ItemStack[0]);
 			return recipeItemStackInjected;
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException e) {
+
+			//
+			// 		Old implementation: doesn't work due to IllegalAccesError,
+			//		even though I define the class in the same package using the same class loader.
+			//
+			// Constructor<? extends RecipeItemStack> constructor = recipeItemStackInjectedClass.getConstructor(Predicate.class);
+			// RecipeItemStack recipeItemStackInjected = constructor.newInstance(tester);
+			// return recipeItemstackInjected;
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -75,10 +93,10 @@ public class InjectedIngredient implements Predicate<ItemStack> {
 	 * 
 	 * 	public class RecipeItemStackInjected extends RecipeItemStack implements Predicate<ItemStack> {
 	 *
-	 * 		private final Predicate<? super ItemStack> predicate;
+	 * 		private Predicate<? super ItemStack> predicate;
 	 *
 	 * 		public RecipeItemStackInjected(Predicate<? super ItemStack> injection) {
-	 *     		super(new ItemStack[0], null); //TODO fix this. this super constructor does not exist. dangit.
+	 *     		super(new ItemStack[0], null);
 	 *     		this.predicate = Objects.requireNonNull(injection);
 	 * 		}
 	 *
@@ -91,7 +109,6 @@ public class InjectedIngredient implements Predicate<ItemStack> {
 	 * 		public boolean apply(ItemStack itemStack) {
 	 *			return predicate.test(itemStack);
 	 *		}
-	 *
 	 *
 	 *		@Override
 	 *		public void test(ItemStack itemStack) {
@@ -111,20 +128,22 @@ public class InjectedIngredient implements Predicate<ItemStack> {
 			FieldVisitor fv;
 			MethodVisitor mv;
 
-			cw.visit(52, ACC_PUBLIC + ACC_SUPER, "net/minecraft/server/v1_12_R1/RecipeItemStackInjected", "Lnet/minecraft/server/v1_12_R1/RecipeItemStack;Ljava/util/function/Predicate<Lnet/minecraft/server/v1_12_R1/ItemStack;>;", "net/minecraft/server/v1_12_R1/RecipeItemStack", new String[] { "java/util/function/Predicate" });
+			cw.visit(/*version*/ 52,
+					/*access*/ ACC_PUBLIC + ACC_SUPER,
+					/*name*/ "net/minecraft/server/v1_12_R1/RecipeItemStackInjected",
+					/*signature*/ "Lnet/minecraft/server/v1_12_R1/RecipeItemStack;Ljava/util/function/Predicate<Lnet/minecraft/server/v1_12_R1/ItemStack;>;",
+					/*super name*/ "net/minecraft/server/v1_12_R1/RecipeItemStack",
+					/*interfaces*/ new String[] { "java/util/function/Predicate" });
 
 			cw.visitSource("RecipeItemStackInjected.java", null);
 
 			{
-				fv = cw.visitField(ACC_PRIVATE + ACC_FINAL, "predicate", "Ljava/util/function/Predicate;", "Ljava/util/function/Predicate<-Lnet/minecraft/server/v1_12_R1/ItemStack;>;", null);
+				fv = cw.visitField(ACC_PRIVATE, "predicate", "Ljava/util/function/Predicate;", "Ljava/util/function/Predicate<-Lnet/minecraft/server/v1_12_R1/ItemStack;>;", null);
 				fv.visitEnd();
 			}
 			{
 				mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(Ljava/util/function/Predicate;)V", "(Ljava/util/function/Predicate<-Lnet/minecraft/server/v1_12_R1/ItemStack;>;)V", null);
-				mv.visitCode();
-				
-				//what if we don't visit the constructor? :D THAT IS EVIL!!
-				
+				mv.visitCode();				
 				Label l0 = new Label();
 				mv.visitLabel(l0);
 				mv.visitLineNumber(11, l0);

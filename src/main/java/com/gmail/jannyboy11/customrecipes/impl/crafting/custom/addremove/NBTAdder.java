@@ -156,6 +156,7 @@ public class NBTAdder implements BiConsumer<Player, List<String>> {
 					
 					ItemStack ingredientStack = itemStacks.get(InventoryUtils.inventoryIndex(3,
 							new int[] {h + minNonEmptyRownum, w + minNonEmptyColnum}));
+					//TODO use NBTIngredient.
 					RecipeItemStack ingredient = RecipeItemStack.a(new ItemStack[] {ingredientStack});
 					
 					ingredients.set(index, ingredient);
