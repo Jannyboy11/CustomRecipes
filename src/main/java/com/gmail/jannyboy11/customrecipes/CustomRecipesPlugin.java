@@ -27,6 +27,8 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.SimpleChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.SimpleShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.SimpleShapelessRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.custom.recipe.NBTRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.custom.recipe.PermissionRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessRecipe;
@@ -74,12 +76,14 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		addAdder("furnace", new FurnaceAdder(this));
 		
 		//TODO add standard removers
-		
+		//
 		
 		//representations for the listrecipes menu
 		recipeToItemMap.put("shaped", recipe -> ((ShapedRecipe) recipe).getRepresentation());
 		recipeToItemMap.put("shapeless", recipe -> ((ShapelessRecipe) recipe).getRepresentation());
 		recipeToItemMap.put("furnace", recipe -> ((FurnaceRecipe) recipe).getRepresentation());
+		recipeToItemMap.put("nbt", recipe -> ((NBTRecipe) recipe).getRepresentation());
+		recipeToItemMap.put("permission", recipe -> ((PermissionRecipe) recipe).getRepresentation());
 		
 		//recipe displayers
 		recipeToCommandSenderDiplayMap.put("shaped", (recipe, commandSender) -> {
@@ -95,7 +99,6 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 			if (shapedRecipe.isHidden()) commandSender.sendMessage("Hidden: true");
 			commandSender.sendMessage("");
 		});
-		
 		recipeToCommandSenderDiplayMap.put("shapeless", (recipe, commandSender) -> {
 			ShapelessRecipe shapelessRecipe = (ShapelessRecipe) recipe;
 			commandSender.sendMessage("Key: " + craftingManager.getKey(shapelessRecipe));
@@ -107,12 +110,39 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 			if (shapelessRecipe.isHidden()) commandSender.sendMessage("Hidden: true");
 			commandSender.sendMessage("");
 		});
-		
 		recipeToCommandSenderDiplayMap.put("furnace", (recipe, commandSender) -> {
 			FurnaceRecipe furnaceRecipe = (FurnaceRecipe) recipe;
 			commandSender.sendMessage("Ingredient: " + InventoryUtils.getItemName(furnaceRecipe.getIngredient()));
 			commandSender.sendMessage("Result: " + InventoryUtils.getItemName(furnaceRecipe.getResult()));
 			if (furnaceRecipe.hasXp()) commandSender.sendMessage("XP: " + furnaceRecipe.getXp());
+			commandSender.sendMessage("");
+		});
+		recipeToCommandSenderDiplayMap.put("nbt", (recipe, commandSender) -> {
+			NBTRecipe nbtRecipe = (NBTRecipe) recipe;
+			commandSender.sendMessage("Key: " + craftingManager.getKey(nbtRecipe));
+			commandSender.sendMessage("Result: " + InventoryUtils.getItemName(nbtRecipe.getResult()));
+			commandSender.sendMessage("Width: " + nbtRecipe.getWidth());
+			commandSender.sendMessage("Height: " + nbtRecipe.getHeight());
+			commandSender.sendMessage("Ingredients: " + nbtRecipe.getIngredients().stream()
+					.map(ingr -> ingr.getChoices().stream().map(InventoryUtils::getItemName).collect(Collectors.toList()))
+					.collect(Collectors.toList()));
+			if (nbtRecipe.hasGroup()) commandSender.sendMessage("Group: " + nbtRecipe.getGroup());
+			if (nbtRecipe.isHidden()) commandSender.sendMessage("Hidden: true");
+			commandSender.sendMessage("NBT specific");
+			commandSender.sendMessage("");
+		});
+		recipeToCommandSenderDiplayMap.put("permission", (recipe, commandSender) -> {
+			PermissionRecipe permissionRecipe = (PermissionRecipe) recipe;
+			commandSender.sendMessage("Key: " + craftingManager.getKey(permissionRecipe));
+			commandSender.sendMessage("Result: " + InventoryUtils.getItemName(permissionRecipe.getResult()));
+			commandSender.sendMessage("Width: " + permissionRecipe.getWidth());
+			commandSender.sendMessage("Height: " + permissionRecipe.getHeight());
+			commandSender.sendMessage("Ingredients: " + permissionRecipe.getIngredients().stream()
+					.map(ingr -> ingr.getChoices().stream().map(InventoryUtils::getItemName).collect(Collectors.toList()))
+					.collect(Collectors.toList()));
+			if (permissionRecipe.hasGroup()) commandSender.sendMessage("Group: " + permissionRecipe.getGroup());
+			if (permissionRecipe.isHidden()) commandSender.sendMessage("Hidden: true");
+			commandSender.sendMessage("Permission: " + permissionRecipe.getPermission());
 			commandSender.sendMessage("");
 		});
 		
@@ -128,13 +158,20 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		recipeSuppliers.put("furnace", () -> StreamSupport.stream(Spliterators.spliteratorUnknownSize(furnaceManager.iterator(),
 				Spliterator.NONNULL), false)
 				.collect(Collectors.toList()));
+		recipeSuppliers.put("nbt", () -> StreamSupport.stream(Spliterators.spliteratorUnknownSize(craftingManager.iterator(),
+					Spliterator.NONNULL), false)
+					.filter(recipe -> recipe instanceof NBTRecipe)
+					.collect(Collectors.toList()));
+		recipeSuppliers.put("permission", () -> StreamSupport.stream(Spliterators.spliteratorUnknownSize(craftingManager.iterator(),
+					Spliterator.NONNULL), false)
+					.filter(recipe -> recipe instanceof PermissionRecipe)
+					.collect(Collectors.toList()));
 	}
 	
 	
 	public boolean addAdder(String recipeType, BiConsumer<? super Player, ? super List<String>> adder) {
 		return adders.putIfAbsent(recipeType, adder) == null;
 	}
-	
 	
 	
 	@Override
@@ -149,14 +186,9 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	}
 	
 	
-	
-	
-	
 	public static CustomRecipesPlugin getInstance() {
 		return JavaPlugin.getPlugin(CustomRecipesPlugin.class);
 	}
-	
-	
 	
 	
 	@Override
@@ -177,6 +209,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		CRVanillaRecipe<? extends IRecipe> vanillaWrapper = (CRVanillaRecipe<? extends IRecipe>) recipe;
 		return vanillaWrapper.getHandle().getClass().getName().startsWith("net.minecraft.server.");
 	}
+	
 	
 	@Override
 	public ShapedRecipe asCustomRecipesMirror(org.bukkit.inventory.ShapedRecipe bukkitRecipe) {
@@ -215,13 +248,13 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		return simple.equals(recipe) ? recipe : simple;
 	}
 	
+	
 	public List<? extends Recipe> getRecipes(String type) {
 		return recipeSuppliers.getOrDefault(type, Collections::emptyList).get();
 	}
 
 	
 	
-	//for NMS developers
 	
 	public void setCraftingManager(CRCraftingManager craftingManager) {
 		this.craftingManager = Objects.requireNonNull(craftingManager);
