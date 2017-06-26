@@ -41,7 +41,9 @@ import com.gmail.jannyboy11.customrecipes.commands.RemoveRecipeCommandExecutor;
 import com.gmail.jannyboy11.customrecipes.gui.ListRecipesListener;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingManager;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.NBTAdder;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.NBTRemover;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.PermissionAdder;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.PermissionRemover;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.InjectedIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapedAdder;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapedRemover;
@@ -51,6 +53,7 @@ import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRVanilla
 import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceManager;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.addremove.FurnaceAdder;
+import com.gmail.jannyboy11.customrecipes.impl.furnace.addremove.FurnaceRemover;
 
 import net.minecraft.server.v1_12_R1.IRecipe;
 
