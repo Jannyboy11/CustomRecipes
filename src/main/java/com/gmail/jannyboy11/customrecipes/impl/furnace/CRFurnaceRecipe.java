@@ -159,7 +159,8 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 		
 		@Override
 		public String toString() {
-			return getClass().getName() + "{source= " + source +
+			return getClass().getName() + "{" +
+					"source= " + source +
 					",result()=" + getResult() +
 					",xp()=" + xps.get(source) +
 					"}";
