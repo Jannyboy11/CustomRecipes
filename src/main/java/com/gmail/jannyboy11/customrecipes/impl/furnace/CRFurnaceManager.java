@@ -33,7 +33,7 @@ public class CRFurnaceManager implements FurnaceManager {
 	
 	@Override
 	public void reset() {
-		ReflectionUtil.setFinalFieldValue(null, "a", new RecipesFurnace());
+		ReflectionUtil.setStaticFinalFieldValue(null, "a", new RecipesFurnace());
 	}
 	
 	@Override
