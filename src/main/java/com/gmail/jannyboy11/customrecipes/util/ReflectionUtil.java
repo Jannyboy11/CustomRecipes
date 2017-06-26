@@ -3,7 +3,6 @@ package com.gmail.jannyboy11.customrecipes.util;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 
 public final class ReflectionUtil {
 	
@@ -68,7 +67,7 @@ public final class ReflectionUtil {
         }
     }
 
-    public static Method getDeclaredMethod(Object object, String methodName, Class<?> ... argTypes) {
+    public static Method getDeclaredMethod(Object object, String methodName, Class<?> ... argTypes) {    	
         return getDeclaredMethodRecursively(object.getClass(), methodName, argTypes);
     }
 
@@ -90,15 +89,35 @@ public final class ReflectionUtil {
         }
     }
 
-    public static Object invokeMethod(Object object, String methodName, Object ... args) {
-        Method method = getDeclaredMethod(object, methodName, (Class[]) Arrays.stream(args).map(Object::getClass).toArray());
+    public static Object invokeInstanceMethod(Object instance, String methodName, Object ... args) {
+    	Class<?>[] argTypes = new Class[args.length];
+    	for (int i = 0; i < args.length; i++) {
+    		argTypes[i] = args[i].getClass();
+    	}
+    	
+        Method method = getDeclaredMethod(instance, methodName, argTypes);
         try {
-            return method.invoke(object, args);
+            return method.invoke(instance, args);
         }
         catch (Exception e) {
             e.printStackTrace();
             return null;
         }
+    }
+    
+    public static Object invokeStaticMethod(Class<?> clazz, String methodName, Object ... args) {
+    	Class<?>[] argTypes = new Class[args.length];
+    	for (int i = 0; i < args.length; i++) {
+    		argTypes[i] = args[i].getClass();
+    	}
+    	
+		try {
+			Method method = getDeclaredMethodRecursively(clazz, methodName, argTypes);
+			return method.invoke(null, args);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
     }
 
 }

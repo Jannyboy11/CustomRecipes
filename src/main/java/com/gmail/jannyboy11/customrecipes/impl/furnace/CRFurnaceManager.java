@@ -150,7 +150,7 @@ public class CRFurnaceManager implements FurnaceManager {
 	}
 	
 	public static boolean furnaceEquals(ItemStack stack1, ItemStack stack2) {
-		return (boolean) ReflectionUtil.invokeMethod(null, "a", stack1, stack2);
+		return (boolean) ReflectionUtil.invokeInstanceMethod(RecipesFurnace.getInstance(), "a", stack1, stack2);
 	}
 	
 	@Override
