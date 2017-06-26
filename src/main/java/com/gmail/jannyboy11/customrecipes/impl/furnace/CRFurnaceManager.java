@@ -63,7 +63,7 @@ public class CRFurnaceManager implements FurnaceManager {
 		return results.keySet().stream()
 				.filter(inMap -> furnaceEquals(recipesFurnace, inMap, ingredient))
 				.findAny()
-				.map(ignored -> new CRFurnaceRecipe(new FurnaceRecipe(recipesFurnace, results, xps, ingredient)))
+				.map(actualIngredient -> new CRFurnaceRecipe(new FurnaceRecipe(recipesFurnace, results, xps, actualIngredient)))
 				.orElse(null);
 	}
 	

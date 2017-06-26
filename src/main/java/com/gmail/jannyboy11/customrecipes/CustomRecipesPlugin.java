@@ -1,11 +1,14 @@
 package com.gmail.jannyboy11.customrecipes;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Objects;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.TreeMap;
@@ -21,6 +24,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.Consumer;
 
 import com.gmail.jannyboy11.customrecipes.api.CustomRecipesApi;
 import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
@@ -55,7 +59,12 @@ import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.addremove.FurnaceAdder;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.addremove.FurnaceRemover;
 
+import net.minecraft.server.v1_12_R1.CraftingManager;
 import net.minecraft.server.v1_12_R1.IRecipe;
+import net.minecraft.server.v1_12_R1.MinecraftKey;
+import net.minecraft.server.v1_12_R1.RecipesFurnace;
+import net.minecraft.server.v1_12_R1.RegistryID;
+import net.minecraft.server.v1_12_R1.RegistryMaterials;
 
 public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi {
 
@@ -65,14 +74,39 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	private final Map<String, Supplier<? extends List<? extends Recipe>>> recipeSuppliers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	private final Map<String, Function<? super Recipe, ? extends ItemStack>> recipeToItemMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	private final Map<String, BiConsumer<? super Recipe, ? super CommandSender>> recipeToCommandSenderDiplayMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+	
+	private final Map<String, Function<? super Recipe, ? extends File>> storers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+	private final Map<String, Function<? super File, ? extends Recipe>> loaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 	private CRCraftingManager craftingManager = new CRCraftingManager();
 	private CRFurnaceManager furnaceManager = new CRFurnaceManager();
+	
+	private Set<MinecraftKey> vanillaCraftingRecipes;
+	private Set<net.minecraft.server.v1_12_R1.ItemStack> vanillaFurnaceRecipes;
+	
+	
+	private void recordVanillaRecipes() {
+		getServer().resetRecipes();
+		vanillaCraftingRecipes = new HashSet<>(CraftingManager.recipes.keySet());
+		vanillaFurnaceRecipes = new HashSet<>(RecipesFurnace.getInstance().recipes.keySet());
+	}
+	
+	public boolean isVanillaCraftingRecipe(MinecraftKey key) {
+		return vanillaCraftingRecipes.contains(key);
+	}
+	
+	public boolean isVanillaFurnaceRecipe(net.minecraft.server.v1_12_R1.ItemStack ingredient) {
+		return vanillaFurnaceRecipes.stream().anyMatch(ingr -> CRFurnaceManager.furnaceEquals(RecipesFurnace.getInstance(), ingr, ingredient));
+	}
+	
 
 	@Override
 	public void onLoad() {
 		//define RecipeItemstackInjected subclass
 		InjectedIngredient.inject();
+		
+		//let's hope no other plugins have added crafting recipes here
+		recordVanillaRecipes();
 
 		//adders
 		addAdder("shaped", new ShapedAdder(this));
@@ -87,7 +121,9 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		addRemover("nbt", new NBTRemover(this));
 		addRemover("permission", new PermissionRemover(this));
 		addRemover("furnace", new FurnaceRemover(this));
-		//TODO add standard removers
+		
+		//TODO savers and loaders
+		
 
 		//representations for the listrecipes menu
 		recipeToItemMap.put("shaped", recipe -> ((ShapedRecipe) recipe).getRepresentation());
@@ -198,6 +234,8 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 				Collections.unmodifiableMap(recipeToCommandSenderDiplayMap)));
 
 		getServer().getPluginManager().registerEvents(new ListRecipesListener(), this);
+		
+		//TODO load recipes from disk
 	}
 
 

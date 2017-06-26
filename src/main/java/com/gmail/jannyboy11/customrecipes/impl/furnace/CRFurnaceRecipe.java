@@ -1,6 +1,7 @@
 package com.gmail.jannyboy11.customrecipes.impl.furnace;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
@@ -145,11 +146,15 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 		}
 
 		public float getXp() {
-			return recipesFurnace.b(source);
+			return xps.entrySet().stream().filter(e -> CRFurnaceManager.furnaceEquals(recipesFurnace, e.getKey(), source))
+					.findAny().map(Entry::getValue)
+					.orElse(0F);
 		}
 
 		public ItemStack getResult() {
-			return recipesFurnace.getResult(source);
+			return results.entrySet().stream().filter(e -> CRFurnaceManager.furnaceEquals(recipesFurnace, e.getKey(), source))
+					.findAny().map(Entry::getValue)
+					.orElse(ItemStack.a);
 		}
 
 		public ItemStack getIngredient() {
@@ -157,7 +162,7 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 		}
 		
 		public boolean hasXp() {
-			return xps.containsKey(source);
+			return xps.keySet().stream().anyMatch(ingrStack -> CRFurnaceManager.furnaceEquals(recipesFurnace, ingrStack, source));
 		}
 		
 		//net.minecraft.server.v1_XX_RX.ItemStack doesn't override equals() and hashCode()!
