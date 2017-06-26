@@ -160,7 +160,19 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 			return xps.containsKey(source);
 		}
 		
-		//apparently net.minecraft.server.v1_XX_RX.ItemStack doesn't override equals() and hashCode()!
+		//net.minecraft.server.v1_XX_RX.ItemStack doesn't override equals() and hashCode()!
+		public boolean equals(Object o) {
+			if (o == this) return true;
+			if (!(o instanceof FurnaceRecipe)) return false;
+			FurnaceRecipe that = (FurnaceRecipe) o;
+
+			return CRFurnaceManager.furnaceEquals(this.source, that.source) && this.results == that.results && this.xps == that.xps;	
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(source, getResult(), getXp());
+		}
 		
 		@Override
 		public String toString() {

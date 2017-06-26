@@ -2,7 +2,6 @@ package com.gmail.jannyboy11.customrecipes.impl.furnace;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Optional;
 
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 
@@ -60,6 +59,7 @@ public class CRFurnaceManager implements FurnaceManager {
 	}
 
 	public CRFurnaceRecipe getRecipe(RecipesFurnace recipesFurnace, Map<ItemStack, ItemStack> results, Map<ItemStack, Float> xps, ItemStack ingredient) {
+		//has to be done this way since ItemStack doesn't override equals nor hashCode
 		return results.keySet().stream()
 				.filter(inMap -> furnaceEquals(inMap, ingredient))
 				.findAny()
