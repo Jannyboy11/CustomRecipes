@@ -6,6 +6,7 @@ import java.util.Objects;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 
 import net.minecraft.server.v1_12_R1.ItemStack;
+import net.minecraft.server.v1_12_R1.RecipesFurnace;
 
 public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe {
 
@@ -86,7 +87,7 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 		return getClass().getName() + "{nmsRecipe=" + nmsRecipe + "}";
 	}
 	
-	public static CRFurnaceRecipe fromSimple(com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe simple, Map<ItemStack, ItemStack> results, Map<ItemStack, Float> xps) {
+	public static CRFurnaceRecipe fromSimple(com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe simple, RecipesFurnace recipesFurnace, Map<ItemStack, ItemStack> results, Map<ItemStack, Float> xps) {
 		if (simple instanceof CRFurnaceRecipe) {
 			return (CRFurnaceRecipe) simple;
 		}
@@ -98,23 +99,25 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 		results.put(nmsIngredient, nmsResult);
 		if (xp > 0F) xps.put(nmsIngredient, xp);
 		
-		return new CRFurnaceRecipe(new FurnaceRecipe(results, xps, nmsIngredient));
+		return new CRFurnaceRecipe(new FurnaceRecipe(recipesFurnace, results, xps, nmsIngredient));
 	}
 	
 	
 	public static class FurnaceRecipe {
 		
+		private final RecipesFurnace recipesFurnace;
 		private final Map<ItemStack, ItemStack> results;
 		private final Map<ItemStack, Float> xps;
 		private ItemStack source;
 		
-		public FurnaceRecipe(Map<ItemStack, ItemStack> results, Map<ItemStack, Float> xps) {
+		public FurnaceRecipe(RecipesFurnace recipesFurnace, Map<ItemStack, ItemStack> results, Map<ItemStack, Float> xps) {
+			this.recipesFurnace = recipesFurnace;
 			this.results = results;
 			this.xps = xps;
 		}
 
-		public FurnaceRecipe(Map<ItemStack, ItemStack> results, Map<ItemStack, Float> xps, ItemStack ingredient) {
-			this(results, xps);
+		public FurnaceRecipe(RecipesFurnace recipesFurnace, Map<ItemStack, ItemStack> results, Map<ItemStack, Float> xps, ItemStack ingredient) {
+			this(recipesFurnace, results, xps);
 			this.source = ingredient;
 		}
 
@@ -142,11 +145,11 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 		}
 
 		public float getXp() {
-			return xps.getOrDefault(source, 0F);
+			return recipesFurnace.b(source);
 		}
 
 		public ItemStack getResult() {
-			return results.get(source);
+			return recipesFurnace.getResult(source);
 		}
 
 		public ItemStack getIngredient() {
@@ -156,6 +159,8 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 		public boolean hasXp() {
 			return xps.containsKey(source);
 		}
+		
+		//apparently net.minecraft.server.v1_XX_RX.ItemStack doesn't override equals() and hashCode()!
 		
 		@Override
 		public String toString() {

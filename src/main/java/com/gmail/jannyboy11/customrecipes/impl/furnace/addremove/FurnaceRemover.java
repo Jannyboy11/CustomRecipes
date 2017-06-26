@@ -37,7 +37,7 @@ public class FurnaceRemover implements BiConsumer<Player, List<String>> {
 					ChatColor.WHITE + InventoryUtils.getItemName(itemStack) +
 					ChatColor.GREEN + ".");
 		} else {
-			player.sendMessage(ChatColor.RED + "No known " + (vanilla ? "vanilla" : "") + " furnace recipe found for ingredient " + 
+			player.sendMessage(ChatColor.RED + "No" + (vanilla ? " vanilla" : "") + " furnace recipe found for ingredient " + 
 					ChatColor.WHITE + InventoryUtils.getItemName(itemStack) +
 					ChatColor.RED + ".");
 		}

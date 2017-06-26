@@ -127,7 +127,7 @@ public class FurnaceAdder implements BiConsumer<Player, List<String>> {
 			Map<ItemStack, ItemStack> recipes = vanilla ? recipesFurnace.recipes : recipesFurnace.customRecipes;
 			Map<ItemStack, Float> xps = vanilla ? CRFurnaceManager.vanillaXp(recipesFurnace) : recipesFurnace.customExperience;
 
-			FurnaceRecipe furnaceRecipe = new FurnaceRecipe(recipes, xps, ingredient);
+			FurnaceRecipe furnaceRecipe = new FurnaceRecipe(RecipesFurnace.getInstance(), recipes, xps, ingredient);
 			furnaceRecipe.setResult(result);
 			if (hasXp) furnaceRecipe.setXp(xp);
 
