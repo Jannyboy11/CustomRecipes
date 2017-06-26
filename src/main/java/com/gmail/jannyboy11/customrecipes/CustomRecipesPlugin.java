@@ -15,6 +15,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -43,7 +44,9 @@ import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.NBTAdde
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.PermissionAdder;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.InjectedIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapedAdder;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapedRemover;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapelessAdder;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapelessRemover;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRVanillaRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceManager;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceRecipe;
@@ -52,39 +55,44 @@ import com.gmail.jannyboy11.customrecipes.impl.furnace.addremove.FurnaceAdder;
 import net.minecraft.server.v1_12_R1.IRecipe;
 
 public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi {
-	
+
 	private final NavigableMap<String, BiConsumer<? super Player, ? super List<String>>> adders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	private final NavigableMap<String, BiConsumer<? super Player, ? super List<String>>> removers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-	
+
 	private final Map<String, Supplier<? extends List<? extends Recipe>>> recipeSuppliers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	private final Map<String, Function<? super Recipe, ? extends ItemStack>> recipeToItemMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	private final Map<String, BiConsumer<? super Recipe, ? super CommandSender>> recipeToCommandSenderDiplayMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-	
+
 	private CRCraftingManager craftingManager = new CRCraftingManager();
 	private CRFurnaceManager furnaceManager = new CRFurnaceManager();
-	
+
 	@Override
 	public void onLoad() {
 		//define RecipeItemstackInjected subclass
 		InjectedIngredient.inject();
-		
-		//adders and removers
+
+		//adders
 		addAdder("shaped", new ShapedAdder(this));
 		addAdder("shapeless", new ShapelessAdder(this));
 		addAdder("nbt", new NBTAdder(this));
 		addAdder("permission", new PermissionAdder(this));
 		addAdder("furnace", new FurnaceAdder(this));
-		
+
+		//removers
+		addRemover("shaped", new ShapedRemover(this));
+		addRemover("shapeless", new ShapelessRemover(this));
+		addRemover("nbt", new NBTRemover(this));
+		addRemover("permission", new PermissionRemover(this));
+		addRemover("furnace", new FurnaceRemover(this));
 		//TODO add standard removers
-		//
-		
+
 		//representations for the listrecipes menu
 		recipeToItemMap.put("shaped", recipe -> ((ShapedRecipe) recipe).getRepresentation());
 		recipeToItemMap.put("shapeless", recipe -> ((ShapelessRecipe) recipe).getRepresentation());
 		recipeToItemMap.put("furnace", recipe -> ((FurnaceRecipe) recipe).getRepresentation());
 		recipeToItemMap.put("nbt", recipe -> ((NBTRecipe) recipe).getRepresentation());
 		recipeToItemMap.put("permission", recipe -> ((PermissionRecipe) recipe).getRepresentation());
-		
+
 		//recipe displayers
 		recipeToCommandSenderDiplayMap.put("shaped", (recipe, commandSender) -> {
 			ShapedRecipe shapedRecipe = (ShapedRecipe) recipe;
@@ -145,12 +153,12 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 			commandSender.sendMessage("Permission: " + permissionRecipe.getPermission());
 			commandSender.sendMessage("");
 		});
-		
+
 		//recipe providers
 		recipeSuppliers.put("shaped", () -> StreamSupport.stream(Spliterators.spliteratorUnknownSize(craftingManager.iterator(),
-					Spliterator.NONNULL), false)
-					.filter(recipe -> recipe instanceof ShapedRecipe)
-					.collect(Collectors.toList()));
+				Spliterator.NONNULL), false)
+				.filter(recipe -> recipe instanceof ShapedRecipe)
+				.collect(Collectors.toList()));
 		recipeSuppliers.put("shapeless", () -> StreamSupport.stream(Spliterators.spliteratorUnknownSize(craftingManager.iterator(),
 				Spliterator.NONNULL), false)
 				.filter(recipe -> recipe instanceof ShapelessRecipe)
@@ -159,21 +167,25 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 				Spliterator.NONNULL), false)
 				.collect(Collectors.toList()));
 		recipeSuppliers.put("nbt", () -> StreamSupport.stream(Spliterators.spliteratorUnknownSize(craftingManager.iterator(),
-					Spliterator.NONNULL), false)
-					.filter(recipe -> recipe instanceof NBTRecipe)
-					.collect(Collectors.toList()));
+				Spliterator.NONNULL), false)
+				.filter(recipe -> recipe instanceof NBTRecipe)
+				.collect(Collectors.toList()));
 		recipeSuppliers.put("permission", () -> StreamSupport.stream(Spliterators.spliteratorUnknownSize(craftingManager.iterator(),
-					Spliterator.NONNULL), false)
-					.filter(recipe -> recipe instanceof PermissionRecipe)
-					.collect(Collectors.toList()));
+				Spliterator.NONNULL), false)
+				.filter(recipe -> recipe instanceof PermissionRecipe)
+				.collect(Collectors.toList()));
 	}
-	
-	
+
+
 	public boolean addAdder(String recipeType, BiConsumer<? super Player, ? super List<String>> adder) {
 		return adders.putIfAbsent(recipeType, adder) == null;
 	}
 	
-	
+	public boolean addRemover(String recipeType, BiConsumer<? super Player, ? super List<String>> remover) {
+		return removers.putIfAbsent(recipeType, remover) == null;
+	}
+
+
 	@Override
 	public void onEnable() {
 		getCommand("addrecipe").setExecutor(new AddRecipeCommandExecutor(Collections.unmodifiableNavigableMap(adders)));
@@ -181,36 +193,36 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		getCommand("listrecipes").setExecutor(new ListRecipesCommandExecutor(this::getRecipes,
 				Collections.unmodifiableMap(recipeToItemMap),
 				Collections.unmodifiableMap(recipeToCommandSenderDiplayMap)));
-		
+
 		getServer().getPluginManager().registerEvents(new ListRecipesListener(), this);
 	}
-	
-	
+
+
 	public static CustomRecipesPlugin getInstance() {
 		return JavaPlugin.getPlugin(CustomRecipesPlugin.class);
 	}
-	
-	
+
+
 	@Override
 	public CRCraftingManager getCraftingManager() {
 		return craftingManager;
 	}
-	
+
 	@Override
 	public CRFurnaceManager getFurnaceManager() {
 		return furnaceManager;
 	}
 
-	
+
 	@Override
 	public boolean isVanillaRecipeType(CraftingRecipe recipe) {
 		if (!(recipe instanceof CRVanillaRecipe)) return false;
-		
+
 		CRVanillaRecipe<? extends IRecipe> vanillaWrapper = (CRVanillaRecipe<? extends IRecipe>) recipe;
 		return vanillaWrapper.getHandle().getClass().getName().startsWith("net.minecraft.server.");
 	}
-	
-	
+
+
 	@Override
 	public ShapedRecipe asCustomRecipesMirror(org.bukkit.inventory.ShapedRecipe bukkitRecipe) {
 		String[] shape = bukkitRecipe.getShape();
@@ -220,7 +232,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 				.mapToObj(i -> map.getOrDefault((char) i, null))
 				.map(SimpleChoiceIngredient::fromChoices)
 				.collect(Collectors.toList());
-		
+
 		int width = shape[0].length();
 		int height = shape.length;
 
@@ -228,40 +240,46 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		CraftingRecipe byKey = craftingManager.getRecipe(bukkitRecipe.getKey()); //TODO can we do better? get by result and by ingredients?
 		return simple.equals(byKey) ? (ShapedRecipe) byKey : simple;
 	}
-	
+
 	@Override
 	public ShapelessRecipe asCustomRecipesMirror(org.bukkit.inventory.ShapelessRecipe bukkitRecipe) {
 		List<? extends ChoiceIngredient> ingredients = bukkitRecipe.getIngredientList().stream()
 				.map(SimpleChoiceIngredient::fromChoices)
 				.collect(Collectors.toList());
-		
+
 		SimpleShapelessRecipe simple = new SimpleShapelessRecipe(bukkitRecipe.getResult(), ingredients);
 		CraftingRecipe byKey = craftingManager.getRecipe(bukkitRecipe.getKey()); //TODO can we do better? get by result and by ingredients?
 		return simple.equals(byKey) ? (ShapelessRecipe) byKey : simple;
 	}
-	
+
 	@Override
 	public FurnaceRecipe asCustomRecipesMirror(org.bukkit.inventory.FurnaceRecipe bukkitRecipe) {
 		SimpleFurnaceRecipe simple = new SimpleFurnaceRecipe(bukkitRecipe.getInput(), bukkitRecipe.getResult(), bukkitRecipe.getExperience());
-		
+
 		CRFurnaceRecipe recipe = furnaceManager.getRecipe(bukkitRecipe.getInput());
 		return simple.equals(recipe) ? recipe : simple;
 	}
-	
-	
+
+
 	public List<? extends Recipe> getRecipes(String type) {
 		return recipeSuppliers.getOrDefault(type, Collections::emptyList).get();
 	}
 
-	
-	
-	
+
+
+
 	public void setCraftingManager(CRCraftingManager craftingManager) {
 		this.craftingManager = Objects.requireNonNull(craftingManager);
 	}
-	
+
 	public void setFurnaceManager(CRFurnaceManager furnaceManager) {
 		this.furnaceManager = Objects.requireNonNull(furnaceManager);
+	}
+	
+	@SuppressWarnings("deprecation")
+	public NamespacedKey getKey(String string) {
+		String[] split = string.split(":");
+		return split.length == 1 ? new NamespacedKey(this, string) : new NamespacedKey(split[0], split[1]);
 	}
 
 }

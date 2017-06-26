@@ -55,7 +55,7 @@ public class PermissionAdder implements BiConsumer<Player, List<String>> {
 		String keyString = args.get(0);
 		String permission = args.get(1);
 		String group = args.size() >= 3 ? args.get(2) : "";
-		NamespacedKey bukkitKey = new NamespacedKey(plugin, keyString);
+		NamespacedKey bukkitKey = plugin.getKey(keyString);
 
 		ItemStack result = CraftItemStack.asNMSCopy(itemInMainHand);
 		MinecraftKey key = CraftNamespacedKey.toMinecraft(bukkitKey);

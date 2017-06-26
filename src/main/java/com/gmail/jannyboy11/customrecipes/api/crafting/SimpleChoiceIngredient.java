@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
@@ -36,7 +37,17 @@ public class SimpleChoiceIngredient implements ChoiceIngredient {
 
 	@Override
 	public boolean isIngredient(ItemStack itemStack) {
-		return choices.stream().anyMatch(choice -> choice == null ? itemStack == null : choice.getData().equals(itemStack.getData()));
+		return choices.stream().anyMatch(choice -> {
+			if (choice == null) {
+				return itemStack == null;
+			} else {
+				Material choiceMaterial = choice.getType();
+				Material stackMaterial = itemStack.getType();
+				if (choiceMaterial != stackMaterial) return false;
+				
+				return choice.getDurability() == -1 || choice.getDurability() == Short.MAX_VALUE || choice.getDurability() == itemStack.getDurability();
+			}
+		});
 	}
 
 	@Override

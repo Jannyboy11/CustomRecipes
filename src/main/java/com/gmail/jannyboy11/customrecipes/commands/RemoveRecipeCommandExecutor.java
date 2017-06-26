@@ -41,7 +41,7 @@ public class RemoveRecipeCommandExecutor implements CommandExecutor {
 			remover.accept(player, Arrays.asList(Arrays.copyOfRange(args, 1, args.length)));
 		} catch (Throwable throwable) {
 			throwable.printStackTrace();
-			player.sendMessage(ChatColor.RED + "Something went wrong when trying to remove a recipe. See the console for errors.");
+			player.sendMessage(ChatColor.RED + "Something went wrong when trying to remove a recipe. Check the console for errors.");
 		}
 		
 		return true;

@@ -56,7 +56,7 @@ public class NBTAdder implements BiConsumer<Player, List<String>> {
 
 		String keyString = args.get(0);
 		String group = args.size() >= 2 ? args.get(1) : "";
-		NamespacedKey bukkitKey = new NamespacedKey(plugin, keyString);
+		NamespacedKey bukkitKey = plugin.getKey(keyString);
 
 		ItemStack result = CraftItemStack.asNMSCopy(itemInMainHand);
 		MinecraftKey key = CraftNamespacedKey.toMinecraft(bukkitKey);
