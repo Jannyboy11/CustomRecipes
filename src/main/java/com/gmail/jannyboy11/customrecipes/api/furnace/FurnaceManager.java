@@ -103,4 +103,13 @@ public interface FurnaceManager extends Iterable<FurnaceRecipe> {
 	 */
 	public boolean removeCustomRecipe(ItemStack ingredient);
 
+	/**
+	 * Get whether an ItemStack is valid as an ingredient
+	 * 
+	 * @param matchAttempt the ItemStack that is tested against the ingredient
+	 * @param ingredient the ItemStack in a FurnaceRecipe
+	 * @return whether the ingredient equality test succeeds
+	 */
+	public boolean ingredientEquals(ItemStack matchAttempt, ItemStack ingredient);
+
 }

@@ -153,7 +153,8 @@ public class CRFurnaceManager implements FurnaceManager {
 		return (boolean) ReflectionUtil.invokeMethod(null, "a", stack1, stack2);
 	}
 	
-	public boolean furnaceEquals(org.bukkit.inventory.ItemStack stack1, org.bukkit.inventory.ItemStack stack2) {
+	@Override
+	public boolean ingredientEquals(org.bukkit.inventory.ItemStack stack1, org.bukkit.inventory.ItemStack stack2) {
 		return furnaceEquals(CraftItemStack.asNMSCopy(stack1), CraftItemStack.asNMSCopy(stack2));
 	}
 	
