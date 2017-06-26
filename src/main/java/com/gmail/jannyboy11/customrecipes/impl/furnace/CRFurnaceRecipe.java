@@ -166,7 +166,7 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 			if (!(o instanceof FurnaceRecipe)) return false;
 			FurnaceRecipe that = (FurnaceRecipe) o;
 
-			return CRFurnaceManager.furnaceEquals(this.source, that.source) && this.results == that.results && this.xps == that.xps;	
+			return CRFurnaceManager.furnaceEquals(recipesFurnace, this.source, that.source) && this.results == that.results && this.xps == that.xps;	
 		}
 		
 		@Override

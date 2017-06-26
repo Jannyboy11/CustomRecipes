@@ -61,7 +61,7 @@ public class CRFurnaceManager implements FurnaceManager {
 	public CRFurnaceRecipe getRecipe(RecipesFurnace recipesFurnace, Map<ItemStack, ItemStack> results, Map<ItemStack, Float> xps, ItemStack ingredient) {
 		//has to be done this way since ItemStack doesn't override equals nor hashCode
 		return results.keySet().stream()
-				.filter(inMap -> furnaceEquals(inMap, ingredient))
+				.filter(inMap -> furnaceEquals(recipesFurnace, inMap, ingredient))
 				.findAny()
 				.map(ignored -> new CRFurnaceRecipe(new FurnaceRecipe(recipesFurnace, results, xps, ingredient)))
 				.orElse(null);
@@ -111,8 +111,8 @@ public class CRFurnaceManager implements FurnaceManager {
 		ItemStack nmsStack = CraftItemStack.asNMSCopy(ingredient);
 		
 		//has to be done in this way since ItemStack doesn't override equals and hashCode.
-		boolean removed = recipesFurnace.recipes.keySet().removeIf(inMap -> furnaceEquals(inMap, nmsStack));
-		if (removed) vanillaXp(recipesFurnace).keySet().removeIf(inMap -> furnaceEquals(inMap, nmsStack));
+		boolean removed = recipesFurnace.recipes.keySet().removeIf(inMap -> furnaceEquals(recipesFurnace, inMap, nmsStack));
+		if (removed) vanillaXp(recipesFurnace).keySet().removeIf(inMap -> furnaceEquals(recipesFurnace, inMap, nmsStack));
 		
 		return removed;
 	}
@@ -123,8 +123,8 @@ public class CRFurnaceManager implements FurnaceManager {
 		ItemStack nmsStack = CraftItemStack.asNMSCopy(ingredient);
 		
 		//has to be done in this way since ItemStack doesn't override equals and hashCode.
-		boolean removed = recipesFurnace.customRecipes.keySet().removeIf(inMap -> furnaceEquals(inMap, nmsStack));
-		if (removed) recipesFurnace.customExperience.keySet().removeIf(inMap -> furnaceEquals(inMap, nmsStack));
+		boolean removed = recipesFurnace.customRecipes.keySet().removeIf(inMap -> furnaceEquals(recipesFurnace, inMap, nmsStack));
+		if (removed) recipesFurnace.customExperience.keySet().removeIf(inMap -> furnaceEquals(recipesFurnace, inMap, nmsStack));
 		
 		return removed;
 	}
@@ -149,13 +149,13 @@ public class CRFurnaceManager implements FurnaceManager {
 		return CRFurnaceRecipe.fromSimple(furnaceRecipe, recipesFurnace, recipesFurnace.recipes, vanillaXp(recipesFurnace));
 	}
 	
-	public static boolean furnaceEquals(ItemStack stack1, ItemStack stack2) {
-		return (boolean) ReflectionUtil.invokeInstanceMethod(RecipesFurnace.getInstance(), "a", stack1, stack2);
+	public static boolean furnaceEquals(RecipesFurnace recipesFurnace, ItemStack stack1, ItemStack stack2) {
+		return (boolean) ReflectionUtil.invokeInstanceMethod(recipesFurnace, "a", stack1, stack2);
 	}
 	
 	@Override
 	public boolean ingredientEquals(org.bukkit.inventory.ItemStack stack1, org.bukkit.inventory.ItemStack stack2) {
-		return furnaceEquals(CraftItemStack.asNMSCopy(stack1), CraftItemStack.asNMSCopy(stack2));
+		return furnaceEquals(RecipesFurnace.getInstance(), CraftItemStack.asNMSCopy(stack1), CraftItemStack.asNMSCopy(stack2));
 	}
 	
 	
