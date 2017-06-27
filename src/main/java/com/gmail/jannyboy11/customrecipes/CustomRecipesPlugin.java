@@ -20,11 +20,11 @@ import java.util.stream.StreamSupport;
 
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.Consumer;
 
 import com.gmail.jannyboy11.customrecipes.api.CustomRecipesApi;
 import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
@@ -58,13 +58,14 @@ import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceManager;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.addremove.FurnaceAdder;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.addremove.FurnaceRemover;
+import com.gmail.jannyboy11.customrecipes.serialize.ConfigurationSerializableByteArray;
+import com.gmail.jannyboy11.customrecipes.serialize.ConfigurationSerializableIntArray;
+import com.gmail.jannyboy11.customrecipes.serialize.ConfigurationSerializableLongArray;
 
 import net.minecraft.server.v1_12_R1.CraftingManager;
 import net.minecraft.server.v1_12_R1.IRecipe;
 import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.RecipesFurnace;
-import net.minecraft.server.v1_12_R1.RegistryID;
-import net.minecraft.server.v1_12_R1.RegistryMaterials;
 
 public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi {
 
@@ -75,8 +76,8 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	private final Map<String, Function<? super Recipe, ? extends ItemStack>> recipeToItemMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	private final Map<String, BiConsumer<? super Recipe, ? super CommandSender>> recipeToCommandSenderDiplayMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	
-	private final Map<String, Function<? super Recipe, ? extends File>> storers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-	private final Map<String, Function<? super File, ? extends Recipe>> loaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+	private final Map<String, BiConsumer<? super Recipe, ? super File>> writers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+	private final Map<String, Function<? super File, ? extends Recipe>> readers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 	private CRCraftingManager craftingManager = new CRCraftingManager();
 	private CRFurnaceManager furnaceManager = new CRFurnaceManager();
@@ -86,7 +87,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	
 	
 	private void recordVanillaRecipes() {
-		getServer().resetRecipes();
+		getServer().resetRecipes(); //Is called before onEnable of other plugins, so shouldn't cause trouble.
 		vanillaCraftingRecipes = new HashSet<>(CraftingManager.recipes.keySet());
 		vanillaFurnaceRecipes = new HashSet<>(RecipesFurnace.getInstance().recipes.keySet());
 	}
@@ -104,6 +105,11 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	public void onLoad() {
 		//define RecipeItemstackInjected subclass
 		InjectedIngredient.inject();
+		
+		//serializable arrays
+		ConfigurationSerialization.registerClass(ConfigurationSerializableByteArray.class);
+		ConfigurationSerialization.registerClass(ConfigurationSerializableIntArray.class);
+		ConfigurationSerialization.registerClass(ConfigurationSerializableLongArray.class);
 		
 		//let's hope no other plugins have added crafting recipes here
 		recordVanillaRecipes();
@@ -123,6 +129,9 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		addRemover("furnace", new FurnaceRemover(this));
 		
 		//TODO savers and loaders
+		addWriter("shaped", (recipe, file) -> {
+			//TODO
+		});
 		
 
 		//representations for the listrecipes menu
@@ -223,6 +232,15 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	public boolean addRemover(String recipeType, BiConsumer<? super Player, ? super List<String>> remover) {
 		return removers.putIfAbsent(recipeType, remover) == null;
 	}
+	
+	public boolean addWriter(String recipeType, BiConsumer<? super Recipe, ? super File> saver) {
+		return writers.putIfAbsent(recipeType, saver) == null;
+	}
+	
+	public boolean addReader(String recipeType, Function<? super File, ? extends Recipe> loader) {
+		return readers.putIfAbsent(recipeType, loader) == null;
+	}
+	
 
 
 	@Override
@@ -235,7 +253,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 
 		getServer().getPluginManager().registerEvents(new ListRecipesListener(), this);
 		
-		//TODO load recipes from disk
+		//TODO load recipes from disk, use registered loaders
 	}
 
 
@@ -306,6 +324,22 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		return recipeSuppliers.getOrDefault(type, Collections::emptyList).get();
 	}
 
+	public void save(String recipeType, String fileName, Recipe recipe) {
+		File saveFolder = saveFolder(recipeType);
+		
+		File saveFile = new File(saveFolder, fileName);
+		writers.get(recipe).accept(recipe, saveFile);
+	}
+	
+	public Recipe load(String recipeType, File saveFile) {
+		return readers.get(recipeType).apply(saveFile);
+	}
+	
+	public File saveFolder(String recipeType) {
+		File folder = new File(getDataFolder(), recipeType);
+		if (!folder.exists()) folder.mkdirs();
+		return folder;
+	}
 
 
 

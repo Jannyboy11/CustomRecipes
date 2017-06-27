@@ -7,8 +7,12 @@ import java.util.stream.Collectors;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient.CRChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
+import net.minecraft.server.v1_12_R1.ItemStack;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
+import net.minecraft.server.v1_12_R1.NBTTagList;
 import net.minecraft.server.v1_12_R1.NonNullList;
 import net.minecraft.server.v1_12_R1.RecipeItemStack;
 import net.minecraft.server.v1_12_R1.ShapedRecipes;
@@ -17,6 +21,39 @@ public class CRShapedRecipe<R extends ShapedRecipes> extends CRVanillaRecipe<R> 
 
 	public CRShapedRecipe(R nmsRecipe) {
 		super(nmsRecipe);
+	}
+	
+	public CRShapedRecipe(NBTTagCompound recipeCompound) {
+		this((R) deserializeNmsRecipe(recipeCompound));
+	}
+	
+	@Override
+	public NBTTagCompound serialize() {
+		NBTTagCompound serialized = super.serialize();
+		serialized.setInt("width", getWidth());
+		serialized.setInt("height", getHeight());
+		NBTTagList ingredients = new NBTTagList();
+		for (RecipeItemStack ingr : nmsIngredients()) {
+			ingredients.add(NBTUtil.serializeRecipeItemStack(ingr));
+		}
+		serialized.set("ingredients", ingredients);
+		return serialized;
+	}
+	
+	protected static ShapedRecipes deserializeNmsRecipe(NBTTagCompound recipeCompound) {
+		String group = recipeCompound.hasKeyOfType("group", 8 /*8 = string*/) ? recipeCompound.getString("group") : "";
+		int width = recipeCompound.getInt("width");
+		int height = recipeCompound.getInt("height");
+		NonNullList<RecipeItemStack> ingredients = NonNullList.a();
+		NBTTagList nbtIngredients = recipeCompound.getList("ingredients", 10 /*10 = compound*/);
+		for (int i = 0; i < nbtIngredients.size(); i++) {
+			NBTTagCompound ingredientTag = nbtIngredients.get(i);
+			RecipeItemStack recipeItemStack = NBTUtil.deserializeRecipeItemStack(ingredientTag);
+			ingredients.add(recipeItemStack);
+		}
+		NBTTagCompound resultCompound = (NBTTagCompound) recipeCompound.get("result");
+		ItemStack result = new ItemStack(resultCompound);
+		return new ShapedRecipes(group, width, height, ingredients, result);
 	}
 	
 	@Override
@@ -35,7 +72,7 @@ public class CRShapedRecipe<R extends ShapedRecipes> extends CRVanillaRecipe<R> 
 	}
 	
 	@SuppressWarnings("unchecked")
-	private NonNullList<RecipeItemStack> nmsIngredients() {
+	protected NonNullList<RecipeItemStack> nmsIngredients() {
 		return (NonNullList<RecipeItemStack>) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "items");
 	}
 
@@ -43,6 +80,7 @@ public class CRShapedRecipe<R extends ShapedRecipes> extends CRVanillaRecipe<R> 
 	public String getGroup() {
 		return (String) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "e");
 	}
+	
 	
 	@Override
 	public boolean equals(Object o) {
