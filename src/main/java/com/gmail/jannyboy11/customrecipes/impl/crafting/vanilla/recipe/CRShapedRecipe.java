@@ -53,7 +53,11 @@ public class CRShapedRecipe<R extends ShapedRecipes> extends CRVanillaRecipe<R> 
 		}
 		NBTTagCompound resultCompound = (NBTTagCompound) recipeCompound.get("result");
 		ItemStack result = new ItemStack(resultCompound);
-		return new ShapedRecipes(group, width, height, ingredients, result);
+		ShapedRecipes shapedRecipes = new ShapedRecipes(group, width, height, ingredients, result);
+		if (recipeCompound.hasKey("key")) {
+			shapedRecipes.setKey(NBTUtil.deserializeKey(recipeCompound.getCompound("key")));
+		}
+		return shapedRecipes;
 	}
 	
 	@Override

@@ -94,9 +94,10 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 		
 		IRecipe existing = CraftingManager.a(key);
 		if (existing != null) return false; //duplicate key
-			
+					
 		nms2cr.forcePut(nmsRecipe, crRecipe);
 		CraftingManager.a(key, nmsRecipe);
+		nmsRecipe.setKey(key);
 		return true;
 	}
 

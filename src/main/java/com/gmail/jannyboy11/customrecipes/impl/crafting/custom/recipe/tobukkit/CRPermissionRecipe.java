@@ -34,7 +34,11 @@ public class CRPermissionRecipe extends CRShapedRecipe<PermissionRecipe> impleme
 		NBTTagCompound resultCompound = (NBTTagCompound) recipeCompound.get("result");
 		ItemStack result = new ItemStack(resultCompound);
 		String permission = recipeCompound.getString("permission");
-		return new PermissionRecipe(group, width, height, ingredients, result, permission);
+		PermissionRecipe permissionRecipe = new PermissionRecipe(group, width, height, ingredients, result, permission);
+		if (recipeCompound.hasKey("key")) {
+			permissionRecipe.setKey(NBTUtil.deserializeKey(recipeCompound.getCompound("key")));
+		}		
+		return permissionRecipe;
 	}
 	
 	@Override

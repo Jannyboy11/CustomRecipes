@@ -50,7 +50,11 @@ public class CRShapelessRecipe<R extends ShapelessRecipes> extends CRVanillaReci
 		}
 		NBTTagCompound resultCompound = (NBTTagCompound) recipeCompound.get("result");
 		ItemStack result = new ItemStack(resultCompound);
-		return new ShapelessRecipes(group, result, ingredients);
+		ShapelessRecipes shapelessRecipes = new ShapelessRecipes(group, result, ingredients);
+		if (recipeCompound.hasKey("key")) {
+			shapelessRecipes.setKey(NBTUtil.deserializeKey(recipeCompound.getCompound("key")));
+		}
+		return shapelessRecipes;
 	}
 	
 	@Override

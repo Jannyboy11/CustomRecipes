@@ -34,7 +34,11 @@ public class CRNBTRecipe extends CRShapedRecipe<NBTRecipe> implements com.gmail.
 		NBTTagCompound resultCompound = (NBTTagCompound) recipeCompound.get("result");
 		ItemStack result = new ItemStack(resultCompound);
 		//ingredients are made nbt specific in NBTRecipe constructor
-		return new NBTRecipe(group, width, height, ingredients, result);
+		NBTRecipe nbtRecipe = new NBTRecipe(group, width, height, ingredients, result);
+		if (recipeCompound.hasKey("key")) {
+			nbtRecipe.setKey(NBTUtil.deserializeKey(recipeCompound.getCompound("key")));
+		}
+		return nbtRecipe;
 	}
 	
 }
