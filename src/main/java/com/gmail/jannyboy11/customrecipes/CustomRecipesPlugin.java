@@ -32,6 +32,8 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.SimpleChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.SimpleShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.SimpleShapelessRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.custom.ingredient.SimilarIngredient;
+import com.gmail.jannyboy11.customrecipes.api.crafting.custom.ingredient.WildcardIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.custom.recipe.NBTRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.custom.recipe.PermissionRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.ingredient.ChoiceIngredient;
@@ -48,7 +50,9 @@ import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.NBTAdde
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.NBTRemover;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.PermissionAdder;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.PermissionRemover;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.Bukkit2NMSIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.InjectedIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.Bukkit2NMSRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapedAdder;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapedRemover;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapelessAdder;
@@ -104,12 +108,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	@Override
 	public void onLoad() {
 		//define RecipeItemstackInjected subclass
-		InjectedIngredient.inject();
-		
-		//serializable arrays
-		ConfigurationSerialization.registerClass(ConfigurationSerializableByteArray.class);
-		ConfigurationSerialization.registerClass(ConfigurationSerializableIntArray.class);
-		ConfigurationSerialization.registerClass(ConfigurationSerializableLongArray.class);
+		InjectedIngredient.inject();		
 		
 		//let's hope no other plugins have added crafting recipes here
 		recordVanillaRecipes();
@@ -245,6 +244,18 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 
 	@Override
 	public void onEnable() {
+		//serializable stuff
+		ConfigurationSerialization.registerClass(ConfigurationSerializableByteArray.class);
+		ConfigurationSerialization.registerClass(ConfigurationSerializableIntArray.class);
+		ConfigurationSerialization.registerClass(ConfigurationSerializableLongArray.class);
+		ConfigurationSerialization.registerClass(SimilarIngredient.class);
+		ConfigurationSerialization.registerClass(WildcardIngredient.class);
+		ConfigurationSerialization.registerClass(SimpleChoiceIngredient.class);
+		ConfigurationSerialization.registerClass(SimpleShapedRecipe.class);
+		ConfigurationSerialization.registerClass(SimpleShapelessRecipe.class);
+		ConfigurationSerialization.registerClass(Bukkit2NMSIngredient.class);
+		ConfigurationSerialization.registerClass(Bukkit2NMSRecipe.class);
+		
 		getCommand("addrecipe").setExecutor(new AddRecipeCommandExecutor(Collections.unmodifiableNavigableMap(adders)));
 		getCommand("removerecipe").setExecutor(new RemoveRecipeCommandExecutor(Collections.unmodifiableNavigableMap(removers)));
 		getCommand("listrecipes").setExecutor(new ListRecipesCommandExecutor(this::getRecipes,

@@ -28,8 +28,8 @@ public class CRShapedRecipe<R extends ShapedRecipes> extends CRVanillaRecipe<R> 
 	}
 	
 	@Override
-	public NBTTagCompound serialize() {
-		NBTTagCompound serialized = super.serialize();
+	public NBTTagCompound serializeToNbt() {
+		NBTTagCompound serialized = super.serializeToNbt();
 		serialized.setInt("width", getWidth());
 		serialized.setInt("height", getHeight());
 		NBTTagList ingredients = new NBTTagList();

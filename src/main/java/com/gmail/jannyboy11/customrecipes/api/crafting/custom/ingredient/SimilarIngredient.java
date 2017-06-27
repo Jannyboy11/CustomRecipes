@@ -1,5 +1,8 @@
 package com.gmail.jannyboy11.customrecipes.api.crafting.custom.ingredient;
 
+import java.util.Collections;
+import java.util.Map;
+
 import org.bukkit.inventory.ItemStack;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingIngredient;
@@ -21,6 +24,23 @@ public class SimilarIngredient implements CraftingIngredient {
 	 */
 	public SimilarIngredient(ItemStack itemStack) {
 		this.itemStack = itemStack == null ? null : itemStack.clone();
+	}
+	
+	/**
+	 * Constructor for deserialization.
+	 * @param map the map with contents
+	 */
+	public SimilarIngredient(Map<String, Object> map) {
+		this.itemStack = (ItemStack) map.get("similarTo");
+	}
+	
+	/**
+	 * Serialize method for the ConfigurationSerializable interface.
+	 * @return a singleton map with key "similarTo" and value the corresponding ItemStack
+	 */
+	@Override
+	public Map<String, Object> serialize() {
+		return Collections.singletonMap("similarTo", itemStack);
 	}
 
 	/**

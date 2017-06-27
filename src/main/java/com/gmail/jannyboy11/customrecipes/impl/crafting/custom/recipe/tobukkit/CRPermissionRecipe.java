@@ -42,8 +42,8 @@ public class CRPermissionRecipe extends CRShapedRecipe<PermissionRecipe> impleme
 	}
 	
 	@Override
-	public NBTTagCompound serialize() {
-		NBTTagCompound serialized = super.serialize();
+	public NBTTagCompound serializeToNbt() {
+		NBTTagCompound serialized = super.serializeToNbt();
 		serialized.setString("permission", getPermission());
 		return serialized;
 	}

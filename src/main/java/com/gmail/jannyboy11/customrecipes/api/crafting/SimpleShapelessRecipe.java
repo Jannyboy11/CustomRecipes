@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -17,18 +18,12 @@ import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessRecipe;
 
-public final class SimpleShapelessRecipe implements ShapelessRecipe {
+public final class SimpleShapelessRecipe extends SimpleCraftingRecipe implements ShapelessRecipe {
 	
-	private ItemStack result;
-	private List<ChoiceIngredient> ingredients = new ArrayList<>();
-	private boolean hidden;
-	private String group = "";
-	
-	public SimpleShapelessRecipe() {
-	}
+	protected List<ChoiceIngredient> ingredients = new ArrayList<>();
 	
 	public SimpleShapelessRecipe(ItemStack result) {
-		this.result = result;
+		super(result);
 	}
 	
 	public SimpleShapelessRecipe(ItemStack result, List<? extends ChoiceIngredient> ingredients) {
@@ -40,12 +35,16 @@ public final class SimpleShapelessRecipe implements ShapelessRecipe {
 		this.result = result;
 	}
 	
-	public void setHidden(boolean hidden) {
-		this.hidden = hidden;
+	public SimpleShapelessRecipe(Map<String, Object> map) {
+		super(map);
+		this.ingredients = (List<ChoiceIngredient>) map.get("ingredients");
 	}
 	
-	public void setGroup(String group) {
-		this.group = group == null ? "" : group;
+	@Override
+	public Map<String, Object> serialize() {
+		Map<String, Object> map = super.serialize();
+		map.put("ingredients", getIngredients());
+		return map;
 	}
 	
 	public void setIngredients(List<? extends ChoiceIngredient> ingredients) {
@@ -83,16 +82,6 @@ public final class SimpleShapelessRecipe implements ShapelessRecipe {
 	}
 
 	@Override
-	public ItemStack craftItem(CraftingInventory craftingInventory) {
-		return result == null ? null : result.clone();
-	}
-
-	@Override
-	public ItemStack getResult() {
-		return result;
-	}
-
-	@Override
 	public List<? extends ItemStack> getLeftOverItems(CraftingInventory craftingInventory) {
 		return Arrays.stream(craftingInventory.getMatrix())
 				.map(itemStack -> {
@@ -110,18 +99,8 @@ public final class SimpleShapelessRecipe implements ShapelessRecipe {
 	}
 
 	@Override
-	public boolean isHidden() {
-		return hidden;
-	}
-
-	@Override
 	public List<? extends ChoiceIngredient> getIngredients() {
 		return Collections.unmodifiableList(ingredients);
-	}
-
-	@Override
-	public String getGroup() {
-		return group;
 	}
 	
 	@Override

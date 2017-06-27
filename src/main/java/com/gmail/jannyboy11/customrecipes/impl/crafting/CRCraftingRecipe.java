@@ -19,6 +19,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.serialize.NBTSerializable;
 import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
@@ -29,7 +30,7 @@ import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.WorldServer;
 
-public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe {
+public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe, NBTSerializable {
 	
 	protected final R nmsRecipe;
 	
@@ -120,10 +121,11 @@ public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe {
 		return representation;
 	}
 	
-	public NBTTagCompound serialize() {
+	public NBTTagCompound serializeToNbt() {
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.set("result", nmsRecipe.b().save(new NBTTagCompound()));
 		if (hasGroup()) compound.setString("group", getGroup());
+		if (isHidden()) compound.setBoolean("hidden", isHidden());
 		MinecraftKey key = getMinecraftKey();
 		if (key != null) compound.set("key", NBTUtil.serializeKey(key));
 		return compound;

@@ -7,6 +7,7 @@ import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
@@ -21,7 +22,7 @@ import com.gmail.jannyboy11.customrecipes.api.Representable;
  * @author Jan
  *
  */
-public interface CraftingRecipe extends Representable, Recipe {
+public interface CraftingRecipe extends Representable, Recipe, ConfigurationSerializable {
 	
 	/**
 	 * Tests whether the items in the crafting inventory match to this crafting recipe.

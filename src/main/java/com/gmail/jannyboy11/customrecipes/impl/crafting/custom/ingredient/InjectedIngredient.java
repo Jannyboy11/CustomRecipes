@@ -9,13 +9,16 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+import com.gmail.jannyboy11.customrecipes.serialize.NBTSerializable;
+import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
 import net.minecraft.server.v1_12_R1.ItemStack;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.RecipeItemStack;
 import sun.misc.Unsafe;
 
-public class InjectedIngredient implements Predicate<ItemStack> {
+public class InjectedIngredient implements Predicate<ItemStack>, NBTSerializable {
 
 	private static Class<? extends RecipeItemStack> recipeItemStackInjectedClass;
 	
@@ -65,6 +68,12 @@ public class InjectedIngredient implements Predicate<ItemStack> {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+
+	@Override
+	public NBTTagCompound serializeToNbt() {
+		return NBTUtil.serializeRecipeItemStack(asNMSIngredient());
 	}
 
 

@@ -29,8 +29,8 @@ public class CRShapelessRecipe<R extends ShapelessRecipes> extends CRVanillaReci
 	}
 	
 	@Override
-	public NBTTagCompound serialize() {
-		NBTTagCompound serialized = super.serialize();
+	public NBTTagCompound serializeToNbt() {
+		NBTTagCompound serialized = super.serializeToNbt();
 		NBTTagList ingredients = new NBTTagList();
 		for (RecipeItemStack ingr : nmsIngredients()) {
 			ingredients.add(NBTUtil.serializeRecipeItemStack(ingr));

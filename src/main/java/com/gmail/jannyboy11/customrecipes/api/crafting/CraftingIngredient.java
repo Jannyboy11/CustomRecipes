@@ -1,7 +1,10 @@
 package com.gmail.jannyboy11.customrecipes.api.crafting;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.function.Predicate;
 
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -11,7 +14,7 @@ import org.bukkit.inventory.ItemStack;
  *
  */
 @FunctionalInterface
-public interface CraftingIngredient extends Predicate<ItemStack> {
+public interface CraftingIngredient extends Predicate<ItemStack>, ConfigurationSerializable {
 	
 	/**
 	 * Tests whether an ItemStack matches as an ingredient for the associated crafting recipe.
@@ -27,6 +30,14 @@ public interface CraftingIngredient extends Predicate<ItemStack> {
 	 */
 	public default boolean test(ItemStack itemStack) {
 		return isIngredient(itemStack);
+	}
+	
+	/**
+	 * Serialize method for ConfigurationSerializable interface.
+	 * The default implementation returns an empty map.
+	 */
+	public default Map<String, Object> serialize() {
+		return Collections.emptyMap();
 	}
 
 }

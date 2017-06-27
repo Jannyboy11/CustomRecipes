@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -18,27 +19,21 @@ import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedRecipe;
 
-public final class SimpleShapedRecipe implements ShapedRecipe {
+public final class SimpleShapedRecipe extends SimpleCraftingRecipe implements ShapedRecipe {
 	
-	private ItemStack result;
-	private int width = 3;
-	private int heigth = 3;
+	protected int width = 3;
+	protected int heigth = 3;
 	@SuppressWarnings("serial")
-	private List<ChoiceIngredient> ingredients = new ArrayList<ChoiceIngredient>(width * heigth) {
+	protected List<ChoiceIngredient> ingredients = new ArrayList<ChoiceIngredient>(width * heigth) {
 		{
 			for (int i = 0; i < width * heigth; i++) {
 				add(SimpleChoiceIngredient.ACCEPTING_EMPTY);
 			}
 		}
 	};
-	private boolean hidden;
-	private String group = "";
-	
-	public SimpleShapedRecipe() {
-	}
 	
 	public SimpleShapedRecipe(ItemStack result) {
-		setResult(result);
+		super(result);
 	}
 	
 	public SimpleShapedRecipe(ItemStack result, int width, int heigth, List<? extends ChoiceIngredient> ingredients) {
@@ -46,13 +41,22 @@ public final class SimpleShapedRecipe implements ShapedRecipe {
 		setIngredients(width, heigth, ingredients);
 	}
 	
-	public void setGroup(String group) {
-		this.group = group == null ? "" : group;
+	public SimpleShapedRecipe(Map<String, Object> map) {
+		super(map);
+		this.width = Integer.valueOf(map.get("width").toString());
+		this.heigth = Integer.valueOf(map.get("heigth").toString());
+		this.ingredients = (List<ChoiceIngredient>) map.get("ingredients");
 	}
 	
-	public void setHidden(boolean hidden) {
-		this.hidden = hidden;
+	@Override
+	public Map<String, Object> serialize() {
+		Map<String, Object> map = super.serialize();
+		map.put("width", getWidth());
+		map.put("height", getHeight());
+		map.put("ingredients", getIngredients());
+		return map;
 	}
+	
 	
 	public void setIngredients(int width, int heigth, List<? extends ChoiceIngredient> ingredients) {
 		if (width <= 0) throw new IllegalArgumentException("width cannot be smaller than zero!");
@@ -126,16 +130,6 @@ public final class SimpleShapedRecipe implements ShapedRecipe {
 		}
 		return true;
 	}
-	
-	@Override
-	public ItemStack craftItem(CraftingInventory craftingInventory) {
-		return result == null ? null : result.clone();
-	}
-
-	@Override
-	public ItemStack getResult() {
-		return result;
-	}
 
 	@Override
 	public List<? extends ItemStack> getLeftOverItems(CraftingInventory craftingInventory) {
@@ -155,11 +149,6 @@ public final class SimpleShapedRecipe implements ShapedRecipe {
 	}
 
 	@Override
-	public boolean isHidden() {
-		return hidden;
-	}
-
-	@Override
 	public int getWidth() {
 		return width;
 	}
@@ -172,11 +161,6 @@ public final class SimpleShapedRecipe implements ShapedRecipe {
 	@Override
 	public List<ChoiceIngredient> getIngredients() {
 		return Collections.unmodifiableList(ingredients);
-	}
-
-	@Override
-	public String getGroup() {
-		return group;
 	}
 	
 	@Override

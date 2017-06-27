@@ -1,5 +1,7 @@
 package com.gmail.jannyboy11.customrecipes.api.crafting.custom.ingredient;
 
+import java.util.Map;
+
 import org.bukkit.inventory.ItemStack;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingIngredient;
@@ -34,6 +36,14 @@ public final class WildcardIngredient implements CraftingIngredient {
 	@Override
 	public boolean isIngredient(ItemStack test) {
 		return true;
+	}
+	
+	/**
+	 * Deserialization method for the ConfigurationSerializable interface.
+	 * @return the singleton instance
+	 */
+	public static WildcardIngredient deserialize(Map<String, Object> map) {
+		return getInstance();
 	}
 
 }

@@ -1,8 +1,10 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,16 +23,19 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessR
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingManager;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapelessRecipe;
+import com.gmail.jannyboy11.customrecipes.serialize.NBTSerializable;
+import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
 
 import net.minecraft.server.v1_12_R1.IInventory;
 import net.minecraft.server.v1_12_R1.IRecipe;
 import net.minecraft.server.v1_12_R1.InventoryCrafting;
 import net.minecraft.server.v1_12_R1.ItemStack;
 import net.minecraft.server.v1_12_R1.MinecraftKey;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.NonNullList;
 import net.minecraft.server.v1_12_R1.World;
 
-public class Bukkit2NMSRecipe implements IRecipe {
+public class Bukkit2NMSRecipe implements IRecipe, NBTSerializable {
 	
 	//dirty hacks!
 	private static final String CUSTOM_RECIPES_BUKKITRECIPE_KEY = "cr-bukkit2nmsrecipe-";
@@ -47,6 +52,17 @@ public class Bukkit2NMSRecipe implements IRecipe {
 	public Bukkit2NMSRecipe(CraftingRecipe bukkitRecipe) {
 		this.crRecipe = Objects.requireNonNull(bukkitRecipe);
 	}
+	
+	@Override
+	public Map<String, Object> serialize() {
+		return Collections.singletonMap("crRecipe", crRecipe);
+	}
+	
+	@Override
+	public NBTTagCompound serializeToNbt() {
+		return NBTUtil.fromMap(serialize());
+	}
+	
 	
 	public static CraftInventoryCrafting getBukkitCraftingInventory(InventoryCrafting inventoryCrafting) {
 		IInventory resultInventory = inventoryCrafting.resultInventory;

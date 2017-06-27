@@ -1,5 +1,7 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting;
 
+import java.util.Map;
+
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
@@ -8,11 +10,14 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.ingredient.Choice
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.Bukkit2NMSIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient.CRChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient.CREmptyIngredient;
+import com.gmail.jannyboy11.customrecipes.serialize.NBTSerializable;
+import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.RecipeItemStack;
 
-public class CRCraftingIngredient<I extends RecipeItemStack> implements CraftingIngredient {
+public class CRCraftingIngredient<I extends RecipeItemStack> implements CraftingIngredient, NBTSerializable {
 
 	protected final I nmsIngredient;
 
@@ -23,6 +28,16 @@ public class CRCraftingIngredient<I extends RecipeItemStack> implements Crafting
 	@Override
 	public boolean isIngredient(ItemStack itemStack) {
 		return this.nmsIngredient.a(CraftItemStack.asNMSCopy(itemStack));
+	}
+
+	@Override
+	public NBTTagCompound serializeToNbt() {
+		return NBTUtil.serializeRecipeItemStack(nmsIngredient);
+	}
+	
+	@Override
+	public Map<String, Object> serialize() {
+		return NBTSerializable.super.serialize();
 	}
 
 	public static CRChoiceIngredient getVanilla(RecipeItemStack ingredient) {
