@@ -1,6 +1,7 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -25,6 +26,10 @@ public class CRShapedRecipe<R extends ShapedRecipes> extends CRVanillaRecipe<R> 
 	
 	public CRShapedRecipe(NBTTagCompound recipeCompound) {
 		this((R) deserializeNmsRecipe(recipeCompound));
+	}
+	
+	public CRShapedRecipe(Map<String, ?> map) {
+		this(NBTUtil.fromMap(map));
 	}
 	
 	@Override

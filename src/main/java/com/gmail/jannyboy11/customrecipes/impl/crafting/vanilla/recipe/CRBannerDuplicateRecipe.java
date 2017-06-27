@@ -9,5 +9,9 @@ public class CRBannerDuplicateRecipe extends CRShapelessRecipe<DuplicateRecipe> 
 	public CRBannerDuplicateRecipe(DuplicateRecipe nmsRecipe) {
 		super(nmsRecipe);
 	}
+	
+	public CRBannerDuplicateRecipe(java.util.Map<String, ?> map) {
+		super(map);
+	}
 
 }

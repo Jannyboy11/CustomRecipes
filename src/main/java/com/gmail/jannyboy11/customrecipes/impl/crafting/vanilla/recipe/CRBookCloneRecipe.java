@@ -9,5 +9,9 @@ public class CRBookCloneRecipe extends CRShapelessRecipe<RecipeBookClone> implem
 	public CRBookCloneRecipe(RecipeBookClone nmsRecipe) {
 		super(nmsRecipe);
 	}
+	
+	public CRBookCloneRecipe(java.util.Map<String, ?> map) {
+		super(map);
+	}
 
 }

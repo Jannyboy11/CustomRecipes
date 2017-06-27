@@ -9,5 +9,9 @@ public class CRRepairRecipe extends CRShapelessRecipe<RecipeRepair> implements R
 	public CRRepairRecipe(RecipeRepair nmsRecipe) {
 		super(nmsRecipe);
 	}
+	
+	public CRRepairRecipe(java.util.Map<String, ?> map) {
+		super(map);
+	}
 
 }

@@ -2,6 +2,7 @@ package com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -10,13 +11,20 @@ import org.bukkit.inventory.ItemStack;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingIngredient;
+import com.gmail.jannyboy11.customrecipes.serialize.NBTSerializable;
+import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
 
 import net.minecraft.server.v1_12_R1.RecipeItemStack;
 
-public class CRChoiceIngredient extends CRCraftingIngredient<RecipeItemStack> implements ChoiceIngredient {
+public class CRChoiceIngredient extends CRCraftingIngredient<RecipeItemStack> implements ChoiceIngredient, NBTSerializable {
 
 	public CRChoiceIngredient(RecipeItemStack nmsIngredient) {
 		super(nmsIngredient);
+	}
+	
+	public static CRChoiceIngredient deserialize(Map<String, Object> map) {
+		RecipeItemStack nmsIngredient = NBTUtil.deserializeRecipeItemStack(NBTUtil.fromMap(map));
+		return nmsIngredient == RecipeItemStack.a ? CREmptyIngredient.INSTANCE : new CRChoiceIngredient(nmsIngredient);
 	}
 
 	@Override

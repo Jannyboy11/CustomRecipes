@@ -1,5 +1,7 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.tobukkit;
 
+import java.util.Map;
+
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.NBTRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
@@ -18,6 +20,10 @@ public class CRNBTRecipe extends CRShapedRecipe<NBTRecipe> implements com.gmail.
 
 	public CRNBTRecipe(NBTTagCompound recipeCompound) {
 		this(deserializeNmsRecipe(recipeCompound));
+	}
+	
+	public CRNBTRecipe(Map<String, Object> map) {
+		this(NBTUtil.fromMap(map));
 	}
 	
 	protected static NBTRecipe deserializeNmsRecipe(NBTTagCompound recipeCompound) {

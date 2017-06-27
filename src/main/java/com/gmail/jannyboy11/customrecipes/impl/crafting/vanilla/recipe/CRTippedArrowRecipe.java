@@ -9,5 +9,9 @@ public class CRTippedArrowRecipe extends CRShapedRecipe<RecipeTippedArrow> imple
 	public CRTippedArrowRecipe(RecipeTippedArrow nmsRecipe) {
 		super(nmsRecipe);
 	}
+	
+	public CRTippedArrowRecipe(java.util.Map<String, ?> map) {
+		super(map);
+	}
 
 }

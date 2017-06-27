@@ -37,6 +37,7 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.custom.ingredient.Wildcar
 import com.gmail.jannyboy11.customrecipes.api.crafting.custom.recipe.NBTRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.custom.recipe.PermissionRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.ingredient.ChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.BannerDuplicateRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe;
@@ -53,10 +54,26 @@ import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.Permiss
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.Bukkit2NMSIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.InjectedIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.Bukkit2NMSRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.tobukkit.CRNBTRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.tobukkit.CRPermissionRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapedAdder;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapedRemover;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapelessAdder;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapelessRemover;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient.CRChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient.CREmptyIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRArmorDyeRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRBannerAddPatternRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRBookCloneRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRFireworksRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRMapCloneRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRMapExtendRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRRepairRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapedRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapelessRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShieldDecorationRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShulkerBoxDyeRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRTippedArrowRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRVanillaRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceManager;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceRecipe;
@@ -245,16 +262,44 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	@Override
 	public void onEnable() {
 		//serializable stuff
+		
+		//nbt arrays
 		ConfigurationSerialization.registerClass(ConfigurationSerializableByteArray.class);
 		ConfigurationSerialization.registerClass(ConfigurationSerializableIntArray.class);
 		ConfigurationSerialization.registerClass(ConfigurationSerializableLongArray.class);
+		
+		//bukkit ingredients
 		ConfigurationSerialization.registerClass(SimilarIngredient.class);
 		ConfigurationSerialization.registerClass(WildcardIngredient.class);
 		ConfigurationSerialization.registerClass(SimpleChoiceIngredient.class);
+		
+		//bukkit recipes
 		ConfigurationSerialization.registerClass(SimpleShapedRecipe.class);
 		ConfigurationSerialization.registerClass(SimpleShapelessRecipe.class);
+		
+		//nms mirrors
 		ConfigurationSerialization.registerClass(Bukkit2NMSIngredient.class);
 		ConfigurationSerialization.registerClass(Bukkit2NMSRecipe.class);
+		ConfigurationSerialization.registerClass(Bukkit2NMSIngredient.class);
+		
+		//nms wrappers
+		ConfigurationSerialization.registerClass(CRChoiceIngredient.class);
+		ConfigurationSerialization.registerClass(CREmptyIngredient.class);
+		ConfigurationSerialization.registerClass(CRShapedRecipe.class);
+		ConfigurationSerialization.registerClass(CRShapelessRecipe.class);
+		ConfigurationSerialization.registerClass(CRNBTRecipe.class);
+		ConfigurationSerialization.registerClass(CRPermissionRecipe.class);
+		ConfigurationSerialization.registerClass(CRArmorDyeRecipe.class);
+		ConfigurationSerialization.registerClass(CRBannerAddPatternRecipe.class);
+		ConfigurationSerialization.registerClass(BannerDuplicateRecipe.class);
+		ConfigurationSerialization.registerClass(CRBookCloneRecipe.class);
+		ConfigurationSerialization.registerClass(CRFireworksRecipe.class);
+		ConfigurationSerialization.registerClass(CRMapCloneRecipe.class);
+		ConfigurationSerialization.registerClass(CRMapExtendRecipe.class);
+		ConfigurationSerialization.registerClass(CRRepairRecipe.class);
+		ConfigurationSerialization.registerClass(CRShieldDecorationRecipe.class);
+		ConfigurationSerialization.registerClass(CRShulkerBoxDyeRecipe.class);
+		ConfigurationSerialization.registerClass(CRTippedArrowRecipe.class);
 		
 		getCommand("addrecipe").setExecutor(new AddRecipeCommandExecutor(Collections.unmodifiableNavigableMap(adders)));
 		getCommand("removerecipe").setExecutor(new RemoveRecipeCommandExecutor(Collections.unmodifiableNavigableMap(removers)));

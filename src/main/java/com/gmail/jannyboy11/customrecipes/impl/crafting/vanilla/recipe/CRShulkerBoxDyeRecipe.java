@@ -10,5 +10,9 @@ public class CRShulkerBoxDyeRecipe extends CRShapelessRecipe<RecipeShulkerBox.Dy
 	public CRShulkerBoxDyeRecipe(Dye nmsRecipe) {
 		super(nmsRecipe);
 	}
+	
+	public CRShulkerBoxDyeRecipe(java.util.Map<String, ?> map) {
+		super(map);
+	}
 
 }

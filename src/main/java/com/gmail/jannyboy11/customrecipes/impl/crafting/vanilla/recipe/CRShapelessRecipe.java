@@ -1,6 +1,7 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -15,7 +16,6 @@ import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.NBTTagList;
 import net.minecraft.server.v1_12_R1.NonNullList;
 import net.minecraft.server.v1_12_R1.RecipeItemStack;
-import net.minecraft.server.v1_12_R1.ShapedRecipes;
 import net.minecraft.server.v1_12_R1.ShapelessRecipes;
 
 public class CRShapelessRecipe<R extends ShapelessRecipes> extends CRVanillaRecipe<R> implements ShapelessRecipe {
@@ -26,6 +26,10 @@ public class CRShapelessRecipe<R extends ShapelessRecipes> extends CRVanillaReci
 	
 	public CRShapelessRecipe(NBTTagCompound recipeCompound) {
 		this((R) deserializeNmsRecipe(recipeCompound));
+	}
+	
+	public CRShapelessRecipe(Map<String, ?> map) {
+		this(NBTUtil.fromMap(map));
 	}
 	
 	@Override

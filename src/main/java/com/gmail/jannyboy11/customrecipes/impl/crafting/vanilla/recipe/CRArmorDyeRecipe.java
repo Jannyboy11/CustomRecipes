@@ -7,5 +7,9 @@ public class CRArmorDyeRecipe extends CRShapelessRecipe<RecipeArmorDye> {
 	public CRArmorDyeRecipe(RecipeArmorDye nmsRecipe) {
 		super(nmsRecipe);
 	}
+	
+	public CRArmorDyeRecipe(java.util.Map<String, ?> map) {
+		super(map);
+	}
 
 }

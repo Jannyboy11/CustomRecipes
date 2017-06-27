@@ -11,4 +11,7 @@ public class CRBannerAddPatternRecipe extends CRShapelessRecipe<RecipesBanner.Ad
 		super(nmsRecipe);
 	}
 
+	public CRBannerAddPatternRecipe(java.util.Map<String, ?> map) {
+		super(map);
+	}
 }

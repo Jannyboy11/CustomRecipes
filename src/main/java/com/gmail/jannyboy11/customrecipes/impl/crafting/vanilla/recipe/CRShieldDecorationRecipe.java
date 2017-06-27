@@ -10,5 +10,9 @@ public class CRShieldDecorationRecipe extends CRShapelessRecipe<RecipiesShield.D
 	public CRShieldDecorationRecipe(Decoration nmsRecipe) {
 		super(nmsRecipe);
 	}
+	
+	public CRShieldDecorationRecipe(java.util.Map<String, ?> map) {
+		super(map);
+	}
 
 }

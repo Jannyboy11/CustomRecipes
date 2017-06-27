@@ -9,5 +9,9 @@ public class CRFireworksRecipe extends CRShapelessRecipe<RecipeFireworks> implem
 	public CRFireworksRecipe(RecipeFireworks nmsRecipe) {
 		super(nmsRecipe);
 	}
+	
+	public CRFireworksRecipe(java.util.Map<String, ?> map) {
+		super(map);
+	}
 
 }

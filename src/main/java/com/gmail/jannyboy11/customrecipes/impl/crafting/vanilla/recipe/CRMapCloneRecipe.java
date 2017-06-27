@@ -10,4 +10,7 @@ public class CRMapCloneRecipe extends CRShapelessRecipe<RecipeMapClone> implemen
 		super(nmsRecipe);
 	}
 
+	public CRMapCloneRecipe(java.util.Map<String, ?> map) {
+		super(map);
+	}
 }
