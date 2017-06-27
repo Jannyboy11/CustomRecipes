@@ -280,11 +280,12 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		//nms mirrors
 		ConfigurationSerialization.registerClass(Bukkit2NMSIngredient.class);
 		ConfigurationSerialization.registerClass(Bukkit2NMSRecipe.class);
-		ConfigurationSerialization.registerClass(Bukkit2NMSIngredient.class);
 		
-		//nms wrappers
+		//nms ingredient wrappers
 		ConfigurationSerialization.registerClass(CRChoiceIngredient.class);
 		ConfigurationSerialization.registerClass(CREmptyIngredient.class);
+		
+		//nms recipe wrappers
 		ConfigurationSerialization.registerClass(CRShapedRecipe.class);
 		ConfigurationSerialization.registerClass(CRShapelessRecipe.class);
 		ConfigurationSerialization.registerClass(CRNBTRecipe.class);
