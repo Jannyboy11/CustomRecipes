@@ -1,5 +1,7 @@
 package com.gmail.jannyboy11.customrecipes.api.furnace;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import org.bukkit.inventory.ItemStack;
@@ -31,6 +33,13 @@ public final class SimpleFurnaceRecipe implements FurnaceRecipe {
 		this(ingredient, result);
 		this.xp = xp;
 	}
+	
+	public SimpleFurnaceRecipe(Map<String, Object> map) {
+		this.ingredient = (ItemStack) map.get("ingredient");
+		this.output = (ItemStack) map.get("result");
+		if (map.containsKey("xp")) xp = Float.valueOf(map.get("xp").toString());
+	}
+	
 	
 	/**
 	 * {@inheritDoc}

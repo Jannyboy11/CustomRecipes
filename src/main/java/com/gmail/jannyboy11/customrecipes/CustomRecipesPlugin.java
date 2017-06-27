@@ -1,6 +1,7 @@
 package com.gmail.jannyboy11.customrecipes;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -47,6 +48,7 @@ import com.gmail.jannyboy11.customrecipes.commands.ListRecipesCommandExecutor;
 import com.gmail.jannyboy11.customrecipes.commands.RemoveRecipeCommandExecutor;
 import com.gmail.jannyboy11.customrecipes.gui.ListRecipesListener;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingManager;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.NBTAdder;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.NBTRemover;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.PermissionAdder;
@@ -82,10 +84,13 @@ import com.gmail.jannyboy11.customrecipes.impl.furnace.addremove.FurnaceRemover;
 import com.gmail.jannyboy11.customrecipes.serialize.ConfigurationSerializableByteArray;
 import com.gmail.jannyboy11.customrecipes.serialize.ConfigurationSerializableIntArray;
 import com.gmail.jannyboy11.customrecipes.serialize.ConfigurationSerializableLongArray;
+import com.gmail.jannyboy11.customrecipes.serialize.NBTSerializable;
+import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
 
 import net.minecraft.server.v1_12_R1.CraftingManager;
 import net.minecraft.server.v1_12_R1.IRecipe;
 import net.minecraft.server.v1_12_R1.MinecraftKey;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.RecipesFurnace;
 
 public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi {
@@ -96,37 +101,37 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	private final Map<String, Supplier<? extends List<? extends Recipe>>> recipeSuppliers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	private final Map<String, Function<? super Recipe, ? extends ItemStack>> recipeToItemMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	private final Map<String, BiConsumer<? super Recipe, ? super CommandSender>> recipeToCommandSenderDiplayMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-	
+
 	private final Map<String, BiConsumer<? super Recipe, ? super File>> writers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	private final Map<String, Function<? super File, ? extends Recipe>> readers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 	private CRCraftingManager craftingManager = new CRCraftingManager();
 	private CRFurnaceManager furnaceManager = new CRFurnaceManager();
-	
+
 	private Set<MinecraftKey> vanillaCraftingRecipes;
 	private Set<net.minecraft.server.v1_12_R1.ItemStack> vanillaFurnaceRecipes;
-	
-	
+
+
 	private void recordVanillaRecipes() {
 		getServer().resetRecipes(); //Is called before onEnable of other plugins, so shouldn't cause trouble.
 		vanillaCraftingRecipes = new HashSet<>(CraftingManager.recipes.keySet());
 		vanillaFurnaceRecipes = new HashSet<>(RecipesFurnace.getInstance().recipes.keySet());
 	}
-	
+
 	public boolean isVanillaCraftingRecipe(MinecraftKey key) {
 		return vanillaCraftingRecipes.contains(key);
 	}
-	
+
 	public boolean isVanillaFurnaceRecipe(net.minecraft.server.v1_12_R1.ItemStack ingredient) {
 		return vanillaFurnaceRecipes.stream().anyMatch(ingr -> CRFurnaceManager.furnaceEquals(RecipesFurnace.getInstance(), ingr, ingredient));
 	}
-	
+
 
 	@Override
 	public void onLoad() {
 		//define RecipeItemstackInjected subclass
 		InjectedIngredient.inject();		
-		
+
 		//let's hope no other plugins have added crafting recipes here
 		recordVanillaRecipes();
 
@@ -143,11 +148,35 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		addRemover("nbt", new NBTRemover(this));
 		addRemover("permission", new PermissionRemover(this));
 		addRemover("furnace", new FurnaceRemover(this));
+
+		//readers and writers only used in commands, thats why casting to CR variants is allowed
+		BiConsumer<Recipe, File> nbtSaver = (recipe, file) -> {
+			NBTSerializable cr = (NBTSerializable) recipe;
+			try {
+				NBTUtil.writeNBTTagCompound(file, cr.serializeToNbt());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		};
+		addWriter("shaped", nbtSaver);
+		addWriter("shapeless", nbtSaver);
+		addWriter("nbt", nbtSaver);
+		addWriter("permission", nbtSaver);
+		addWriter("furnace", nbtSaver);
 		
-		//TODO savers and loaders
-		addWriter("shaped", (recipe, file) -> {
-			//TODO
-		});
+		Function<File, NBTTagCompound> nbtReader = file -> {
+			try {
+				return NBTUtil.readNBTTagCompound(file);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		};
+		addReader("shaped", nbtReader.andThen(CRShapedRecipe::new));
+		addReader("shapeless", nbtReader.andThen(CRShapelessRecipe::new));
+		addReader("nbt", nbtReader.andThen(CRNBTRecipe::new));
+		addReader("permission", nbtReader.andThen(CRPermissionRecipe::new));
+		addReader("furnace", nbtReader.andThen(CRFurnaceRecipe::new));
+		//TODO load on startup (in onEnable), save in add commands, delete in remove commands
 		
 
 		//representations for the listrecipes menu
@@ -244,47 +273,47 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	public boolean addAdder(String recipeType, BiConsumer<? super Player, ? super List<String>> adder) {
 		return adders.putIfAbsent(recipeType, adder) == null;
 	}
-	
+
 	public boolean addRemover(String recipeType, BiConsumer<? super Player, ? super List<String>> remover) {
 		return removers.putIfAbsent(recipeType, remover) == null;
 	}
-	
+
 	public boolean addWriter(String recipeType, BiConsumer<? super Recipe, ? super File> saver) {
 		return writers.putIfAbsent(recipeType, saver) == null;
 	}
-	
+
 	public boolean addReader(String recipeType, Function<? super File, ? extends Recipe> loader) {
 		return readers.putIfAbsent(recipeType, loader) == null;
 	}
-	
+
 
 
 	@Override
 	public void onEnable() {
 		//serializable stuff
-		
+
 		//nbt arrays
 		ConfigurationSerialization.registerClass(ConfigurationSerializableByteArray.class);
 		ConfigurationSerialization.registerClass(ConfigurationSerializableIntArray.class);
 		ConfigurationSerialization.registerClass(ConfigurationSerializableLongArray.class);
-		
+
 		//bukkit ingredients
 		ConfigurationSerialization.registerClass(SimilarIngredient.class);
 		ConfigurationSerialization.registerClass(WildcardIngredient.class);
 		ConfigurationSerialization.registerClass(SimpleChoiceIngredient.class);
-		
+
 		//bukkit recipes
 		ConfigurationSerialization.registerClass(SimpleShapedRecipe.class);
 		ConfigurationSerialization.registerClass(SimpleShapelessRecipe.class);
-		
+
 		//nms mirrors
 		ConfigurationSerialization.registerClass(Bukkit2NMSIngredient.class);
 		ConfigurationSerialization.registerClass(Bukkit2NMSRecipe.class);
-		
+
 		//nms ingredient wrappers
 		ConfigurationSerialization.registerClass(CRChoiceIngredient.class);
 		ConfigurationSerialization.registerClass(CREmptyIngredient.class);
-		
+
 		//nms recipe wrappers
 		ConfigurationSerialization.registerClass(CRShapedRecipe.class);
 		ConfigurationSerialization.registerClass(CRShapelessRecipe.class);
@@ -302,6 +331,10 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		ConfigurationSerialization.registerClass(CRShulkerBoxDyeRecipe.class);
 		ConfigurationSerialization.registerClass(CRTippedArrowRecipe.class);
 		
+		//furnace
+		ConfigurationSerialization.registerClass(SimpleFurnaceRecipe.class);
+		ConfigurationSerialization.registerClass(CRFurnaceRecipe.class);
+
 		getCommand("addrecipe").setExecutor(new AddRecipeCommandExecutor(Collections.unmodifiableNavigableMap(adders)));
 		getCommand("removerecipe").setExecutor(new RemoveRecipeCommandExecutor(Collections.unmodifiableNavigableMap(removers)));
 		getCommand("listrecipes").setExecutor(new ListRecipesCommandExecutor(this::getRecipes,
@@ -309,7 +342,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 				Collections.unmodifiableMap(recipeToCommandSenderDiplayMap)));
 
 		getServer().getPluginManager().registerEvents(new ListRecipesListener(), this);
-		
+
 		//TODO load recipes from disk, use registered loaders
 	}
 
@@ -383,15 +416,15 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 
 	public void save(String recipeType, String fileName, Recipe recipe) {
 		File saveFolder = saveFolder(recipeType);
-		
+
 		File saveFile = new File(saveFolder, fileName);
 		writers.get(recipe).accept(recipe, saveFile);
 	}
-	
+
 	public Recipe load(String recipeType, File saveFile) {
 		return readers.get(recipeType).apply(saveFile);
 	}
-	
+
 	public File saveFolder(String recipeType) {
 		File folder = new File(getDataFolder(), recipeType);
 		if (!folder.exists()) folder.mkdirs();
@@ -407,7 +440,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	public void setFurnaceManager(CRFurnaceManager furnaceManager) {
 		this.furnaceManager = Objects.requireNonNull(furnaceManager);
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	public NamespacedKey getKey(String string) {
 		String[] split = string.split(":");

@@ -136,7 +136,7 @@ public class CRFurnaceManager implements FurnaceManager {
 		org.bukkit.inventory.ItemStack ingredient = furnaceRecipe.getIngredient();
 		if (ingredient == null) return null;
 		
-		return CRFurnaceRecipe.fromSimple(furnaceRecipe, recipesFurnace, recipesFurnace.customRecipes, recipesFurnace.customExperience);
+		return CRFurnaceRecipe.registerFromSimple(furnaceRecipe, recipesFurnace, recipesFurnace.customRecipes, recipesFurnace.customExperience);
 	}
 
 	@Override
@@ -146,7 +146,7 @@ public class CRFurnaceManager implements FurnaceManager {
 		org.bukkit.inventory.ItemStack ingredient = furnaceRecipe.getIngredient();
 		if (ingredient == null) return null;
 		
-		return CRFurnaceRecipe.fromSimple(furnaceRecipe, recipesFurnace, recipesFurnace.recipes, vanillaXp(recipesFurnace));
+		return CRFurnaceRecipe.registerFromSimple(furnaceRecipe, recipesFurnace, recipesFurnace.recipes, vanillaXp(recipesFurnace));
 	}
 	
 	public static boolean furnaceEquals(RecipesFurnace recipesFurnace, ItemStack stack1, ItemStack stack2) {

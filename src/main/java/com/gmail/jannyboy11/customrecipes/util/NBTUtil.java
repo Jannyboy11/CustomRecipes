@@ -68,6 +68,19 @@ public class NBTUtil {
 	}
 	
 	
+	// ============== ItemStack ==============
+	
+	public static NBTTagCompound serializeItemStack(ItemStack stack) {
+		NBTTagCompound tag = new NBTTagCompound();
+		stack.save(tag);
+		return tag;
+	}
+	
+	public static ItemStack deserializeItemStack(NBTTagCompound tag) {
+		return new ItemStack(tag);
+	}
+	
+	
 	// ============== RecipeItemStack ==============
 	
 	public static NBTTagCompound serializeRecipeItemStack(RecipeItemStack recipeItemStack) {

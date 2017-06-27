@@ -1,20 +1,64 @@
 package com.gmail.jannyboy11.customrecipes.impl.furnace;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 
+import com.gmail.jannyboy11.customrecipes.serialize.NBTSerializable;
+import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
+
 import net.minecraft.server.v1_12_R1.ItemStack;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.RecipesFurnace;
 
-public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe {
+public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe, NBTSerializable {
 
 	private final FurnaceRecipe nmsRecipe;
 	
 	public CRFurnaceRecipe(FurnaceRecipe nmsRecipe) {
 		this.nmsRecipe = Objects.requireNonNull(nmsRecipe);
+	}
+	
+	public CRFurnaceRecipe(NBTTagCompound compound) {
+		RecipesFurnace recipesFurnace = RecipesFurnace.getInstance();
+		nmsRecipe = new FurnaceRecipe(recipesFurnace, new HashMap<>(), new HashMap<>());
+		
+		nmsRecipe.setIngredient(NBTUtil.deserializeItemStack(compound.getCompound("ingredient")));
+		nmsRecipe.setResult(NBTUtil.deserializeItemStack(compound.getCompound("result")));
+		if (compound.hasKeyOfType("xp", 5 /*float*/)) nmsRecipe.setXp(compound.getFloat("xp"));
+	}
+
+	public NBTTagCompound serializeToNbt() {
+		NBTTagCompound tag = new NBTTagCompound();
+		tag.set("ingredient", NBTUtil.serializeItemStack(nmsRecipe.getIngredient()));
+		tag.set("result", NBTUtil.serializeItemStack(nmsRecipe.getResult()));
+		if (hasXp()) tag.setFloat("xp", nmsRecipe.getXp());
+		return tag;
+	}
+	
+	public static CRFurnaceRecipe deserialzeFromNbt(NBTTagCompound compound, boolean vanilla) {
+		RecipesFurnace recipesFurnace = RecipesFurnace.getInstance();
+		FurnaceRecipe nmsRecipe = vanilla ?
+				new FurnaceRecipe(recipesFurnace, recipesFurnace.recipes, CRFurnaceManager.vanillaXp(recipesFurnace)) :
+				new FurnaceRecipe(recipesFurnace, recipesFurnace.customRecipes, recipesFurnace.customExperience);
+		
+		nmsRecipe.setIngredient(NBTUtil.deserializeItemStack(compound.getCompound("ingredient")));
+		nmsRecipe.setResult(NBTUtil.deserializeItemStack(compound.getCompound("result")));
+		if (compound.hasKeyOfType("xp", 5 /*float*/)) nmsRecipe.setXp(compound.getFloat("xp"));
+
+		return new CRFurnaceRecipe(nmsRecipe);
+	}
+	
+	@Override
+	public Map<String, Object> serialize() {
+		return NBTSerializable.super.serialize();
+	}
+	
+	public static CRFurnaceRecipe deserialize(Map<String, Object> map) {
+		return deserialzeFromNbt(NBTUtil.fromMap(map), false);
 	}
 
 	@Override
@@ -87,10 +131,23 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 	public String toString() {
 		return getClass().getName() + "{nmsRecipe=" + nmsRecipe + "}";
 	}
-	
-	public static CRFurnaceRecipe fromSimple(com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe simple, RecipesFurnace recipesFurnace, Map<ItemStack, ItemStack> results, Map<ItemStack, Float> xps) {
+
+	public static CRFurnaceRecipe registerFromSimple(com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe simple, RecipesFurnace recipesFurnace, Map<ItemStack, ItemStack> results, Map<ItemStack, Float> xps) {
 		if (simple instanceof CRFurnaceRecipe) {
-			return (CRFurnaceRecipe) simple;
+			CRFurnaceRecipe crFurnaceRecipe = (CRFurnaceRecipe) simple;
+			FurnaceRecipe nmsRecipe = crFurnaceRecipe.nmsRecipe;
+			ItemStack ingredient = nmsRecipe.getIngredient();
+			ItemStack result = nmsRecipe.getResult();
+			float xp = nmsRecipe.getXp();
+			
+			nmsRecipe.recipesFurnace = recipesFurnace;
+			nmsRecipe.results = results;
+			nmsRecipe.xps = xps;
+			nmsRecipe.setIngredient(ingredient);
+			nmsRecipe.setResult(result);
+			nmsRecipe.setXp(xp);
+			
+			return crFurnaceRecipe;
 		}
 		
 		ItemStack nmsIngredient = CraftItemStack.asNMSCopy(simple.getIngredient());
@@ -106,9 +163,9 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 	
 	public static class FurnaceRecipe {
 		
-		private final RecipesFurnace recipesFurnace;
-		private final Map<ItemStack, ItemStack> results;
-		private final Map<ItemStack, Float> xps;
+		private RecipesFurnace recipesFurnace;
+		private Map<ItemStack, ItemStack> results;
+		private Map<ItemStack, Float> xps;
 		private ItemStack source;
 		
 		public FurnaceRecipe(RecipesFurnace recipesFurnace, Map<ItemStack, ItemStack> results, Map<ItemStack, Float> xps) {

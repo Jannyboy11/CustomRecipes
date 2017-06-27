@@ -2,10 +2,13 @@ package com.gmail.jannyboy11.customrecipes.api.furnace;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -17,7 +20,7 @@ import com.gmail.jannyboy11.customrecipes.api.Representable;
  * 
  * @author Jan
  */
-public interface FurnaceRecipe extends Representable, Recipe {
+public interface FurnaceRecipe extends Representable, Recipe, ConfigurationSerializable {
 	
 	/**
 	 * Get the ingredient of the recipe.
@@ -99,6 +102,16 @@ public interface FurnaceRecipe extends Representable, Recipe {
 	 */
 	public default boolean hasXp() {
 		return getXp() > 0;
+	}
+	
+	
+	@Override
+	public default Map<String, Object> serialize() {
+		Map<String, Object> map = new HashMap<>();
+		map.put("ingredient", getIngredient());
+		map.put("result", getResult());
+		if (hasXp()) map.put("xp", getXp());
+		return map;
 	}
 
 }
