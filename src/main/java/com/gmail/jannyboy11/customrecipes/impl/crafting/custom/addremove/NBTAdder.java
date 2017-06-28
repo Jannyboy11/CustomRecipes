@@ -32,13 +32,13 @@ import net.minecraft.server.v1_12_R1.NonNullList;
 import net.minecraft.server.v1_12_R1.RecipeItemStack;
 
 public class NBTAdder implements BiConsumer<Player, List<String>> {
-	
+
 	private final CustomRecipesPlugin plugin;
-	
+
 	public NBTAdder(CustomRecipesPlugin plugin) {
 		this.plugin = plugin;
 	}
-	
+
 	@Override
 	public void accept(Player player, List<String> args) {
 		org.bukkit.inventory.ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
@@ -62,16 +62,16 @@ public class NBTAdder implements BiConsumer<Player, List<String>> {
 		player.openInventory(new NBTRecipeHolder(plugin, result, key, group, player).getInventory());
 	}
 
-	
+
 	private static final class NBTRecipeHolder implements InventoryHolder, Listener {
-		
+
 		private final Inventory dispenserInventory;
 		private final CustomRecipesPlugin plugin;
 		private final ItemStack result;
 		private final MinecraftKey key;
 		private final String group;
 		private final Player callbackPlayer;
-		
+
 		public NBTRecipeHolder(CustomRecipesPlugin plugin, ItemStack result, MinecraftKey key, String group, Player callbackPlayer) {
 			this.plugin = plugin;
 			this.result = result;
@@ -86,90 +86,94 @@ public class NBTAdder implements BiConsumer<Player, List<String>> {
 		public Inventory getInventory() {
 			return dispenserInventory;
 		}
-		
-		
+
+
 		@EventHandler
 		public void onInventoryClose(InventoryCloseEvent event) {
 			if (event.getInventory().getHolder() instanceof NBTRecipeHolder) {
 				NBTRecipeHolder holder = (NBTRecipeHolder) event.getInventory().getHolder();
 				if (holder != this) return;
-				
+
 				Inventory inventory = event.getInventory();
 				if (InventoryUtils.isEmpty(inventory)) {
 					holder.callbackPlayer.sendMessage(ChatColor.RED + "Do you seriously want to create a recipe without ingredients?");
 					return;
 				}
-				
+
 				NBTRecipe nmsRecipe = holder.toRecipe();
 				CRNBTRecipe nbtRecipe = new CRNBTRecipe(nmsRecipe);
 				List<List<String>> recipeIngredients = nbtRecipe.getIngredients().stream()
-					.map((CRChoiceIngredient ingr) -> ingr.getChoices().stream()
-						.map(InventoryUtils::getItemName).collect(Collectors.toList()))
-					.collect(Collectors.toList());
+						.map((CRChoiceIngredient ingr) -> ingr.getChoices().stream()
+								.map(InventoryUtils::getItemName).collect(Collectors.toList()))
+						.collect(Collectors.toList());
 				String recipeString = recipeIngredients + "" +
-					ChatColor.RESET + " -> " +
-					InventoryUtils.getItemName(nbtRecipe.getResult());
-				
-				holder.plugin.getCraftingManager().addRecipe(holder.key, nmsRecipe, nbtRecipe);
-				holder.callbackPlayer.sendMessage(String.format("%sAdded NBT recipe: %s%s%s!",
-						ChatColor.GREEN, ChatColor.WHITE, recipeString, ChatColor.WHITE));
-				plugin.saveCraftingRecipeFile("nbt", nbtRecipe);
-				
+						ChatColor.RESET + " -> " +
+						InventoryUtils.getItemName(nbtRecipe.getResult());
+
+				boolean success = holder.plugin.getCraftingManager().addRecipe(holder.key, nmsRecipe, nbtRecipe);
+				if (success) {
+					holder.callbackPlayer.sendMessage(String.format("%sAdded NBT recipe: %s%s%s!",
+							ChatColor.GREEN, ChatColor.WHITE, recipeString, ChatColor.WHITE));
+					plugin.saveCraftingRecipeFile("nbt", nbtRecipe);
+				} else {
+					holder.callbackPlayer.sendMessage(ChatColor.RED + "Couldn't create an NBT recipe. Possibly a duplicate key.");
+				}
+
 				HandlerList.unregisterAll(holder);
 			}
 		}
-		
+
 
 		private NBTRecipe toRecipe() {
 			CraftInventoryCustom dispenserInventory = (CraftInventoryCustom) this.dispenserInventory;
 			IInventory minecraftInventory = (IInventory) ReflectionUtil.getDeclaredFieldValue(dispenserInventory, "inventory");
 			NonNullList<ItemStack> dispenserInventoryContents = (NonNullList<ItemStack>) ReflectionUtil.getDeclaredFieldValue(minecraftInventory, "items");
-			
+
 			int minNonEmptyRownum = 2;
 			int minNonEmptyColnum = 2;
 			int maxNonEmptyRownum = 0;
 			int maxNonEmptyColnum = 0;
-			
+
 			for (int index = 0; index < dispenserInventoryContents.size(); index++) {
 				ItemStack stack = dispenserInventoryContents.get(index);
 				if (!stack.isEmpty()) {
 					int[] rownumColnum = InventoryUtils.inventoryRownumColnum(3, index);
 					int rowNum = rownumColnum[0];
 					int colNum = rownumColnum[1];
-					
+
 					minNonEmptyRownum = Math.min(minNonEmptyRownum, rowNum);
 					minNonEmptyColnum = Math.min(minNonEmptyColnum, colNum);
 					maxNonEmptyRownum = Math.max(maxNonEmptyRownum, rowNum);
 					maxNonEmptyColnum = Math.max(maxNonEmptyColnum, colNum);
 				}
 			}
-			
+
 			int height = maxNonEmptyRownum - minNonEmptyRownum + 1;
 			int width = maxNonEmptyColnum - minNonEmptyColnum + 1;
-			
+
 			NonNullList<RecipeItemStack> ingredients = NonNullList.a(height * width, RecipeItemStack.a);
 			for (int h = 0; h < height; h++) {
 				for (int w = 0; w < width; w++) {
 					int index = InventoryUtils.inventoryIndex(width, new int[] {h, w});
-					
+
 					ItemStack ingredientStack = dispenserInventoryContents.get(InventoryUtils.inventoryIndex(3,
 							new int[] {h + minNonEmptyRownum, w + minNonEmptyColnum}));
 
 					RecipeItemStack vanillaIngredient = RecipeItemStack.a(new ItemStack[] {ingredientStack});
-					
+
 					//now done in NBTRecipe constructor
 					//NBTTagCompound tag = ingredientStack.getTag();
 					//RecipeItemStack nbtIngredient = new NBTIngredient(vanillaIngredient, tag).asNMSIngredient();
-					
+
 					ingredients.set(index, vanillaIngredient);
 				}
 			}
-			
+
 			NBTRecipe nbtRecipe = new NBTRecipe(group, width, height, ingredients, result);
 			nbtRecipe.setKey(key);
 			return nbtRecipe;
 		}
-		
+
 	}
-	
+
 }

@@ -40,7 +40,7 @@ public class FurnaceRemover implements BiConsumer<Player, List<String>> {
 			
 			plugin.disableFurnaceRecipeFile(removed);
 		} else {
-			player.sendMessage(ChatColor.RED + "No" + (vanilla ? " vanilla" : "") + " furnace recipe found for ingredient " + 
+			player.sendMessage(ChatColor.RED + "No " + (vanilla ? "vanilla" : "custom") + " furnace recipe found for ingredient " + 
 					ChatColor.WHITE + InventoryUtils.getItemName(itemStack) +
 					ChatColor.RED + ".");
 		}

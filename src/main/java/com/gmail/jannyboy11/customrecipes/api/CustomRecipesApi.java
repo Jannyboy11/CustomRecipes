@@ -43,7 +43,7 @@ public interface CustomRecipesApi {
 	/**
 	 * Translate a bukkit furnace recipe to a CustomRecipes furnace recipe.
 	 * 
-	 * @param bukkitRecipe
+	 * @param bukkitRecipe the bukkit recipe
 	 * @return the CustomRecipes variant
 	 */
 	public FurnaceRecipe asCustomRecipesMirror(org.bukkit.inventory.FurnaceRecipe bukkitRecipe);

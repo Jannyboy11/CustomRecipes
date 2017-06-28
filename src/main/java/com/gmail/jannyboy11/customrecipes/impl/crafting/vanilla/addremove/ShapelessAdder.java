@@ -97,17 +97,21 @@ public class ShapelessAdder implements BiConsumer<Player, List<String>> {
 				CRShapelessRecipe<ShapelessRecipes> shapelessRecipe = new CRShapelessRecipe<>(nmsRecipe);
 
 				List<List<String>> recipeIngredients = shapelessRecipe
-					.getIngredients().stream().map((CRChoiceIngredient ingr) -> ingr.getChoices().stream()
-						.map(InventoryUtils::getItemName)
-						.collect(Collectors.toList()))
-					.collect(Collectors.toList());
+						.getIngredients().stream().map((CRChoiceIngredient ingr) -> ingr.getChoices().stream()
+								.map(InventoryUtils::getItemName)
+								.collect(Collectors.toList()))
+						.collect(Collectors.toList());
 				String recipeString = recipeIngredients + "" + ChatColor.RESET + " -> "
 						+ InventoryUtils.getItemName(shapelessRecipe.getResult());
 
-				holder.plugin.getCraftingManager().addRecipe(holder.key, nmsRecipe, shapelessRecipe);
-				holder.callbackPlayer.sendMessage(String.format("%sAdded shapeless recipe: %s%s%s!",
-						ChatColor.GREEN, ChatColor.WHITE, recipeString, ChatColor.WHITE));
-				plugin.saveCraftingRecipeFile("shapeless", shapelessRecipe);
+				boolean success = holder.plugin.getCraftingManager().addRecipe(holder.key, nmsRecipe, shapelessRecipe);
+				if (success) {
+					holder.callbackPlayer.sendMessage(String.format("%sAdded shapeless recipe: %s%s%s!",
+							ChatColor.GREEN, ChatColor.WHITE, recipeString, ChatColor.WHITE));
+					plugin.saveCraftingRecipeFile("shapeless", shapelessRecipe);
+				} else {
+					holder.callbackPlayer.sendMessage(ChatColor.RED + "Couldn't create a permission recipe. Possibly a duplicate key.");
+				}
 
 				HandlerList.unregisterAll(holder);
 			}
@@ -117,12 +121,12 @@ public class ShapelessAdder implements BiConsumer<Player, List<String>> {
 			CraftInventoryCustom dispenserInventory = (CraftInventoryCustom) this.dispenserInventory;
 			IInventory minecraftInventory = (IInventory) ReflectionUtil.getDeclaredFieldValue(dispenserInventory, "inventory");
 			NonNullList<ItemStack> itemStacks = (NonNullList<ItemStack>) ReflectionUtil.getDeclaredFieldValue(minecraftInventory, "items");
-			
+
 			NonNullList<RecipeItemStack> ingredients = itemStacks.stream()
 					.filter(is -> !is.isEmpty())
 					.map(is -> RecipeItemStack.a(new ItemStack[] {is}))
 					.collect(Collectors.toCollection(NonNullList::a));
-			
+
 			ShapelessRecipes recipe = new ShapelessRecipes(group, result, ingredients);
 			recipe.setKey(key);
 			return recipe;

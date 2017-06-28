@@ -1,7 +1,6 @@
 package com.gmail.jannyboy11.customrecipes.impl.furnace;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -49,12 +48,22 @@ public class CRFurnaceManager implements FurnaceManager {
 
 		return recipe;
 	}
+	
+	public CRFurnaceRecipe getVanillaRecipe(ItemStack nmsStack) {
+		RecipesFurnace recipesFurnace = RecipesFurnace.getInstance();
+		return getRecipe(recipesFurnace, recipesFurnace.recipes, vanillaXp(recipesFurnace), nmsStack);
+	}
 
 	@Override
 	public CRFurnaceRecipe getVanillaRecipe(org.bukkit.inventory.ItemStack bukkitStack) {
 		return getVanillaRecipe(CraftItemStack.asNMSCopy(bukkitStack));
 	}
 
+	public CRFurnaceRecipe getCustomRecipe(ItemStack nmsStack) {
+		RecipesFurnace recipesFurnace = RecipesFurnace.getInstance();
+		return getRecipe(recipesFurnace, recipesFurnace.customRecipes, recipesFurnace.customExperience, nmsStack);
+	}
+	
 	@Override
 	public CRFurnaceRecipe getCustomRecipe(org.bukkit.inventory.ItemStack bukkitStack) {
 		return getCustomRecipe(CraftItemStack.asNMSCopy(bukkitStack));
@@ -67,16 +76,6 @@ public class CRFurnaceManager implements FurnaceManager {
 				.findAny()
 				.map(actualIngredient -> new CRFurnaceRecipe(new FurnaceRecipe(recipesFurnace, results, xps, actualIngredient)))
 				.orElse(null);
-	}
-
-	public CRFurnaceRecipe getVanillaRecipe(ItemStack nmsStack) {
-		RecipesFurnace recipesFurnace = RecipesFurnace.getInstance();
-		return getRecipe(recipesFurnace, recipesFurnace.recipes, vanillaXp(recipesFurnace), nmsStack);
-	}
-
-	public CRFurnaceRecipe getCustomRecipe(ItemStack nmsStack) {
-		RecipesFurnace recipesFurnace = RecipesFurnace.getInstance();
-		return getRecipe(recipesFurnace, recipesFurnace.customRecipes, recipesFurnace.customExperience, nmsStack);
 	}
 
 	@Override
@@ -115,15 +114,15 @@ public class CRFurnaceManager implements FurnaceManager {
 		ItemStack nmsIngredient = CraftItemStack.asNMSCopy(ingredient);
 
 		CRFurnaceRecipe crRecipe = getVanillaRecipe(ingredient);
+		if (crRecipe == null) return null;
+		
 		FurnaceRecipe handle = crRecipe.getHandle();
 		ItemStack result = handle.getResult();
 		float xp = handle.getXp();
 
 		//has to be done in this way since ItemStack doesn't override equals and hashCode.
-		if (crRecipe != null) {
-			recipesFurnace.customRecipes.keySet().removeIf(inMap -> furnaceEquals(recipesFurnace, inMap, nmsIngredient));
-			recipesFurnace.customExperience.keySet().removeIf(inMap -> furnaceEquals(recipesFurnace, inMap, nmsIngredient));
-		}
+		recipesFurnace.recipes.keySet().removeIf(inMap -> furnaceEquals(recipesFurnace, inMap, nmsIngredient));
+		vanillaXp(recipesFurnace).keySet().removeIf(inMap -> furnaceEquals(recipesFurnace, inMap, nmsIngredient));
 
 		//set to dummy maps since the recipe is a live object
 		handle.setIngredientMap(Collections.singletonMap(nmsIngredient, result));
@@ -139,15 +138,15 @@ public class CRFurnaceManager implements FurnaceManager {
 
 		//the removed recipe
 		CRFurnaceRecipe crRecipe = getCustomRecipe(ingredient);
+		if (crRecipe == null) return null;
+		
 		FurnaceRecipe handle = crRecipe.getHandle();
 		ItemStack result = handle.getResult();
 		float xp = handle.getXp();
 
 		//has to be done in this way since ItemStack doesn't override equals and hashCode.
-		if (crRecipe != null) {
-			recipesFurnace.customRecipes.keySet().removeIf(inMap -> furnaceEquals(recipesFurnace, inMap, nmsIngredient));
-			recipesFurnace.customExperience.keySet().removeIf(inMap -> furnaceEquals(recipesFurnace, inMap, nmsIngredient));
-		}
+		recipesFurnace.customRecipes.keySet().removeIf(inMap -> furnaceEquals(recipesFurnace, inMap, nmsIngredient));
+		recipesFurnace.customExperience.keySet().removeIf(inMap -> furnaceEquals(recipesFurnace, inMap, nmsIngredient));
 
 		//set to dummy maps since the recipe is a live object
 		handle.setIngredientMap(Collections.singletonMap(nmsIngredient, result));
@@ -177,7 +176,12 @@ public class CRFurnaceManager implements FurnaceManager {
 	}
 
 	public static boolean furnaceEquals(RecipesFurnace recipesFurnace, ItemStack stack1, ItemStack stack2) {
-		return (boolean) ReflectionUtil.invokeInstanceMethod(recipesFurnace, "a", stack1, stack2);
+		if (stack2.getData() == 0) {
+			stack2 = stack2.cloneItemStack();
+			stack2.setData(Short.MAX_VALUE);
+		}
+		boolean furnaceEquals = (boolean) ReflectionUtil.invokeInstanceMethod(recipesFurnace, "a", stack1, stack2);
+		return furnaceEquals;
 	}
 
 	@Override

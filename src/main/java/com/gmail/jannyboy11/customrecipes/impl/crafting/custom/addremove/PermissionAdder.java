@@ -114,11 +114,14 @@ public class PermissionAdder implements BiConsumer<Player, List<String>> {
 						ChatColor.RESET + " -> " +
 						InventoryUtils.getItemName(permissionRecipe.getResult());
 
-				holder.plugin.getCraftingManager().addRecipe(holder.key, nmsRecipe, permissionRecipe);
-				holder.callbackPlayer.sendMessage(String.format("%sAdded a permission recipe: %s%s%s!",
-						ChatColor.GREEN, ChatColor.WHITE, recipeString, ChatColor.WHITE));
-				
-				plugin.saveCraftingRecipeFile("permission", permissionRecipe);
+				boolean success = holder.plugin.getCraftingManager().addRecipe(holder.key, nmsRecipe, permissionRecipe);
+				if (success) {
+					holder.callbackPlayer.sendMessage(String.format("%sAdded a permission recipe: %s%s%s!",
+							ChatColor.GREEN, ChatColor.WHITE, recipeString, ChatColor.WHITE));
+					plugin.saveCraftingRecipeFile("permission", permissionRecipe);
+				} else {
+					holder.callbackPlayer.sendMessage(ChatColor.RED + "Couldn't create a permission recipe. Possibly a duplicate key.");
+				}
 
 				HandlerList.unregisterAll(holder);
 			}

@@ -14,7 +14,7 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.ingredient.Choice
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.ingredient.EmptyIngredient;
 
 /**
- * Represents an ingredient for crafting recipes.
+ * Represents an ingredient for crafting recipes that aims to mirror vanilla ingredients. 
  * 
  * @author Jan
  */
