@@ -12,6 +12,7 @@ import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
 import net.minecraft.server.v1_12_R1.ItemStack;
+import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.NBTTagList;
 import net.minecraft.server.v1_12_R1.NonNullList;
@@ -69,6 +70,11 @@ public class CRShapelessRecipe<R extends ShapelessRecipes> extends CRVanillaReci
 	@SuppressWarnings("unchecked")
 	private NonNullList<RecipeItemStack> nmsIngredients() {
 		return (NonNullList<RecipeItemStack>) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "ingredients");
+	}
+	
+	@Override
+	public MinecraftKey getMinecraftKey() {
+		return nmsRecipe.key;
 	}
 	
 	@Override

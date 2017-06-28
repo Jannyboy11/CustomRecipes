@@ -90,7 +90,7 @@ public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe, NBTS
 		return mcKey == null ? null : CraftNamespacedKey.fromMinecraft(mcKey);
 	}
 	
-	private MinecraftKey getMinecraftKey() {
+	public MinecraftKey getMinecraftKey() {
 		return CraftingManager.recipes.b(nmsRecipe);
 	}
 	

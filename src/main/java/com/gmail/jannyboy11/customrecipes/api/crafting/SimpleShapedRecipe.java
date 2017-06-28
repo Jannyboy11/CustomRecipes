@@ -19,6 +19,11 @@ import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedRecipe;
 
+/**
+ * Represents a shaped recipe that aims to mirror the vanilla shaped recipe implementation.
+ * 
+ * @author Jan
+ */
 public final class SimpleShapedRecipe extends SimpleCraftingRecipe implements ShapedRecipe {
 	
 	protected int width = 3;

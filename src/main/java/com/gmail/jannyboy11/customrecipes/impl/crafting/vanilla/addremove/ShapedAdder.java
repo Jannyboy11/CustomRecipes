@@ -110,6 +110,7 @@ public class ShapedAdder implements BiConsumer<Player, List<String>> {
 				holder.plugin.getCraftingManager().addRecipe(holder.key, nmsRecipe, shapedRecipe);
 				holder.callbackPlayer.sendMessage(String.format("%sAdded shaped recipe: %s%s%s!",
 						ChatColor.GREEN, ChatColor.WHITE, recipeString, ChatColor.WHITE));
+				plugin.saveCraftingRecipeFile("shaped", shapedRecipe);
 				
 				HandlerList.unregisterAll(holder);
 			}

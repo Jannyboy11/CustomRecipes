@@ -17,9 +17,15 @@ import net.minecraft.server.v1_12_R1.RecipesFurnace;
 public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe, NBTSerializable {
 
 	private final FurnaceRecipe nmsRecipe;
+	private final boolean vanilla;
 	
 	public CRFurnaceRecipe(FurnaceRecipe nmsRecipe) {
+		this(nmsRecipe, false);
+	}
+	
+	public CRFurnaceRecipe(FurnaceRecipe nmsRecipe, boolean vanilla) {
 		this.nmsRecipe = Objects.requireNonNull(nmsRecipe);
+		this.vanilla = vanilla;
 	}
 	
 	public CRFurnaceRecipe(NBTTagCompound compound) {
@@ -29,6 +35,8 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 		nmsRecipe.setIngredient(NBTUtil.deserializeItemStack(compound.getCompound("ingredient")));
 		nmsRecipe.setResult(NBTUtil.deserializeItemStack(compound.getCompound("result")));
 		if (compound.hasKeyOfType("xp", 5 /*float*/)) nmsRecipe.setXp(compound.getFloat("xp"));
+		
+		vanilla = "vanilla".equals(compound.getString("type"));
 	}
 
 	public NBTTagCompound serializeToNbt() {
@@ -36,6 +44,7 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 		tag.set("ingredient", NBTUtil.serializeItemStack(nmsRecipe.getIngredient()));
 		tag.set("result", NBTUtil.serializeItemStack(nmsRecipe.getResult()));
 		if (hasXp()) tag.setFloat("xp", nmsRecipe.getXp());
+		if (vanilla) tag.setString("type", "vanilla");
 		return tag;
 	}
 	
@@ -48,8 +57,12 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 		nmsRecipe.setIngredient(NBTUtil.deserializeItemStack(compound.getCompound("ingredient")));
 		nmsRecipe.setResult(NBTUtil.deserializeItemStack(compound.getCompound("result")));
 		if (compound.hasKeyOfType("xp", 5 /*float*/)) nmsRecipe.setXp(compound.getFloat("xp"));
-
-		return new CRFurnaceRecipe(nmsRecipe);
+		
+		return new CRFurnaceRecipe(nmsRecipe, vanilla);
+	}
+	
+	public FurnaceRecipe getHandle() {
+		return nmsRecipe;
 	}
 	
 	@Override
@@ -112,6 +125,14 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 		return nmsRecipe.hasXp();
 	}
 	
+	
+	public boolean isVanilla() {
+		return vanilla;
+	}
+	
+	
+	
+	@SuppressWarnings("unlikely-arg-type")
 	@Override
 	public boolean equals(Object o) {
 		if (!(o instanceof FurnaceRecipe)) return false;
@@ -132,7 +153,7 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 		return getClass().getName() + "{nmsRecipe=" + nmsRecipe + "}";
 	}
 
-	public static CRFurnaceRecipe registerFromSimple(com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe simple, RecipesFurnace recipesFurnace, Map<ItemStack, ItemStack> results, Map<ItemStack, Float> xps) {
+	public static CRFurnaceRecipe registerFromSimple(boolean vanilla, com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe simple, RecipesFurnace recipesFurnace, Map<ItemStack, ItemStack> results, Map<ItemStack, Float> xps) {
 		if (simple instanceof CRFurnaceRecipe) {
 			CRFurnaceRecipe crFurnaceRecipe = (CRFurnaceRecipe) simple;
 			FurnaceRecipe nmsRecipe = crFurnaceRecipe.nmsRecipe;
@@ -157,7 +178,7 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 		results.put(nmsIngredient, nmsResult);
 		if (xp > 0F) xps.put(nmsIngredient, xp);
 		
-		return new CRFurnaceRecipe(new FurnaceRecipe(recipesFurnace, results, xps, nmsIngredient));
+		return new CRFurnaceRecipe(new FurnaceRecipe(recipesFurnace, results, xps, nmsIngredient), vanilla);
 	}
 	
 	
@@ -169,9 +190,9 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 		private ItemStack source;
 		
 		public FurnaceRecipe(RecipesFurnace recipesFurnace, Map<ItemStack, ItemStack> results, Map<ItemStack, Float> xps) {
-			this.recipesFurnace = recipesFurnace;
-			this.results = results;
-			this.xps = xps;
+			this.recipesFurnace = Objects.requireNonNull(recipesFurnace);
+			this.results = Objects.requireNonNull(results);
+			this.xps = Objects.requireNonNull(xps);
 		}
 
 		public FurnaceRecipe(RecipesFurnace recipesFurnace, Map<ItemStack, ItemStack> results, Map<ItemStack, Float> xps, ItemStack ingredient) {
@@ -243,6 +264,14 @@ public class CRFurnaceRecipe implements com.gmail.jannyboy11.customrecipes.api.f
 					",result()=" + getResult() +
 					",xp()=" + xps.get(source) +
 					"}";
+		}
+
+		public void setIngredientMap(Map<ItemStack, ItemStack> ingredientMap) {
+			this.results = Objects.requireNonNull(ingredientMap);
+		}
+
+		public void setXpMap(Map<ItemStack, Float> xpMap) {
+			this.xps = Objects.requireNonNull(xpMap);
 		}
 		
 	}

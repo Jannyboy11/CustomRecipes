@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import java.util.TreeMap;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -92,6 +94,8 @@ import net.minecraft.server.v1_12_R1.IRecipe;
 import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.RecipesFurnace;
+import net.minecraft.server.v1_12_R1.ShapedRecipes;
+import net.minecraft.server.v1_12_R1.ShapelessRecipes;
 
 public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi {
 
@@ -109,21 +113,25 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	private CRFurnaceManager furnaceManager = new CRFurnaceManager();
 
 	private Set<MinecraftKey> vanillaCraftingRecipes;
-	private Set<net.minecraft.server.v1_12_R1.ItemStack> vanillaFurnaceRecipes;
+	private Map<net.minecraft.server.v1_12_R1.ItemStack, net.minecraft.server.v1_12_R1.ItemStack> vanillaFurnaceRecipes;
 
 
 	private void recordVanillaRecipes() {
 		getServer().resetRecipes(); //Is called before onEnable of other plugins, so shouldn't cause trouble.
 		vanillaCraftingRecipes = new HashSet<>(CraftingManager.recipes.keySet());
-		vanillaFurnaceRecipes = new HashSet<>(RecipesFurnace.getInstance().recipes.keySet());
+		vanillaFurnaceRecipes = new HashMap<>(RecipesFurnace.getInstance().recipes);
 	}
 
 	public boolean isVanillaCraftingRecipe(MinecraftKey key) {
+		if (key == null) return false;
 		return vanillaCraftingRecipes.contains(key);
 	}
 
-	public boolean isVanillaFurnaceRecipe(net.minecraft.server.v1_12_R1.ItemStack ingredient) {
-		return vanillaFurnaceRecipes.stream().anyMatch(ingr -> CRFurnaceManager.furnaceEquals(RecipesFurnace.getInstance(), ingr, ingredient));
+	public boolean isVanillaFurnaceRecipe(net.minecraft.server.v1_12_R1.ItemStack ingredient, net.minecraft.server.v1_12_R1.ItemStack result) {
+		if (ingredient == null) return false;
+		return vanillaFurnaceRecipes.entrySet().stream().anyMatch(entry -> 
+			CRFurnaceManager.furnaceEquals(RecipesFurnace.getInstance(), entry.getKey(), ingredient) &&
+			CRFurnaceManager.furnaceEquals(RecipesFurnace.getInstance(), entry.getValue(), result));
 	}
 
 
@@ -176,7 +184,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		addReader("nbt", nbtReader.andThen(CRNBTRecipe::new));
 		addReader("permission", nbtReader.andThen(CRPermissionRecipe::new));
 		addReader("furnace", nbtReader.andThen(CRFurnaceRecipe::new));
-		//TODO load on startup (in onEnable), save in add commands, delete in remove commands
+		//TODO save in add commands, delete in remove commands
 		
 
 		//representations for the listrecipes menu
@@ -343,7 +351,58 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 
 		getServer().getPluginManager().registerEvents(new ListRecipesListener(), this);
 
-		//TODO load recipes from disk, use registered loaders
+		
+		//remove disabled vanilla recipes. only vanilla recipe types are shaped, shapeless and furnace
+		for (File file : disabledFolder("furnace").listFiles()) {
+			if (file.isDirectory()) continue;
+			try {
+				CRFurnaceRecipe furnaceRecipe = CRFurnaceRecipe.deserialzeFromNbt(NBTUtil.readNBTTagCompound(file), true);
+				furnaceManager.removeVanillaRecipe(furnaceRecipe.getIngredient());
+			} catch (IOException e) {
+				getLogger().log(Level.SEVERE, "Could not disable vanilla furnace recipe!", e);
+			}
+		}
+		for (File file : disabledFolder("shaped").listFiles()) {
+			if (file.isDirectory()) continue;
+			try {
+				CRShapedRecipe<ShapedRecipes> shapedRecipe = new CRShapedRecipe<>(NBTUtil.readNBTTagCompound(file));
+				craftingManager.removeRecipe(shapedRecipe.getKey());
+			} catch (IOException e) {
+				getLogger().log(Level.SEVERE, "Could not disable vanilla shaped recipe!", e);
+			}
+		}
+		for (File file : disabledFolder("shapeless").listFiles()) {
+			if (file.isDirectory()) continue;
+			try {
+				CRShapelessRecipe<ShapelessRecipes> shapelessRecipe = new CRShapelessRecipe<>(NBTUtil.readNBTTagCompound(file));
+				craftingManager.removeRecipe(shapelessRecipe);
+			} catch (IOException e) {
+				getLogger().log(Level.SEVERE, "Could not disable vanilla shapeless recipe!", e);
+			}
+		}
+		
+		//load custom recipes
+		readers.forEach((type, reader) -> {
+			File saveFolder = saveFolder(type);
+			for (File recipeFile : saveFolder.listFiles()) {
+				if (recipeFile.isDirectory()) continue;
+				Recipe recipe = reader.apply(recipeFile);
+				if (recipe instanceof CRCraftingRecipe) {
+					@SuppressWarnings({ "rawtypes", "unchecked" })
+					CRCraftingRecipe<IRecipe> craftingRecipe = (CRCraftingRecipe) recipe;
+					craftingManager.addRecipe(craftingRecipe.getMinecraftKey(), craftingRecipe.getHandle(), craftingRecipe);
+				} else if (recipe instanceof CRFurnaceRecipe) {
+					CRFurnaceRecipe furnaceRecipe = (CRFurnaceRecipe) recipe;
+					if (furnaceRecipe.isVanilla()) {
+						furnaceManager.addVanillaRecipe(furnaceRecipe);
+					} else {
+						furnaceManager.addCustomRecipe(furnaceRecipe);
+					}
+				} else {
+					getLogger().warning("Tried to read non-CR recipe: " + recipe);
+				}
+			}
+		});
 	}
 
 
@@ -386,7 +445,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		int height = shape.length;
 
 		SimpleShapedRecipe simple = new SimpleShapedRecipe(bukkitRecipe.getResult(), width, height, ingredients);
-		CraftingRecipe byKey = craftingManager.getRecipe(bukkitRecipe.getKey()); //TODO can we do better? get by result and by ingredients?
+		CraftingRecipe byKey = craftingManager.getRecipe(bukkitRecipe.getKey()); //can we do better? get by result and by ingredients?
 		return simple.equals(byKey) ? (ShapedRecipe) byKey : simple;
 	}
 
@@ -397,10 +456,11 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 				.collect(Collectors.toList());
 
 		SimpleShapelessRecipe simple = new SimpleShapelessRecipe(bukkitRecipe.getResult(), ingredients);
-		CraftingRecipe byKey = craftingManager.getRecipe(bukkitRecipe.getKey()); //TODO can we do better? get by result and by ingredients?
+		CraftingRecipe byKey = craftingManager.getRecipe(bukkitRecipe.getKey()); //can we do better? get by result and by ingredients?
 		return simple.equals(byKey) ? (ShapelessRecipe) byKey : simple;
 	}
 
+	@SuppressWarnings("unlikely-arg-type")
 	@Override
 	public FurnaceRecipe asCustomRecipesMirror(org.bukkit.inventory.FurnaceRecipe bukkitRecipe) {
 		SimpleFurnaceRecipe simple = new SimpleFurnaceRecipe(bukkitRecipe.getInput(), bukkitRecipe.getResult(), bukkitRecipe.getExperience());
@@ -414,6 +474,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		return recipeSuppliers.getOrDefault(type, Collections::emptyList).get();
 	}
 
+	@SuppressWarnings("unlikely-arg-type")
 	public void save(String recipeType, String fileName, Recipe recipe) {
 		File saveFolder = saveFolder(recipeType);
 
@@ -431,6 +492,83 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		return folder;
 	}
 
+	public File disabledFolder(String recipeType) {
+		File saveFolder = saveFolder(recipeType);
+		File disabledFolder = new File(saveFolder, "disabled");
+		disabledFolder.mkdirs();
+		return disabledFolder;
+	}
+	
+	public void saveCraftingRecipeFile(String recipeType, CRCraftingRecipe<? extends IRecipe> recipe) {
+		String fileName = craftingRecipeFileName(recipe);
+		save(recipeType, fileName, recipe);
+	}
+	
+	public void saveFurnaceRecipeFile(CRFurnaceRecipe recipe) {
+		String fileName = furnaceRecipeFileName(recipe);
+		save("furnace", fileName, recipe);
+	}
+	
+	
+	/**
+	 * Delete recipe or disable vanilla recipe
+	 * 
+	 * @param recipeType shaped or shapeless
+	 * @param recipe the vanilla recipe
+	 */
+	public void disableCraftingRecipeFile(String recipeType, CRCraftingRecipe recipe) {
+		String fileName = craftingRecipeFileName(recipe);
+		if (isVanillaCraftingRecipe(recipe.getMinecraftKey())) {
+			//disable
+			File disabledFolder = disabledFolder(recipeType);
+			File disabledFile = new File(disabledFolder, fileName);
+			try {
+				NBTUtil.writeNBTTagCompound(disabledFile, recipe.serializeToNbt());
+			} catch (IOException e) {
+				getLogger().log(Level.SEVERE, "Could not disable vanilla crafting recipe!", e);
+			}
+		} else {
+			//delete
+			File saveFolder = saveFolder(recipeType);
+			File saveFile = new File(saveFolder, fileName);
+			saveFile.delete();
+		}
+	}
+	
+	/**
+	 * Delete recipe or disable vanilla recipe
+	 * 
+	 * @param recipe the furnace recipe
+	 */
+	public void disableFurnaceRecipeFile(CRFurnaceRecipe recipe) {
+		String fileName = furnaceRecipeFileName(recipe);
+		if (isVanillaFurnaceRecipe(recipe.getHandle().getIngredient(), recipe.getHandle().getResult())) {
+			//disable
+			File disabledFolder = disabledFolder("furnace");
+			File disabledFile = new File(disabledFolder, fileName);
+			try {
+				NBTUtil.writeNBTTagCompound(disabledFile, recipe.serializeToNbt());
+			} catch (IOException e) {
+				getLogger().log(Level.SEVERE, "Could not disable vanilla crafting recipe!", e);
+			}
+		} else {
+			//delete
+			File saveFolder = saveFolder("furnace");
+			File saveFile = new File(saveFolder, fileName);
+			saveFile.delete();
+		}
+	}
+	
+	public static String craftingRecipeFileName(CRCraftingRecipe<? extends IRecipe> recipe) {
+		NamespacedKey key = recipe.getKey();
+		return key.toString().replace(':', '_');
+	}
+	
+	public static String furnaceRecipeFileName(CRFurnaceRecipe recipe) {
+		return InventoryUtils.getItemName(recipe.getIngredient()) + '_' +
+				InventoryUtils.getItemName(recipe.getResult()) + '_' +
+				recipe.getXp();
+	}
 
 
 	public void setCraftingManager(CRCraftingManager craftingManager) {

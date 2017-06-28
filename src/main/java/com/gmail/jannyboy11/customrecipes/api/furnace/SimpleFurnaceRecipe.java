@@ -1,6 +1,5 @@
 package com.gmail.jannyboy11.customrecipes.api.furnace;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -131,14 +130,14 @@ public final class SimpleFurnaceRecipe implements FurnaceRecipe {
 		if (!(o instanceof FurnaceRecipe)) return false;
 		
 		FurnaceRecipe that = (FurnaceRecipe) o;
-		return Objects.equals(ingredient, that.getIngredient()) &&
-				Objects.equals(output, that.getResult()) &&
-				Objects.equals(Float.floatToIntBits(xp), Float.floatToIntBits(that.getXp()));
+		return Objects.equals(getIngredient(), that.getIngredient()) &&
+				Objects.equals(getResult(), that.getResult()) &&
+				Objects.equals(Float.floatToIntBits(getXp()), Float.floatToIntBits(that.getXp()));
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(ingredient, output, xp);
+		return Objects.hash(getIngredient(), getResult(), getXp());
 	}
 	
 	@Override

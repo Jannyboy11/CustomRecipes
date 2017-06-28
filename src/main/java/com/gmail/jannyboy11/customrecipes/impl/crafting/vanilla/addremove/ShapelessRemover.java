@@ -13,6 +13,7 @@ import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingManager;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapelessRecipe;
 
 public class ShapelessRemover implements BiConsumer<Player, List<String>> {
 	
@@ -50,11 +51,11 @@ public class ShapelessRemover implements BiConsumer<Player, List<String>> {
 			}
 			
 			//loop until match
-			CraftingRecipe toBeRemoved = null;
+			CRShapelessRecipe toBeRemoved = null;
 			for (CraftingRecipe recipe : craftingManager) {
-				if (!(recipe instanceof ShapelessRecipe)) continue;
+				if (!(recipe instanceof CRShapelessRecipe)) continue;
 				if (itemInHand.equals(recipe.getResult())) {
-					toBeRemoved = recipe;
+					toBeRemoved = (CRShapelessRecipe) recipe;
 					break;
 				}
 			}
@@ -66,6 +67,7 @@ public class ShapelessRemover implements BiConsumer<Player, List<String>> {
 						ChatColor.GREEN + " for item " +
 						ChatColor.WHITE + InventoryUtils.getItemName(toBeRemoved.getResult()) +
 						ChatColor.GREEN + ".");
+				plugin.disableCraftingRecipeFile("shapeless", toBeRemoved);
 				return;
 			}
 			

@@ -100,6 +100,26 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 		nmsRecipe.setKey(key);
 		return true;
 	}
+	
+	
+	/**
+	 * Get the mirror or handle from a registered recipe
+	 * @param nms the nms variant
+	 * @return the custom recipes variant
+	 */
+	public CraftingRecipe mirrorOrHandle(IRecipe nms) {
+		return nms2cr.get(nms);
+	}
+	
+	/**
+	 * Get the mirror or handle from a registered recipe
+	 * @param cr the custom recipes variant
+	 * @return the nms variant
+	 */
+	public IRecipe mirrorOrHandle(CraftingRecipe cr) {
+		return cr2nms.get(cr);
+	}
+	
 
 	/**
 	 * {@inheritDoc}

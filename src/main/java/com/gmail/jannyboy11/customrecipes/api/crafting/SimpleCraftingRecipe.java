@@ -7,6 +7,11 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 
+/**
+ * Base class for crafting recipes.
+ * 
+ * @author Jan
+ */
 public abstract class SimpleCraftingRecipe implements CraftingRecipe, ConfigurationSerializable {
 	
 	protected ItemStack result;

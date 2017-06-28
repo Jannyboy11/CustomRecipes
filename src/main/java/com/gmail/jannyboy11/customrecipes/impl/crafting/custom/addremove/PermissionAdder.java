@@ -32,9 +32,9 @@ import net.minecraft.server.v1_12_R1.NonNullList;
 import net.minecraft.server.v1_12_R1.RecipeItemStack;
 
 public class PermissionAdder implements BiConsumer<Player, List<String>> {
-	
+
 	private final CustomRecipesPlugin plugin;
-	
+
 	public PermissionAdder(CustomRecipesPlugin plugin) {
 		this.plugin = plugin;
 	}
@@ -62,10 +62,10 @@ public class PermissionAdder implements BiConsumer<Player, List<String>> {
 
 		player.openInventory(new PermissionRecipeHolder(plugin, result, key, group, player, permission).getInventory());
 	}
-	
-	
+
+
 	public static class PermissionRecipeHolder implements InventoryHolder, Listener {
-		
+
 		private final CustomRecipesPlugin plugin;
 		private final ItemStack result;
 		private final MinecraftKey key;
@@ -90,7 +90,7 @@ public class PermissionAdder implements BiConsumer<Player, List<String>> {
 		public Inventory getInventory() {
 			return dispenserInventory;
 		}
-		
+
 		@EventHandler
 		public void onInventoryClick(InventoryCloseEvent event) {
 			if (event.getInventory().getHolder() instanceof PermissionRecipeHolder) {
@@ -102,71 +102,73 @@ public class PermissionAdder implements BiConsumer<Player, List<String>> {
 					holder.callbackPlayer.sendMessage(ChatColor.RED + "Do you seriously want to create a recipe without ingredients?");
 					return;
 				}
-				
+
 				PermissionRecipe nmsRecipe = holder.toRecipe();
 				CRPermissionRecipe permissionRecipe = new CRPermissionRecipe(nmsRecipe);
-				
+
 				List<List<String>> recipeIngredients = permissionRecipe.getIngredients().stream()
 						.map((CRChoiceIngredient ingr) -> ingr.getChoices().stream()
-							.map(InventoryUtils::getItemName).collect(Collectors.toList()))
+								.map(InventoryUtils::getItemName).collect(Collectors.toList()))
 						.collect(Collectors.toList());
-					String recipeString = recipeIngredients + "" +
+				String recipeString = recipeIngredients + "" +
 						ChatColor.RESET + " -> " +
 						InventoryUtils.getItemName(permissionRecipe.getResult());
-					
-					holder.plugin.getCraftingManager().addRecipe(holder.key, nmsRecipe, permissionRecipe);
-					holder.callbackPlayer.sendMessage(String.format("%sAdded a permission recipe: %s%s%s!",
-							ChatColor.GREEN, ChatColor.WHITE, recipeString, ChatColor.WHITE));
-					
-					HandlerList.unregisterAll(holder);
+
+				holder.plugin.getCraftingManager().addRecipe(holder.key, nmsRecipe, permissionRecipe);
+				holder.callbackPlayer.sendMessage(String.format("%sAdded a permission recipe: %s%s%s!",
+						ChatColor.GREEN, ChatColor.WHITE, recipeString, ChatColor.WHITE));
+				
+				plugin.saveCraftingRecipeFile("permission", permissionRecipe);
+
+				HandlerList.unregisterAll(holder);
 			}
 		}
-		
+
 		private PermissionRecipe toRecipe() {
 			CraftInventoryCustom dispenserInventory = (CraftInventoryCustom) this.dispenserInventory;
 			IInventory minecraftInventory = (IInventory) ReflectionUtil.getDeclaredFieldValue(dispenserInventory, "inventory");
 			NonNullList<ItemStack> itemStacks = (NonNullList<ItemStack>) ReflectionUtil.getDeclaredFieldValue(minecraftInventory, "items");
-			
+
 			int minNonEmptyRownum = 2;
 			int minNonEmptyColnum = 2;
 			int maxNonEmptyRownum = 0;
 			int maxNonEmptyColnum = 0;
-			
+
 			for (int index = 0; index < itemStacks.size(); index++) {
 				ItemStack stack = itemStacks.get(index);
 				if (!stack.isEmpty()) {
 					int[] rownumColnum = InventoryUtils.inventoryRownumColnum(3, index);
 					int rowNum = rownumColnum[0];
 					int colNum = rownumColnum[1];
-					
+
 					minNonEmptyRownum = Math.min(minNonEmptyRownum, rowNum);
 					minNonEmptyColnum = Math.min(minNonEmptyColnum, colNum);
 					maxNonEmptyRownum = Math.max(maxNonEmptyRownum, rowNum);
 					maxNonEmptyColnum = Math.max(maxNonEmptyColnum, colNum);
 				}
 			}
-			
+
 			int height = maxNonEmptyRownum - minNonEmptyRownum + 1;
 			int width = maxNonEmptyColnum - minNonEmptyColnum + 1;
-			
+
 			NonNullList<RecipeItemStack> ingredients = NonNullList.a(height * width, RecipeItemStack.a);
 			for (int h = 0; h < height; h++) {
 				for (int w = 0; w < width; w++) {
 					int index = InventoryUtils.inventoryIndex(width, new int[] {h, w});
-					
+
 					ItemStack ingredientStack = itemStacks.get(InventoryUtils.inventoryIndex(3,
 							new int[] {h + minNonEmptyRownum, w + minNonEmptyColnum}));
 					RecipeItemStack ingredient = RecipeItemStack.a(new ItemStack[] {ingredientStack});
-					
+
 					ingredients.set(index, ingredient);
 				}
 			}
-			
+
 			PermissionRecipe recipe = new PermissionRecipe(group, width, height, ingredients, result, permission);
 			recipe.setKey(key);
 			return recipe;
 		}
-		
+
 	}
 
 }

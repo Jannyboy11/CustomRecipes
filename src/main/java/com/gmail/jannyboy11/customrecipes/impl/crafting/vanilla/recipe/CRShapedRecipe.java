@@ -12,6 +12,7 @@ import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
 import net.minecraft.server.v1_12_R1.ItemStack;
+import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.NBTTagList;
 import net.minecraft.server.v1_12_R1.NonNullList;
@@ -88,6 +89,11 @@ public class CRShapedRecipe<R extends ShapedRecipes> extends CRVanillaRecipe<R> 
 	@Override
 	public String getGroup() {
 		return (String) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "e");
+	}
+	
+	@Override
+	public MinecraftKey getMinecraftKey() {
+		return nmsRecipe.key;
 	}
 	
 	

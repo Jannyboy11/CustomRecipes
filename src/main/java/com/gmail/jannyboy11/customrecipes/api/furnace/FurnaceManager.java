@@ -83,25 +83,25 @@ public interface FurnaceManager extends Iterable<FurnaceRecipe> {
 	 * Remove a furnace recipe by its ingredient
 	 * 
 	 * @param ingredient the ingredient
-	 * @return true if a recipe got deleted, otherwise false
+	 * @return the recipe that was removed, or null if no recipe matched the ingredient
 	 */
-	public boolean removeRecipe(ItemStack ingredient);
+	public FurnaceRecipe removeRecipe(ItemStack ingredient);
 	
 	/**
 	 * Remove a vanilla furnace recipe by its ingredient
 	 * 
 	 * @param ingredient the ingredient
-	 * @return true if a recipe got deleted, otherwise false
+	 * @return the recipe that was removed, or null if no recipe matched the ingredient
 	 */
-	public boolean removeVanillaRecipe(ItemStack ingredient);
+	public FurnaceRecipe removeVanillaRecipe(ItemStack ingredient);
 	
 	/**
 	 * Remove a custom furnace recipe by its ingredient
 	 * 
 	 * @param ingredient the ingredient
-	 * @return true if a recipe got deleted, otherwise false
+	 * @return the recipe that was removed, or null if no recipe matched the ingredient
 	 */
-	public boolean removeCustomRecipe(ItemStack ingredient);
+	public FurnaceRecipe removeCustomRecipe(ItemStack ingredient);
 
 	/**
 	 * Get whether an ItemStack is valid as an ingredient

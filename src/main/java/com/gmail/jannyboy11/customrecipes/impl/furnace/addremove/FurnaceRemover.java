@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceManager;
+import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceRecipe;
 
 public class FurnaceRemover implements BiConsumer<Player, List<String>> {
 	
@@ -31,11 +32,13 @@ public class FurnaceRemover implements BiConsumer<Player, List<String>> {
 		CRFurnaceManager furnaceManager = plugin.getFurnaceManager();
 		
 		boolean vanilla = args.size() > 0 ? "vanilla".equalsIgnoreCase(args.get(0)) : false;
-		boolean removed = vanilla ? furnaceManager.removeVanillaRecipe(itemStack) : furnaceManager.removeCustomRecipe(itemStack);
-		if (removed) {		
+		CRFurnaceRecipe removed = vanilla ? furnaceManager.removeVanillaRecipe(itemStack) : furnaceManager.removeCustomRecipe(itemStack);
+		if (removed != null) {		
 			player.sendMessage(ChatColor.GREEN + "Removed furnace recipe with ingredient " + 
 					ChatColor.WHITE + InventoryUtils.getItemName(itemStack) +
 					ChatColor.GREEN + ".");
+			
+			plugin.disableFurnaceRecipeFile(removed);
 		} else {
 			player.sendMessage(ChatColor.RED + "No" + (vanilla ? " vanilla" : "") + " furnace recipe found for ingredient " + 
 					ChatColor.WHITE + InventoryUtils.getItemName(itemStack) +

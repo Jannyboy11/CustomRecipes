@@ -16,6 +16,7 @@ import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingManager;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.NBTRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.tobukkit.CRNBTRecipe;
 
 import net.minecraft.server.v1_12_R1.CraftingManager;
 import net.minecraft.server.v1_12_R1.IRecipe;
@@ -70,12 +71,14 @@ public class NBTRemover implements BiConsumer<Player, List<String>> {
 			}
 			if (toBeRemoved != null) {
 				//match
+				CRNBTRecipe cr = (CRNBTRecipe) craftingManager.mirrorOrHandle(toBeRemoved);
 				MinecraftKey key = craftingManager.removeRecipe(toBeRemoved);
 				player.sendMessage(ChatColor.GREEN + "Removed recipe with key " +
 						ChatColor.WHITE + key +
 						ChatColor.GREEN + " for item " +
 						ChatColor.WHITE + InventoryUtils.getItemName(CraftItemStack.asCraftMirror(toBeRemoved.b())) +
 						ChatColor.GREEN + ".");
+				plugin.disableCraftingRecipeFile("nbt", cr);
 				return;
 			}
 			

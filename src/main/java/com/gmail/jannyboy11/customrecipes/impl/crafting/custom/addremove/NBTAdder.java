@@ -20,7 +20,6 @@ import org.bukkit.inventory.InventoryHolder;
 
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.NBTIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.NBTRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.tobukkit.CRNBTRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient.CRChoiceIngredient;
@@ -29,7 +28,6 @@ import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 import net.minecraft.server.v1_12_R1.IInventory;
 import net.minecraft.server.v1_12_R1.ItemStack;
 import net.minecraft.server.v1_12_R1.MinecraftKey;
-import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.NonNullList;
 import net.minecraft.server.v1_12_R1.RecipeItemStack;
 
@@ -115,6 +113,7 @@ public class NBTAdder implements BiConsumer<Player, List<String>> {
 				holder.plugin.getCraftingManager().addRecipe(holder.key, nmsRecipe, nbtRecipe);
 				holder.callbackPlayer.sendMessage(String.format("%sAdded NBT recipe: %s%s%s!",
 						ChatColor.GREEN, ChatColor.WHITE, recipeString, ChatColor.WHITE));
+				plugin.saveCraftingRecipeFile("nbt", nbtRecipe);
 				
 				HandlerList.unregisterAll(holder);
 			}

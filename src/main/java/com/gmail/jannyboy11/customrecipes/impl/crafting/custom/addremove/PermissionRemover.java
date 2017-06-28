@@ -11,8 +11,8 @@ import org.bukkit.inventory.ItemStack;
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
-import com.gmail.jannyboy11.customrecipes.api.crafting.custom.recipe.PermissionRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingManager;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.tobukkit.CRPermissionRecipe;
 
 public class PermissionRemover implements BiConsumer<Player, List<String>> {
 	
@@ -50,11 +50,11 @@ public class PermissionRemover implements BiConsumer<Player, List<String>> {
 			}
 			
 			//loop until match
-			CraftingRecipe toBeRemoved = null;
+			CRPermissionRecipe toBeRemoved = null;
 			for (CraftingRecipe recipe : craftingManager) {
-				if (!(recipe instanceof PermissionRecipe)) continue;
+				if (!(recipe instanceof CRPermissionRecipe)) continue;
 				if (itemInHand.equals(recipe.getResult())) {
-					toBeRemoved = recipe;
+					toBeRemoved = (CRPermissionRecipe) recipe;
 					break;
 				}
 			}
@@ -66,6 +66,7 @@ public class PermissionRemover implements BiConsumer<Player, List<String>> {
 						ChatColor.GREEN + " for item " +
 						ChatColor.WHITE + InventoryUtils.getItemName(toBeRemoved.getResult()) +
 						ChatColor.GREEN + ".");
+				plugin.disableCraftingRecipeFile("furnace", toBeRemoved);
 				return;
 			}
 			

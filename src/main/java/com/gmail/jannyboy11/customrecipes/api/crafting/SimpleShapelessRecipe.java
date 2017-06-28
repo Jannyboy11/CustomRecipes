@@ -18,6 +18,11 @@ import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessRecipe;
 
+/**
+ * Represents a shapeless recipe that aims to mirror the vanilla implementation.
+ *  
+ * @author Jan
+ */
 public final class SimpleShapelessRecipe extends SimpleCraftingRecipe implements ShapelessRecipe {
 	
 	protected List<ChoiceIngredient> ingredients = new ArrayList<>();

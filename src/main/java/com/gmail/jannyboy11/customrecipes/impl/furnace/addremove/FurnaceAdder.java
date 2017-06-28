@@ -61,6 +61,7 @@ public class FurnaceAdder implements BiConsumer<Player, List<String>> {
 
 	public static class FurnaceRecipeHolder implements InventoryHolder, Listener {
 
+		private final CustomRecipesPlugin plugin;
 		private final Inventory hopperInventory;
 		private final Player callbackPlayer;
 		private final ItemStack result;
@@ -69,6 +70,7 @@ public class FurnaceAdder implements BiConsumer<Player, List<String>> {
 		private final float xp;
 
 		public FurnaceRecipeHolder(CustomRecipesPlugin plugin, Player player, ItemStack result, boolean vanilla, boolean hasXp, float xp) {
+			this.plugin = plugin;
 			this.callbackPlayer = player;
 			this.hopperInventory = plugin.getServer().createInventory(this, InventoryType.HOPPER, "Create a furnace recipe!");
 			this.result = result;
@@ -110,6 +112,7 @@ public class FurnaceAdder implements BiConsumer<Player, List<String>> {
 
 				holder.callbackPlayer.sendMessage(String.format("%sAdded furnace recipe: %s%s%s!",
 						ChatColor.GREEN, ChatColor.WHITE, recipeString, ChatColor.WHITE));
+				plugin.saveFurnaceRecipeFile(furnaceRecipe);
 
 				HandlerList.unregisterAll(holder);
 			}
