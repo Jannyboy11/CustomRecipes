@@ -93,7 +93,7 @@ public class FurnaceAdder implements BiConsumer<Player, List<String>> {
 
 				Inventory inventory = event.getInventory();
 				if (InventoryUtils.isEmptyStack(inventory.getItem(2))) {
-					holder.callbackPlayer.sendMessage(ChatColor.RED + "Please put your ingredient int the middle slot.");
+					holder.callbackPlayer.sendMessage(ChatColor.RED + "Please put your ingredient in the middle slot.");
 
 					HandlerList.unregisterAll(holder);
 					return;
