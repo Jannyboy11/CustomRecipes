@@ -184,7 +184,6 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		addReader("nbt", nbtReader.andThen(CRNBTRecipe::new));
 		addReader("permission", nbtReader.andThen(CRPermissionRecipe::new));
 		addReader("furnace", nbtReader.andThen(CRFurnaceRecipe::new));
-		//TODO save in add commands, delete in remove commands
 		
 
 		//representations for the listrecipes menu
@@ -479,7 +478,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		File saveFolder = saveFolder(recipeType);
 
 		File saveFile = new File(saveFolder, fileName);
-		writers.get(recipe).accept(recipe, saveFile);
+		writers.get(recipeType).accept(recipe, saveFile);
 	}
 
 	public Recipe load(String recipeType, File saveFile) {
