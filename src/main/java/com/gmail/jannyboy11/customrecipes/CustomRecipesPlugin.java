@@ -501,12 +501,24 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	
 	public void saveCraftingRecipeFile(String recipeType, CRCraftingRecipe<? extends IRecipe> recipe) {
 		String fileName = craftingRecipeFileName(recipe);
-		save(recipeType, fileName, recipe);
+		if (isVanillaCraftingRecipe(recipe.getMinecraftKey())) {
+			File disabledFolder = disabledFolder(recipeType);
+			File disabledRecipeFile = new File(disabledFolder, fileName);
+			disabledRecipeFile.delete();
+		} else {
+			save(recipeType, fileName, recipe);
+		}
 	}
 	
 	public void saveFurnaceRecipeFile(CRFurnaceRecipe recipe) {
 		String fileName = furnaceRecipeFileName(recipe);
-		save("furnace", fileName, recipe);
+		if (isVanillaFurnaceRecipe(recipe.getHandle().getIngredient(), recipe.getHandle().getResult())) {
+			File disabledFolder = disabledFolder("furnace");
+			File disabledRecipeFile = new File(disabledFolder, fileName);
+			disabledRecipeFile.delete();
+		} else {
+			save("furnace", fileName, recipe);
+		}
 	}
 	
 	
@@ -519,6 +531,8 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	public void disableCraftingRecipeFile(String recipeType, CRCraftingRecipe recipe) {
 		String fileName = craftingRecipeFileName(recipe);
 		if (isVanillaCraftingRecipe(recipe.getMinecraftKey())) {
+			getLogger().info("DEBUG disable vanilla crafting");
+			
 			//disable
 			File disabledFolder = disabledFolder(recipeType);
 			File disabledFile = new File(disabledFolder, fileName);
@@ -528,6 +542,8 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 				getLogger().log(Level.SEVERE, "Could not disable vanilla crafting recipe!", e);
 			}
 		} else {
+			getLogger().info("DEBUG disable custom crafting");
+			
 			//delete
 			File saveFolder = saveFolder(recipeType);
 			File saveFile = new File(saveFolder, fileName);
@@ -561,13 +577,13 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	
 	public static String craftingRecipeFileName(CRCraftingRecipe<? extends IRecipe> recipe) {
 		NamespacedKey key = recipe.getKey();
-		return key.toString().replace(':', '_');
+		return key.toString().replace(':', '_') + ".dat";
 	}
 	
 	public static String furnaceRecipeFileName(CRFurnaceRecipe recipe) {
 		return InventoryUtils.getItemName(recipe.getIngredient()) + '_' +
 				InventoryUtils.getItemName(recipe.getResult()) + '_' +
-				recipe.getXp();
+				".dat";
 	}
 
 
