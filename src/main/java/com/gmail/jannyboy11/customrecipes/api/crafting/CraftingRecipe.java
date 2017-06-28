@@ -51,9 +51,10 @@ public interface CraftingRecipe extends Representable, Recipe, ConfigurationSeri
 	
 	/**
 	 * Get the list of ItemStacks that remain in the crafting table after crafting.
+	 * The size of the list is the same as the the size of the ingredient inventory.
 	 * 
 	 * @param craftingInventory the crafting inventory - either a 3x3 workbench inventory, or the 2x2 hand crafting inventory
-	 * @return the ItemStacks that are left over after crafting completed
+	 * @return the ItemStacks that are left over after crafting completed - can contain null or AIR ItemStacks
 	 */
 	public List<? extends ItemStack> getLeftOverItems(CraftingInventory craftingInventory);
 

@@ -7,7 +7,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 /**
  * Represents the Recipe responsible for dying armor.
- * 
  * @author Jan
  */
 public interface ArmorDyeRecipe extends ShapelessRecipe {

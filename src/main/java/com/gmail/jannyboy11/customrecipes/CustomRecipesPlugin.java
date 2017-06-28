@@ -530,7 +530,6 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	public void disableCraftingRecipeFile(String recipeType, CRCraftingRecipe recipe) {
 		String fileName = craftingRecipeFileName(recipe);
 		if (isVanillaCraftingRecipe(recipe.getMinecraftKey())) {
-			getLogger().info("DEBUG disable vanilla crafting");
 			
 			//disable
 			File disabledFolder = disabledFolder(recipeType);
@@ -541,8 +540,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 				getLogger().log(Level.SEVERE, "Could not disable vanilla crafting recipe!", e);
 			}
 		} else {
-			getLogger().info("DEBUG disable custom crafting");
-			
+
 			//delete
 			File saveFolder = saveFolder(recipeType);
 			File saveFile = new File(saveFolder, fileName);

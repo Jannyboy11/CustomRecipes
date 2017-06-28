@@ -27,24 +27,38 @@ public final class SimpleShapelessRecipe extends SimpleCraftingRecipe implements
 	
 	protected List<ChoiceIngredient> ingredients = new ArrayList<>();
 	
+	/**
+	 * Construct a shapeless recipe with the given ItemStack as the result.
+	 * @param result the result of the recipe
+	 */
 	public SimpleShapelessRecipe(ItemStack result) {
 		super(result);
 	}
 	
+	/**
+	 * Construct a shapeless recipe with the given result and ingredients.
+	 * 
+	 * @param result the result of the recipe
+	 * @param ingredients the ingredients list
+	 */
 	public SimpleShapelessRecipe(ItemStack result, List<? extends ChoiceIngredient> ingredients) {
 		this(result);
 		setIngredients(ingredients);
 	}
 	
-	public void setResult(ItemStack result) {
-		this.result = result;
-	}
-	
+	/**
+	 * Constructor for deserialization.
+	 * 
+	 * @param map the serialized fields
+	 */
 	public SimpleShapelessRecipe(Map<String, Object> map) {
 		super(map);
 		this.ingredients = (List<ChoiceIngredient>) map.get("ingredients");
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Map<String, Object> serialize() {
 		Map<String, Object> map = super.serialize();
@@ -52,6 +66,11 @@ public final class SimpleShapelessRecipe extends SimpleCraftingRecipe implements
 		return map;
 	}
 	
+	/**
+	 * Set the ingredients list. None of the ingredients in the list can be null.
+	 * 
+	 * @param ingredients the ingredients list
+	 */
 	public void setIngredients(List<? extends ChoiceIngredient> ingredients) {
 		Objects.requireNonNull(ingredients);
 		if (ingredients.stream().anyMatch(Objects::isNull)) throw new IllegalArgumentException("ingredients cannot be null");
@@ -59,7 +78,9 @@ public final class SimpleShapelessRecipe extends SimpleCraftingRecipe implements
 		this.ingredients = new ArrayList<>(ingredients);
 	}
 	
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean matches(CraftingInventory craftingInventory, World world) {
 		final List<ChoiceIngredient> ingredients = new ArrayList<>(this.ingredients);
@@ -86,6 +107,9 @@ public final class SimpleShapelessRecipe extends SimpleCraftingRecipe implements
 		return ingredients.isEmpty();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<? extends ItemStack> getLeftOverItems(CraftingInventory craftingInventory) {
 		return Arrays.stream(craftingInventory.getMatrix())
@@ -103,6 +127,9 @@ public final class SimpleShapelessRecipe extends SimpleCraftingRecipe implements
 				}).collect(Collectors.toList());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<? extends ChoiceIngredient> getIngredients() {
 		return Collections.unmodifiableList(ingredients);
@@ -114,13 +141,13 @@ public final class SimpleShapelessRecipe extends SimpleCraftingRecipe implements
 		if (!(o instanceof ShapelessRecipe)) return false;
 		ShapelessRecipe that = (ShapelessRecipe) o;
 		
-		return Objects.equals(this.result, that.getResult()) && Objects.equals(this.ingredients, that.getIngredients()) &&
-				Objects.equals(this.hidden, that.isHidden()) && Objects.equals(this.group, that.getGroup());
+		return Objects.equals(this.getResult(), that.getResult()) && Objects.equals(this.getIngredients(), that.getIngredients()) &&
+				Objects.equals(this.isHidden(), that.isHidden()) && Objects.equals(this.getGroup(), that.getGroup());
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(result, ingredients, hidden, group);
+		return Objects.hash(getResult(), getIngredients(), isHidden(), getGroup());
 	}
 	
 	@Override

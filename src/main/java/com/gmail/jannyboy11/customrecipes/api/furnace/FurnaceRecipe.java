@@ -104,7 +104,9 @@ public interface FurnaceRecipe extends Representable, Recipe, ConfigurationSeria
 		return getXp() > 0;
 	}
 	
-	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public default Map<String, Object> serialize() {
 		Map<String, Object> map = new HashMap<>();

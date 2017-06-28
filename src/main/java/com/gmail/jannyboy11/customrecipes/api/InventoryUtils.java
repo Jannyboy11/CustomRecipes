@@ -9,6 +9,11 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 
+/**
+ * Utility class with helper functions related to ItemStacks and Inventories
+ * 
+ * @author Jan
+ */
 public final class InventoryUtils {
 	
 	private InventoryUtils() {}

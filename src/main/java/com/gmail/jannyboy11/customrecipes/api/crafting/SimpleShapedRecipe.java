@@ -37,15 +37,33 @@ public final class SimpleShapedRecipe extends SimpleCraftingRecipe implements Sh
 		}
 	};
 	
+	/**
+	 * Construct a shaped recipe with the given ItemStack as the result
+	 * 
+	 * @param result the result of the recipe
+	 */
 	public SimpleShapedRecipe(ItemStack result) {
 		super(result);
 	}
 	
+	/**
+	 * Construct a shaped recipe with given result, with, height and ingredients.
+	 * 
+	 * @param result the result of the recipe
+	 * @param width the width (1-3)
+	 * @param heigth the height (1-3)
+	 * @param ingredients the ingredients
+	 */
 	public SimpleShapedRecipe(ItemStack result, int width, int heigth, List<? extends ChoiceIngredient> ingredients) {
 		this(result);
 		setIngredients(width, heigth, ingredients);
 	}
 	
+	/**
+	 * Constructor for deserialization.
+	 * 
+	 * @param map the serialized fields
+	 */
 	public SimpleShapedRecipe(Map<String, Object> map) {
 		super(map);
 		this.width = Integer.valueOf(map.get("width").toString());
@@ -53,6 +71,9 @@ public final class SimpleShapedRecipe extends SimpleCraftingRecipe implements Sh
 		this.ingredients = (List<ChoiceIngredient>) map.get("ingredients");
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Map<String, Object> serialize() {
 		Map<String, Object> map = super.serialize();
@@ -62,7 +83,13 @@ public final class SimpleShapedRecipe extends SimpleCraftingRecipe implements Sh
 		return map;
 	}
 	
-	
+	/**
+	 * Set the ingredients.
+	 * 
+	 * @param width the width of the shape
+	 * @param heigth the heigth of the shape
+	 * @param ingredients the ingredients. The list size should be equal to width * heigth
+	 */
 	public void setIngredients(int width, int heigth, List<? extends ChoiceIngredient> ingredients) {
 		if (width <= 0) throw new IllegalArgumentException("width cannot be smaller than zero!");
 		if (heigth <= 0) throw new IllegalArgumentException("heigth cannot be smaller than zero!");
@@ -78,11 +105,9 @@ public final class SimpleShapedRecipe extends SimpleCraftingRecipe implements Sh
 		}
 	}
 	
-	public void setResult(ItemStack result) {
-		this.result = result;
-	}
-	
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean matches(CraftingInventory craftingInventory, World world) {
 		int width, heigth;
@@ -136,6 +161,9 @@ public final class SimpleShapedRecipe extends SimpleCraftingRecipe implements Sh
 		return true;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<? extends ItemStack> getLeftOverItems(CraftingInventory craftingInventory) {
 		return Arrays.stream(craftingInventory.getMatrix())
@@ -153,16 +181,25 @@ public final class SimpleShapedRecipe extends SimpleCraftingRecipe implements Sh
 				}).collect(Collectors.toList());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getWidth() {
 		return width;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getHeight() {
 		return heigth;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<ChoiceIngredient> getIngredients() {
 		return Collections.unmodifiableList(ingredients);
@@ -174,9 +211,9 @@ public final class SimpleShapedRecipe extends SimpleCraftingRecipe implements Sh
 		if (!(o instanceof ShapedRecipe)) return false;
 		ShapedRecipe that = (ShapedRecipe) o;
 		
-		return Objects.equals(this.result, that.getResult()) && Objects.equals(this.ingredients, that.getIngredients()) &&
-				Objects.equals(this.width, that.getWidth()) && Objects.equals(this.heigth, that.getHeight()) &&
-				Objects.equals(this.hidden, that.isHidden()) &&	Objects.equals(this.group, that.getGroup());
+		return Objects.equals(this.getResult(), that.getResult()) && Objects.equals(this.getIngredients(), that.getIngredients()) &&
+				Objects.equals(this.getWidth(), that.getWidth()) && Objects.equals(this.getHeight(), that.getHeight()) &&
+				Objects.equals(this.isHidden(), that.isHidden()) &&	Objects.equals(this.getGroup(), that.getGroup());
 	}
 	
 	@Override
