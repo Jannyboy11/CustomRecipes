@@ -27,3 +27,9 @@ More on this [here](https://maven.apache.org/guides/mini/guide-3rd-party-jars-lo
 Once you've done this, the dependencies in the pom.xml should resolve.
 
 Then run ```mvn package clean install``` and your server-ready plugin jar is ready in your folder. Be sure to use the shaded one.
+
+# FAQ
+
+Q: I used your plugin with previous versions of minecraft, but with the 1.12 update none of the recipes work anymore.
+A: Run the command ```/migraterecpes``` to migrate the custom recipes to the new format. This may temporarily lag your server if you have many recipes installed.
+

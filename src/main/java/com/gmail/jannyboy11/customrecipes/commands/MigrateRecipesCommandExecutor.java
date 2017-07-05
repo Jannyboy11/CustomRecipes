@@ -3,6 +3,7 @@ package com.gmail.jannyboy11.customrecipes.commands;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Random;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -34,7 +35,8 @@ import net.minecraft.server.v1_12_R1.ShapelessRecipes;
 
 public class MigrateRecipesCommandExecutor implements CommandExecutor {
 
-	private int incr = 0;
+	private Random random = new Random();
+	private int incr = random.nextInt();
 	
 	private final CustomRecipesPlugin plugin;
 
@@ -420,7 +422,5 @@ public class MigrateRecipesCommandExecutor implements CommandExecutor {
 			return true;
 		}
 	}
-	
-	
 
 }
