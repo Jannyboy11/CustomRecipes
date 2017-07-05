@@ -31,5 +31,8 @@ Then run ```mvn package clean install``` and your server-ready plugin jar is rea
 # FAQ
 
 Q: I used your plugin with previous versions of minecraft, but with the 1.12 update none of the recipes work anymore.
+
 A: Run the command ```/migraterecpes``` to migrate the custom recipes to the new format. This may temporarily lag your server if you have many recipes installed.
+
+
 
