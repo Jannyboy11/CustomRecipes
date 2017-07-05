@@ -1,11 +1,14 @@
 package com.gmail.jannyboy11.customrecipes.gui;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 
 public class ListRecipesListener implements Listener {
 
@@ -35,14 +38,20 @@ public class ListRecipesListener implements Listener {
 			event.setCancelled(true);
 			ListRecipesInventoryHolder pageHolder = (ListRecipesInventoryHolder) event.getView().getTopInventory().getHolder();
 
+			//https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/inventory/InventoryClickEvent.html
+			//as per the docs, the close and open methods cannot be called in the same game tick.
 			if (NEXT.isSimilar(event.getCurrentItem())) {
-				event.getWhoClicked().closeInventory();
-				pageHolder.nextPage();
-				event.getWhoClicked().openInventory(pageHolder.getInventory());
+				Bukkit.getScheduler().runTask(CustomRecipesPlugin.getInstance(), () -> {
+					event.getWhoClicked().closeInventory();
+					pageHolder.nextPage();
+					event.getWhoClicked().openInventory(pageHolder.getInventory());
+				});
 			} else if (PREVIOUS.isSimilar(event.getCurrentItem())) {
-				event.getWhoClicked().closeInventory();
-				pageHolder.previousPage();
-				event.getWhoClicked().openInventory(pageHolder.getInventory());
+				Bukkit.getScheduler().runTask(CustomRecipesPlugin.getInstance(), () -> {
+					event.getWhoClicked().closeInventory();
+					pageHolder.previousPage();
+					event.getWhoClicked().openInventory(pageHolder.getInventory());
+				});
 			}
 
 		}

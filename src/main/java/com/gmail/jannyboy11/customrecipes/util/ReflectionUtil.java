@@ -67,6 +67,19 @@ public final class ReflectionUtil {
         }
     }
     
+    public static Object getStaticFinalFieldValue(Class<?> clazz, String fieldName) {
+    	Field field = getDeclaredFieldRecursively(clazz, fieldName);
+    	try {
+    		Field modifiersField = Field.class.getDeclaredField("modifiers");
+    		modifiersField.setAccessible(true);
+			modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+			return field.get(null);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+    }
+    
     public static void setStaticFinalFieldValue(Class<?> clazz, String fieldName, Object value) {
    		Field field = getDeclaredFieldRecursively(clazz, fieldName);
     	try {

@@ -18,6 +18,10 @@ commands:
     description: List all recipes of a type
     usage: /listrecipes <type>
     permission: customrecipes.listrecipes
+  migraterecipes:
+    description: Migrate recipes from CustomRecipes v1.0.5 and lower to v2.0.0
+    usage: /migraterecipes
+    permission: customrecipes.migraterecipes
 
 permissions:
   customrecipes.addrecipe:
@@ -25,6 +29,9 @@ permissions:
     default: op
   customrecipes.removerecipe:
     description: Allows access to /removerecipe
+    default: op
+  customrecipes.migraterecipes:
+    description: Allows access to /migraterecipes
     default: op
 
   customrecipes.listrecipes:

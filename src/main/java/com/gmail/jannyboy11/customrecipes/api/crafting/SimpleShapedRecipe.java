@@ -112,7 +112,7 @@ public final class SimpleShapedRecipe extends SimpleCraftingRecipe implements Sh
 	public boolean matches(CraftingInventory craftingInventory, World world) {
 		int width, heigth;
 		
-		//check bounaries for the craftinginventory;
+		//check boundaries for the craftinginventory;
 		InventoryType type = craftingInventory.getType();
 		switch(type) {
 			case CRAFTING:

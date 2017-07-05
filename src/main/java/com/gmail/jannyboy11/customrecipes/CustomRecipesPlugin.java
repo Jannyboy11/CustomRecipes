@@ -47,6 +47,7 @@ import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.api.furnace.SimpleFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.commands.AddRecipeCommandExecutor;
 import com.gmail.jannyboy11.customrecipes.commands.ListRecipesCommandExecutor;
+import com.gmail.jannyboy11.customrecipes.commands.MigrateRecipesCommandExecutor;
 import com.gmail.jannyboy11.customrecipes.commands.RemoveRecipeCommandExecutor;
 import com.gmail.jannyboy11.customrecipes.gui.ListRecipesListener;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingManager;
@@ -137,7 +138,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 
 	@Override
 	public void onLoad() {
-		//define RecipeItemstackInjected subclass
+		//define RecipeItemStackInjected subclass
 		InjectedIngredient.inject();		
 
 		//let's hope no other plugins have added crafting recipes here
@@ -342,6 +343,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		ConfigurationSerialization.registerClass(SimpleFurnaceRecipe.class);
 		ConfigurationSerialization.registerClass(CRFurnaceRecipe.class);
 
+		getCommand("migrateRecipes").setExecutor(new MigrateRecipesCommandExecutor(this));
 		getCommand("addrecipe").setExecutor(new AddRecipeCommandExecutor(Collections.unmodifiableNavigableMap(adders)));
 		getCommand("removerecipe").setExecutor(new RemoveRecipeCommandExecutor(Collections.unmodifiableNavigableMap(removers)));
 		getCommand("listrecipes").setExecutor(new ListRecipesCommandExecutor(this::getRecipes,

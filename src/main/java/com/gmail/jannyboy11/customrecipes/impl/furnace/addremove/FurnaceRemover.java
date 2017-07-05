@@ -32,7 +32,7 @@ public class FurnaceRemover implements BiConsumer<Player, List<String>> {
 		CRFurnaceManager furnaceManager = plugin.getFurnaceManager();
 		
 		boolean vanilla = args.size() > 0 ? "vanilla".equalsIgnoreCase(args.get(0)) : false;
-		CRFurnaceRecipe removed = vanilla ? furnaceManager.removeVanillaRecipe(itemStack) : furnaceManager.removeCustomRecipe(itemStack);
+		CRFurnaceRecipe removed = vanilla ? furnaceManager.removeVanillaRecipe(itemStack) : furnaceManager.removeRecipe(itemStack);
 		if (removed != null) {		
 			player.sendMessage(ChatColor.GREEN + "Removed furnace recipe with ingredient " + 
 					ChatColor.WHITE + InventoryUtils.getItemName(itemStack) +
