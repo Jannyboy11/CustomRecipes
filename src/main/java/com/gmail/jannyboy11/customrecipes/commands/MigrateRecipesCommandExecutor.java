@@ -315,7 +315,7 @@ public class MigrateRecipesCommandExecutor implements CommandExecutor {
 						
 						//very nice! great success!
 						CRShapelessRecipe<ShapelessRecipes> crShapedRecipe = new CRShapelessRecipe<>(match);
-						plugin.disableCraftingRecipeFile("shaped", crShapedRecipe);
+						plugin.disableCraftingRecipeFile("shapeless", crShapedRecipe);
 						
 					} else {
 						sender.sendMessage(ChatColor.RED + "Couln't migrate disabled shapeless recipe \"" + name + "\", no match was found in the crafting manager. Is it already disabled?");
