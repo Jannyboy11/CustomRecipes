@@ -47,11 +47,11 @@ public class CRShapedRecipe<R extends ShapedRecipes> extends CRVanillaRecipe<R> 
 	}
 	
 	protected static ShapedRecipes deserializeNmsRecipe(NBTTagCompound recipeCompound) {
-		String group = recipeCompound.hasKeyOfType("group", 8 /*8 = string*/) ? recipeCompound.getString("group") : "";
+		String group = recipeCompound.hasKeyOfType("group", NBTUtil.STRING) ? recipeCompound.getString("group") : "";
 		int width = recipeCompound.getInt("width");
 		int height = recipeCompound.getInt("height");
 		NonNullList<RecipeItemStack> ingredients = NonNullList.a();
-		NBTTagList nbtIngredients = recipeCompound.getList("ingredients", 10 /*10 = compound*/);
+		NBTTagList nbtIngredients = recipeCompound.getList("ingredients", NBTUtil.COMPOUND);
 		for (int i = 0; i < nbtIngredients.size(); i++) {
 			NBTTagCompound ingredientTag = nbtIngredients.get(i);
 			RecipeItemStack recipeItemStack = NBTUtil.deserializeRecipeItemStack(ingredientTag);
