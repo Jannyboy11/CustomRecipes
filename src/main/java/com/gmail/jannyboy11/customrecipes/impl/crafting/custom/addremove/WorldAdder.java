@@ -1,11 +1,13 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
+import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryCustom;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
@@ -20,8 +22,8 @@ import org.bukkit.inventory.InventoryHolder;
 
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.NBTRecipe;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.tobukkit.CRNBTRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.WorldRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.tobukkit.CRWorldRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient.CRChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
@@ -31,11 +33,11 @@ import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.NonNullList;
 import net.minecraft.server.v1_12_R1.RecipeItemStack;
 
-public class NBTAdder implements BiConsumer<Player, List<String>> {
+public class WorldAdder implements BiConsumer<Player, List<String>> {
 
 	private final CustomRecipesPlugin plugin;
 
-	public NBTAdder(CustomRecipesPlugin plugin) {
+	public WorldAdder(CustomRecipesPlugin plugin) {
 		this.plugin = plugin;
 	}
 
@@ -48,37 +50,45 @@ public class NBTAdder implements BiConsumer<Player, List<String>> {
 		}
 
 		if (args.isEmpty()) {
-			player.sendMessage(ChatColor.RED + "Usage: /addrecipe NBT <key> [<group>]");
+			player.sendMessage(ChatColor.RED + "Usage: /addrecipe world <key> [<world name>] [<group>]");
 			return;
 		}
 
-		String keyString = args.get(0);
-		String group = args.size() >= 2 ? args.get(1) : "";
+		UUID world = player.getWorld().getUID();
+		if (args.size() >= 2) {
+			World bukkitWorld = plugin.getServer().getWorld(args.get(1));
+			if (bukkitWorld != null) world = bukkitWorld.getUID();
+		}
+		
+		String keyString = args.get(0);	
+		String group = args.size() >= 3 ? args.get(2) : "";
 		NamespacedKey bukkitKey = plugin.getKey(keyString);
 
 		ItemStack result = CraftItemStack.asNMSCopy(itemInMainHand);
 		MinecraftKey key = CraftNamespacedKey.toMinecraft(bukkitKey);
 
-		player.openInventory(new NBTRecipeHolder(plugin, result, key, group, player).getInventory());
+		player.openInventory(new WorldRecipeHolder(plugin, result, key, group, player, world).getInventory());
 	}
 
 
-	private static final class NBTRecipeHolder implements InventoryHolder, Listener {
+	private static final class WorldRecipeHolder implements InventoryHolder, Listener {
 
 		private final Inventory dispenserInventory;
 		private final CustomRecipesPlugin plugin;
 		private final ItemStack result;
 		private final MinecraftKey key;
 		private final String group;
+		private final UUID world;
 		private final Player callbackPlayer;
 
-		public NBTRecipeHolder(CustomRecipesPlugin plugin, ItemStack result, MinecraftKey key, String group, Player callbackPlayer) {
+		public WorldRecipeHolder(CustomRecipesPlugin plugin, ItemStack result, MinecraftKey key, String group, Player callbackPlayer, UUID world) {
 			this.plugin = plugin;
 			this.result = result;
 			this.key = key;
 			this.group = group;
+			this.world = world;
 			this.callbackPlayer = callbackPlayer;
-			this.dispenserInventory = plugin.getServer().createInventory(this, InventoryType.DISPENSER, "Create an NBT recipe!");
+			this.dispenserInventory = plugin.getServer().createInventory(this, InventoryType.DISPENSER, "Create a world recipe!");
 			plugin.getServer().getPluginManager().registerEvents(this, plugin);
 		}
 
@@ -90,8 +100,8 @@ public class NBTAdder implements BiConsumer<Player, List<String>> {
 
 		@EventHandler
 		public void onInventoryClose(InventoryCloseEvent event) {
-			if (event.getInventory().getHolder() instanceof NBTRecipeHolder) {
-				NBTRecipeHolder holder = (NBTRecipeHolder) event.getInventory().getHolder();
+			if (event.getInventory().getHolder() instanceof WorldRecipeHolder) {
+				WorldRecipeHolder holder = (WorldRecipeHolder) event.getInventory().getHolder();
 				if (holder != this) return;
 
 				Inventory inventory = event.getInventory();
@@ -100,23 +110,23 @@ public class NBTAdder implements BiConsumer<Player, List<String>> {
 					return;
 				}
 
-				NBTRecipe nmsRecipe = holder.toRecipe();
-				CRNBTRecipe nbtRecipe = new CRNBTRecipe(nmsRecipe);
-				List<List<String>> recipeIngredients = nbtRecipe.getIngredients().stream()
+				WorldRecipe nmsRecipe = holder.toRecipe();
+				CRWorldRecipe worldRecipe = new CRWorldRecipe(nmsRecipe);
+				List<List<String>> recipeIngredients = worldRecipe.getIngredients().stream()
 						.map((CRChoiceIngredient ingr) -> ingr.getChoices().stream()
 								.map(InventoryUtils::getItemName).collect(Collectors.toList()))
 						.collect(Collectors.toList());
 				String recipeString = recipeIngredients + "" +
 						ChatColor.RESET + " -> " +
-						InventoryUtils.getItemName(nbtRecipe.getResult());
+						InventoryUtils.getItemName(worldRecipe.getResult());
 
-				boolean success = holder.plugin.getCraftingManager().addRecipe(holder.key, nmsRecipe, nbtRecipe);
+				boolean success = holder.plugin.getCraftingManager().addRecipe(holder.key, nmsRecipe, worldRecipe);
 				if (success) {
-					holder.callbackPlayer.sendMessage(String.format("%sAdded NBT recipe: %s%s%s!",
+					holder.callbackPlayer.sendMessage(String.format("%sAdded world recipe: %s%s%s!",
 							ChatColor.GREEN, ChatColor.WHITE, recipeString, ChatColor.WHITE));
-					plugin.saveCraftingRecipeFile("nbt", nbtRecipe);
+					plugin.saveCraftingRecipeFile("count", worldRecipe);
 				} else {
-					holder.callbackPlayer.sendMessage(ChatColor.RED + "Couldn't create an NBT recipe. Possibly a duplicate key.");
+					holder.callbackPlayer.sendMessage(ChatColor.RED + "Couldn't create a world recipe. Possibly a duplicate key.");
 				}
 
 				HandlerList.unregisterAll(holder);
@@ -124,7 +134,7 @@ public class NBTAdder implements BiConsumer<Player, List<String>> {
 		}
 
 
-		private NBTRecipe toRecipe() {
+		private WorldRecipe toRecipe() {
 			CraftInventoryCustom dispenserInventory = (CraftInventoryCustom) this.dispenserInventory;
 			IInventory minecraftInventory = (IInventory) ReflectionUtil.getDeclaredFieldValue(dispenserInventory, "inventory");
 			NonNullList<ItemStack> dispenserInventoryContents = (NonNullList<ItemStack>) ReflectionUtil.getDeclaredFieldValue(minecraftInventory, "items");
@@ -165,9 +175,9 @@ public class NBTAdder implements BiConsumer<Player, List<String>> {
 				}
 			}
 
-			NBTRecipe nbtRecipe = new NBTRecipe(group, width, height, ingredients, result);
-			nbtRecipe.setKey(key);
-			return nbtRecipe;
+			WorldRecipe worldRecipe = new WorldRecipe(group, width, height, ingredients, result, world);
+			worldRecipe.setKey(key);
+			return worldRecipe;
 		}
 
 	}

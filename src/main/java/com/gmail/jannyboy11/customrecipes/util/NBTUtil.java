@@ -117,8 +117,8 @@ public class NBTUtil {
 	public static RecipeItemStack deserializeRecipeItemStack(NBTTagCompound compound) {
 		if (compound.isEmpty()) return RecipeItemStack.a; //empty compound -> empty ingredient
 		
-		if (compound.hasKeyOfType("choices", 9 /*list = 9*/)) {
-			NBTTagList choicesList = compound.getList("choices", 10 /*subtype = compound = 10*/);
+		if (compound.hasKeyOfType("choices", LIST)) {
+			NBTTagList choicesList = compound.getList("choices", COMPOUND);
 			List<ItemStack> itemsList = new ArrayList<>();
 			for (int i = 0; i < choicesList.size(); i++) {
 				NBTTagCompound choiceCompound = choicesList.get(i);
@@ -199,7 +199,7 @@ public class NBTUtil {
 			return toMap((NBTTagCompound) nbtBase);
 		}
 		
-		throw new RuntimeException("Unrecognized NBT type: " + nbtBase);
+		throw new IllegalArgumentException("Unrecognized NBT type: " + nbtBase);
 	}
 	
 	public static NBTBase fromObject(Object o) {
@@ -238,7 +238,7 @@ public class NBTUtil {
 			return fromMap((Map) o);
 		}
 
-		throw new RuntimeException("Object not nbt deserializable: " + o);
+		throw new IllegalArgumentException("Object not nbt deserializable: " + o);
 	}
 
 	

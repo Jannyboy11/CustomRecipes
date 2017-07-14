@@ -15,7 +15,7 @@ import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingManager;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.tobukkit.CRPermissionRecipe;
 
 public class PermissionRemover implements BiConsumer<Player, List<String>> {
-	
+
 	private final CustomRecipesPlugin plugin;
 
 	public PermissionRemover(CustomRecipesPlugin plugin) {
@@ -25,21 +25,23 @@ public class PermissionRemover implements BiConsumer<Player, List<String>> {
 	@Override
 	public void accept(Player player, List<String> args) {
 		CRCraftingManager craftingManager = plugin.getCraftingManager();
-		
+
+		CRPermissionRecipe toBeRemoved = null;
+
 		if (!args.isEmpty()) {
-			
+
 			String firstArg = args.get(0);
 			NamespacedKey key = plugin.getKey(firstArg);
 
-			CraftingRecipe recipe = craftingManager.removeRecipe(key);
-			if (recipe != null) {
-				player.sendMessage(ChatColor.GREEN + "Removed recipe with key " +
-						ChatColor.WHITE + key +
-						ChatColor.GREEN + " for item " +
-						ChatColor.WHITE + InventoryUtils.getItemName(recipe.getResult()) +
-						ChatColor.GREEN + ".");
-			}
+			CraftingRecipe recipe = craftingManager.getRecipe(key);
 			
+			if (recipe instanceof CRPermissionRecipe) {
+				toBeRemoved = (CRPermissionRecipe) recipe;
+			} else {
+				player.sendMessage(ChatColor.RED + "Couldn't remove recipe for key " + ChatColor.WHITE + key + ChatColor.RED + ", it is not a native permission recipe.");
+				return;
+			}
+
 		} else {
 			ItemStack itemInHand = player.getInventory().getItemInMainHand();
 			if (InventoryUtils.isEmptyStack(itemInHand)) itemInHand = player.getInventory().getItemInOffHand();
@@ -48,9 +50,8 @@ public class PermissionRemover implements BiConsumer<Player, List<String>> {
 				player.sendMessage(ChatColor.RED + "Or '/removerecipe permssion' with an item in your hand.");
 				return;
 			}
-			
+
 			//loop until match
-			CRPermissionRecipe toBeRemoved = null;
 			for (CraftingRecipe recipe : craftingManager) {
 				if (!(recipe instanceof CRPermissionRecipe)) continue;
 				if (itemInHand.equals(recipe.getResult())) {
@@ -58,24 +59,27 @@ public class PermissionRemover implements BiConsumer<Player, List<String>> {
 					break;
 				}
 			}
-			if (toBeRemoved != null) {
-				//match
-				NamespacedKey key = craftingManager.removeRecipe(toBeRemoved);
-				player.sendMessage(ChatColor.GREEN + "Removed recipe with key " +
-						ChatColor.WHITE + key +
-						ChatColor.GREEN + " for item " +
-						ChatColor.WHITE + InventoryUtils.getItemName(toBeRemoved.getResult()) +
-						ChatColor.GREEN + ".");
-				plugin.disableCraftingRecipeFile("furnace", toBeRemoved);
+
+			//no match
+			if (toBeRemoved == null) {
+				player.sendMessage(ChatColor.RED + "No permssion recipe found for resultstack " +
+						ChatColor.WHITE + InventoryUtils.getItemName(itemInHand) +
+						ChatColor.RED + ".");
 				return;
 			}
-			
-			//no match
-			player.sendMessage(ChatColor.RED + "No permssion recipe found for resultstack " +
-					ChatColor.WHITE + InventoryUtils.getItemName(itemInHand) +
-					ChatColor.RED + ".");
-		} 
 
+		}
+
+		if (toBeRemoved != null) {
+			//match
+			NamespacedKey key = craftingManager.removeRecipe(toBeRemoved);
+			player.sendMessage(ChatColor.GREEN + "Removed recipe with key " +
+					ChatColor.WHITE + key +
+					ChatColor.GREEN + " for item " +
+					ChatColor.WHITE + InventoryUtils.getItemName(toBeRemoved.getResult()) +
+					ChatColor.GREEN + ".");
+			plugin.disableCraftingRecipeFile("permission", toBeRemoved);
+		}
 	}
 
 }

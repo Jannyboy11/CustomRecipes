@@ -7,10 +7,12 @@ import net.minecraft.server.v1_12_R1.RecipeItemStack;
 public class CountIngredient extends CombinedIngredient {
 	
 	private final RecipeItemStack basePredicate;
+	private final int count;
 
 	public CountIngredient(RecipeItemStack basePredicate, int count) {
 		super(basePredicate, itemStack -> itemStack.getCount() == count, Boolean::logicalAnd);
 		this.basePredicate = basePredicate;
+		this.count = count;
 	}
 	
 	@Override
@@ -18,6 +20,10 @@ public class CountIngredient extends CombinedIngredient {
 		RecipeItemStack recipeItemStack = super.asNMSIngredient();
 		ReflectionUtil.setFinalFieldValue(recipeItemStack, "choices", basePredicate.choices);
 		return recipeItemStack;
+	}
+	
+	public int getCount() {
+		return count;
 	}
 
 }

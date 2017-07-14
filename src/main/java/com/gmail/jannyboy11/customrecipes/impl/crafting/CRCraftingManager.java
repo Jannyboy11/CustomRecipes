@@ -127,7 +127,7 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 	@Override
 	public boolean reset() {
 		clear();
-		return CraftingManager.init(); //the CraftingManager#init method can only be called when the registry is empty!
+		return CraftingManager.init(); //the CraftingManager#init() method can only be called when the registry is empty!
 	}
 
 	/**

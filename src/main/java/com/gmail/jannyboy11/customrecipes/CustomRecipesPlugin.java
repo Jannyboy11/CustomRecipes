@@ -37,8 +37,10 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.SimpleShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.SimpleShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.custom.ingredient.SimilarIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.custom.ingredient.WildcardIngredient;
+import com.gmail.jannyboy11.customrecipes.api.crafting.custom.recipe.CountRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.custom.recipe.NBTRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.custom.recipe.PermissionRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.custom.recipe.WorldRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.BannerDuplicateRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedRecipe;
@@ -52,15 +54,21 @@ import com.gmail.jannyboy11.customrecipes.commands.RemoveRecipeCommandExecutor;
 import com.gmail.jannyboy11.customrecipes.gui.ListRecipesListener;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingManager;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.CountAdder;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.CountRemover;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.NBTAdder;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.NBTRemover;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.PermissionAdder;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.PermissionRemover;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.WorldAdder;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.addremove.WorldRemover;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.Bukkit2NMSIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.InjectedIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.Bukkit2NMSRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.tobukkit.CRCountRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.tobukkit.CRNBTRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.tobukkit.CRPermissionRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.tobukkit.CRWorldRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapedAdder;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapedRemover;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.ShapelessAdder;
@@ -149,6 +157,8 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		addAdder("shapeless", new ShapelessAdder(this));
 		addAdder("nbt", new NBTAdder(this));
 		addAdder("permission", new PermissionAdder(this));
+		addAdder("count", new CountAdder(this));
+		addAdder("world", new WorldAdder(this));
 		addAdder("furnace", new FurnaceAdder(this));
 
 		//removers
@@ -156,6 +166,8 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		addRemover("shapeless", new ShapelessRemover(this));
 		addRemover("nbt", new NBTRemover(this));
 		addRemover("permission", new PermissionRemover(this));
+		addRemover("count", new CountRemover(this));
+		addRemover("world", new WorldRemover(this));
 		addRemover("furnace", new FurnaceRemover(this));
 
 		//readers and writers only used in commands, thats why casting to CR variants is allowed
@@ -171,6 +183,8 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		addWriter("shapeless", nbtSaver);
 		addWriter("nbt", nbtSaver);
 		addWriter("permission", nbtSaver);
+		addWriter("count", nbtSaver);
+		addWriter("world", nbtSaver);
 		addWriter("furnace", nbtSaver);
 		
 		Function<File, NBTTagCompound> nbtReader = file -> {
@@ -184,6 +198,8 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		addReader("shapeless", nbtReader.andThen(CRShapelessRecipe::new));
 		addReader("nbt", nbtReader.andThen(CRNBTRecipe::new));
 		addReader("permission", nbtReader.andThen(CRPermissionRecipe::new));
+		addReader("count", nbtReader.andThen(CRCountRecipe::new));
+		addReader("world", nbtReader.andThen(CRWorldRecipe::new));
 		addReader("furnace", nbtReader.andThen(CRFurnaceRecipe::new));
 		
 
@@ -193,6 +209,8 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		recipeToItemMap.put("furnace", recipe -> ((FurnaceRecipe) recipe).getRepresentation());
 		recipeToItemMap.put("nbt", recipe -> ((NBTRecipe) recipe).getRepresentation());
 		recipeToItemMap.put("permission", recipe -> ((PermissionRecipe) recipe).getRepresentation());
+		recipeToItemMap.put("count", recipe -> ((CountRecipe) recipe).getRepresentation());
+		recipeToItemMap.put("world", recipe -> ((WorldRecipe) recipe).getRepresentation());
 
 		//recipe displayers
 		recipeToCommandSenderDiplayMap.put("shaped", (recipe, commandSender) -> {
@@ -254,6 +272,33 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 			commandSender.sendMessage("Permission: " + permissionRecipe.getPermission());
 			commandSender.sendMessage("");
 		});
+		recipeToCommandSenderDiplayMap.put("count", (recipe, commandSender) -> {
+			CountRecipe countRecipe = (CountRecipe) recipe;
+			commandSender.sendMessage("Key: " + craftingManager.getKey(countRecipe));
+			commandSender.sendMessage("Result: " + InventoryUtils.getItemName(countRecipe.getResult()));
+			commandSender.sendMessage("Width: " + countRecipe.getWidth());
+			commandSender.sendMessage("Height: " + countRecipe.getHeight());
+			commandSender.sendMessage("Ingredients: " + countRecipe.getIngredients().stream()
+					.map(ingr -> ingr.getChoices().stream().map(InventoryUtils::getItemName).collect(Collectors.toList()))
+					.collect(Collectors.toList()));
+			if (countRecipe.hasGroup()) commandSender.sendMessage("Group: " + countRecipe.getGroup());
+			if (countRecipe.isHidden()) commandSender.sendMessage("Hidden: true");
+			commandSender.sendMessage("");
+		});
+		recipeToCommandSenderDiplayMap.put("world", (recipe, commandSender) -> {
+			WorldRecipe worldRecipe = (WorldRecipe) recipe;
+			commandSender.sendMessage("Key: " + craftingManager.getKey(worldRecipe));
+			commandSender.sendMessage("Result: " + InventoryUtils.getItemName(worldRecipe.getResult()));
+			commandSender.sendMessage("Width: " + worldRecipe.getWidth());
+			commandSender.sendMessage("Height: " + worldRecipe.getHeight());
+			commandSender.sendMessage("Ingredients: " + worldRecipe.getIngredients().stream()
+					.map(ingr -> ingr.getChoices().stream().map(InventoryUtils::getItemName).collect(Collectors.toList()))
+					.collect(Collectors.toList()));
+			if (worldRecipe.hasGroup()) commandSender.sendMessage("Group: " + worldRecipe.getGroup());
+			if (worldRecipe.isHidden()) commandSender.sendMessage("Hidden: true");
+			commandSender.sendMessage("World: " + worldRecipe.getWorld());
+			commandSender.sendMessage("");
+		});
 
 		//recipe providers
 		recipeSuppliers.put("shaped", () -> StreamSupport.stream(Spliterators.spliteratorUnknownSize(craftingManager.iterator(),
@@ -274,6 +319,14 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		recipeSuppliers.put("permission", () -> StreamSupport.stream(Spliterators.spliteratorUnknownSize(craftingManager.iterator(),
 				Spliterator.NONNULL), false)
 				.filter(recipe -> recipe instanceof PermissionRecipe)
+				.collect(Collectors.toList()));
+		recipeSuppliers.put("count", () -> StreamSupport.stream(Spliterators.spliteratorUnknownSize(craftingManager.iterator(),
+				Spliterator.NONNULL), false)
+				.filter(recipe -> recipe instanceof CountRecipe)
+				.collect(Collectors.toList()));
+		recipeSuppliers.put("world", () -> StreamSupport.stream(Spliterators.spliteratorUnknownSize(craftingManager.iterator(),
+				Spliterator.NONNULL), false)
+				.filter(recipe -> recipe instanceof WorldRecipe)
 				.collect(Collectors.toList()));
 	}
 
