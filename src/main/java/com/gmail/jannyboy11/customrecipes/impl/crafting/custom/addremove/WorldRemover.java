@@ -54,7 +54,7 @@ public class WorldRemover implements BiConsumer<Player, List<String>> {
 
 			//loop until match
 			for (CraftingRecipe recipe : craftingManager) {
-				if (!(recipe instanceof CRPermissionRecipe)) continue;
+				if (!(recipe instanceof CRWorldRecipe)) continue;
 				if (itemInHand.equals(recipe.getResult())) {
 					toBeRemoved = (CRWorldRecipe) recipe;
 					break;
