@@ -47,8 +47,8 @@ public class WorldRemover implements BiConsumer<Player, List<String>> {
 			ItemStack itemInHand = player.getInventory().getItemInMainHand();
 			if (InventoryUtils.isEmptyStack(itemInHand)) itemInHand = player.getInventory().getItemInOffHand();
 			if (InventoryUtils.isEmptyStack(itemInHand)) {
-				player.sendMessage(ChatColor.RED + "Usage: /removerecipe permssion <key>");
-				player.sendMessage(ChatColor.RED + "Or '/removerecipe permssion' with an item in your hand.");
+				player.sendMessage(ChatColor.RED + "Usage: /removerecipe world <key>");
+				player.sendMessage(ChatColor.RED + "Or '/removerecipe world' with an item in your hand.");
 				return;
 			}
 
@@ -79,7 +79,7 @@ public class WorldRemover implements BiConsumer<Player, List<String>> {
 					ChatColor.GREEN + " for item " +
 					ChatColor.WHITE + InventoryUtils.getItemName(toBeRemoved.getResult()) +
 					ChatColor.GREEN + ".");
-			plugin.disableCraftingRecipeFile("permission", toBeRemoved);
+			plugin.disableCraftingRecipeFile("world", toBeRemoved);
 		}
 	}
 

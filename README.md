@@ -11,7 +11,7 @@ Link to the [SpigotMC page](https://www.spigotmc.org/resources/custom-recipes.11
 - Inventory menu for viewing all registered recipes
 - Supports crafting and furnace recipes
 - Recipes are saved in the NBT format, preserving all item data
-- Extra types of recipes: Permission Recipe and NBT-specific Recipe
+- Extra types of recipes: Permission Recipe, Count Recipe, World Recipe and NBT-specific Recipe
 - Developers API, providing more access than the Bukkit API.
 - Spigot 1.12 compatible
 
@@ -26,7 +26,7 @@ Run ```mvn install:install-file -Dfile=spigot-1.12.jar -DgroupId=org.spigotmc -D
 More on this [here](https://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html).
 Once you've done this, the dependencies in the pom.xml should resolve.
 
-Then run ```mvn package clean install``` and your server-ready plugin jar is ready in your folder. Be sure to use the shaded one.
+Then run ```mvn package clean install``` and your server-ready plugin jar is ready in your target folder. Be sure to use the shaded one.
 
 # FAQ
 

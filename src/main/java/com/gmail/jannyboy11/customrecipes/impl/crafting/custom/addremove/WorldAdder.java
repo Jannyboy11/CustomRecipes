@@ -124,7 +124,7 @@ public class WorldAdder implements BiConsumer<Player, List<String>> {
 				if (success) {
 					holder.callbackPlayer.sendMessage(String.format("%sAdded world recipe: %s%s%s!",
 							ChatColor.GREEN, ChatColor.WHITE, recipeString, ChatColor.WHITE));
-					plugin.saveCraftingRecipeFile("count", worldRecipe);
+					plugin.saveCraftingRecipeFile("world", worldRecipe);
 				} else {
 					holder.callbackPlayer.sendMessage(ChatColor.RED + "Couldn't create a world recipe. Possibly a duplicate key.");
 				}
