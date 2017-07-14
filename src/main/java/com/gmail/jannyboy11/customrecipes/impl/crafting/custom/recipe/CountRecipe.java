@@ -36,6 +36,7 @@ public class CountRecipe extends ShapedRecipes {
 	@Override
 	public NonNullList<ItemStack> b(InventoryCrafting inventoryCrafting) {
 		//no leftover items
+		inventoryCrafting.clear();
 		return NonNullList.a(inventoryCrafting.getSize(), ItemStack.a);
 	}
 
