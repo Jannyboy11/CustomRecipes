@@ -13,12 +13,12 @@ Link to the [SpigotMC page](https://www.spigotmc.org/resources/custom-recipes.11
 - Recipes are saved in the NBT format, preserving all item data
 - Extra types of recipes: Permission Recipe, Count Recipe, World Recipe and NBT-specific Recipe
 - Developers API, providing more access than the Bukkit API.
-- Spigot 1.12 compatible
+- Spigot 1.12.x compatible
 
 # Compiling
 
 I'm using Apache Maven, however there is one dependency that is not available in a public repository, that is the Spigot server jar.
-To get Spigot, download [BuildTools](https://www.spigotmc.org/wiki/buildtools/) (make sure to read that wiki page) and run it with ```java -jar BuildTools.jar --rev 1.12``` in your git shell.
+To get Spigot, download [BuildTools](https://www.spigotmc.org/wiki/buildtools/) (make sure to read that wiki page) and run it with ```java -jar BuildTools.jar``` in your git shell.
 This should compile the 1.12 build of Spigot for you.
 
 If you own a private maven repository, you can put it up there and add it to the pom.xml of this project, but if you don't you can install it in your local repository.
@@ -39,6 +39,6 @@ Q: I want to disable all vanilla recipes, but using the /removerecipe command is
 
 A: Vanilla recipes are stored as json files in the server jar, wich is a glorified zip file.
 Use any zip file editor such as 7zip or WinRAR to remove those recipes.
-They can be found /assets/minecraft/recipes
+They can be found /assets/minecraft/recipes. This works for crafting recipes, but furnace recipes are still hardcoded in the vanilla minecraft code sadly.
 
 
