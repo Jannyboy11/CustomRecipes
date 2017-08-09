@@ -35,4 +35,10 @@ Q: I used your plugin with previous versions of minecraft, but with the 1.12 upd
 A: Run the command ```/migraterecpes``` to migrate the custom recipes to the new format. This may temporarily lag your server if you have many recipes installed.
 
 
+Q: I want to disable all vanilla recipes, but using the /removerecipe command is too tedious.
+
+A: Vanilla recipes are stored as json files in the server jar, wich is a glorified zip file.
+Use any zip file editor such as 7zip or WinRAR to remove those recipes.
+They can be found /assets/minecraft/recipes
+
 
