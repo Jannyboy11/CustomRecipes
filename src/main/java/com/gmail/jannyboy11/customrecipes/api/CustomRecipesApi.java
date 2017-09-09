@@ -53,7 +53,9 @@ public interface CustomRecipesApi {
 	 * 
 	 * @param recipe the recipe
 	 * @return whether it's implementation is a vanilla implementation
+	 * @deprecated weird method to put in the API, also, there is no equivalent for furnace recipes.
 	 */
+	@Deprecated
 	public boolean isVanillaRecipeType(CraftingRecipe recipe);
 
 	/**

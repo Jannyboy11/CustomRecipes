@@ -16,24 +16,19 @@ import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 import net.minecraft.server.v1_12_R1.ItemStack;
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.RecipeItemStack;
-import sun.misc.Unsafe;
+
+import sun.reflect.ReflectionFactory;
 
 public class InjectedIngredient implements Predicate<ItemStack>, NBTSerializable {
 
 	private static Class<? extends RecipeItemStack> recipeItemStackInjectedClass;
 	
-	private static Unsafe unsafe;
-	
-	public static void inject() {
+	@SuppressWarnings("unchecked")
+    public static void inject() {
 		RecipeItemStackClassLoader loader = new RecipeItemStackClassLoader();
 		try {
 			recipeItemStackInjectedClass = (Class<? extends RecipeItemStack>) loader
 					.defineClass("net.minecraft.server.v1_12_R1.RecipeItemStackInjected", RecipeItemStackInjectedDump.dump());
-			
-			Constructor<Unsafe> unsafeConstructor = Unsafe.class.getDeclaredConstructor();
-			unsafeConstructor.setAccessible(true);
-			unsafe = unsafeConstructor.newInstance();
-			
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -53,18 +48,23 @@ public class InjectedIngredient implements Predicate<ItemStack>, NBTSerializable
 
 	public RecipeItemStack asNMSIngredient() {
 		try {
-			RecipeItemStack recipeItemStackInjected = (RecipeItemStack) unsafe.allocateInstance(recipeItemStackInjectedClass);
-			ReflectionUtil.setDeclaredFieldValue(recipeItemStackInjected, "predicate", tester);
-			ReflectionUtil.setFinalFieldValue(recipeItemStackInjected, "choices", new ItemStack[0]);
-			return recipeItemStackInjected;
+		    //not usable with java 9
+//			RecipeItemStack recipeItemStackInjected = (RecipeItemStack) unsafe.allocateInstance(recipeItemStackInjectedClass);
+//			ReflectionUtil.setDeclaredFieldValue(recipeItemStackInjected, "predicate", tester);
+//			ReflectionUtil.setFinalFieldValue(recipeItemStackInjected, "choices", new ItemStack[0]);
+//			return recipeItemStackInjected;
 
-			//
-			// 		Old implementation: doesn't work due to IllegalAccesError,
-			//		even though I define the class in the same package using the same class loader.
-			//
-			// Constructor<? extends RecipeItemStack> constructor = recipeItemStackInjectedClass.getConstructor(Predicate.class);
-			// RecipeItemStack recipeItemStackInjected = constructor.newInstance(tester);
-			// return recipeItemstackInjected;
+		    //not usable to to illegal access exception
+//			Constructor<? extends RecipeItemStack> constructor = recipeItemStackInjectedClass.getConstructor(Predicate.class);
+//			RecipeItemStack recipeItemStackInjected = constructor.newInstance(tester);
+//			return recipeItemstackInjected;
+		    
+		    Constructor<? extends RecipeItemStack> constructor = (Constructor<? extends RecipeItemStack>) ReflectionFactory.getReflectionFactory()
+		            .newConstructorForSerialization(recipeItemStackInjectedClass, Object.class.getConstructor());
+		    RecipeItemStack recipeItemStackInjected = constructor.newInstance();
+		    ReflectionUtil.setDeclaredFieldValue(recipeItemStackInjected, "predicate", tester);
+		    ReflectionUtil.setFinalFieldValue(recipeItemStackInjected, "choices", new ItemStack[0]);
+		    return recipeItemStackInjected;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

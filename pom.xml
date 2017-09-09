@@ -42,13 +42,20 @@
         </executions>
       </plugin>
       
-	  <plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>3.0.0-M1</version>
         <configuration>
           <show>protected</show>
           <nohelp>true</nohelp>
+          <excludePackageNames>
+            com.gmail.jannyboy11.customrecipes.commands:
+            com.gmail.jannyboy11.customrecipes.gui:
+            com.gmail.jannyboy11.customrecipes.impl:
+            com.gmail.jannyboy11.customrecipes.serialize:
+            com.gmail.jannyboy11.customrecipes.util
+          </excludePackageNames>
           <failOnError>false</failOnError>
           <links>
             <link>https://hub.spigotmc.org/javadocs/spigot/</link>

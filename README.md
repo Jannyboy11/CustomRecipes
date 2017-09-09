@@ -13,7 +13,7 @@ Link to the [SpigotMC page](https://www.spigotmc.org/resources/custom-recipes.11
 - Recipes are saved in the NBT format, preserving all item data
 - Extra types of recipes: Permission Recipe, Count Recipe, World Recipe and NBT-specific Recipe
 - Developers API, providing more access than the Bukkit API.
-- Spigot 1.12.x compatible
+- Spigot 1.12.1 compatible
 
 # Compiling
 
