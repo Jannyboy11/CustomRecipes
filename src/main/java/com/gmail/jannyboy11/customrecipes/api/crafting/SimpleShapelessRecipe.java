@@ -8,12 +8,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.MaterialData;
-
 import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessRecipe;
@@ -51,7 +48,8 @@ public final class SimpleShapelessRecipe extends SimpleCraftingRecipe implements
 	 * 
 	 * @param map the serialized fields
 	 */
-	public SimpleShapelessRecipe(Map<String, Object> map) {
+	@SuppressWarnings("unchecked")
+    public SimpleShapelessRecipe(Map<String, Object> map) {
 		super(map);
 		this.ingredients = (List<ChoiceIngredient>) map.get("ingredients");
 	}
@@ -105,26 +103,6 @@ public final class SimpleShapelessRecipe extends SimpleCraftingRecipe implements
 		
 		//return true if there are no unused ingredients left over
 		return ingredients.isEmpty();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<? extends ItemStack> getLeftOverItems(CraftingInventory craftingInventory) {
-		return Arrays.stream(craftingInventory.getMatrix())
-				.map(itemStack -> {
-					if (itemStack == null) return null;					
-					ItemStack clone = itemStack.clone();
-					MaterialData craftingResult = InventoryUtils.getSingleIngredientResult(itemStack.getData());
-					if (craftingResult.getItemType() != Material.AIR) {
-						clone.setData(craftingResult);
-						return clone;
-					}
-					if (itemStack.getAmount() <= 1) return null;
-					clone.setAmount(itemStack.getAmount() - 1);
-					return clone;
-				}).collect(Collectors.toList());
 	}
 
 	/**

@@ -1,6 +1,6 @@
-name: CustomRecipes
-description: The CustomRecipes plugin, revamped for 1.12
-version: 2.2.0-SNAPSHOT
+name: ${project.artifactId}
+description: ${project.description}
+version: ${project.version}
 author: Jannyboy11
 main: com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin
 website: https://www.spigotmc.org/resources/custom-recipes.11440/

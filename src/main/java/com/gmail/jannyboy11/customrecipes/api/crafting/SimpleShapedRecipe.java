@@ -1,20 +1,14 @@
 package com.gmail.jannyboy11.customrecipes.api.crafting;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
-
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.MaterialData;
-
 import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedRecipe;
@@ -64,7 +58,8 @@ public final class SimpleShapedRecipe extends SimpleCraftingRecipe implements Sh
 	 * 
 	 * @param map the serialized fields
 	 */
-	public SimpleShapedRecipe(Map<String, Object> map) {
+	@SuppressWarnings("unchecked")
+    public SimpleShapedRecipe(Map<String, Object> map) {
 		super(map);
 		this.width = Integer.valueOf(map.get("width").toString());
 		this.heigth = Integer.valueOf(map.get("heigth").toString());
@@ -112,7 +107,7 @@ public final class SimpleShapedRecipe extends SimpleCraftingRecipe implements Sh
 	public boolean matches(CraftingInventory craftingInventory, World world) {
 		int width, heigth;
 		
-		//check boundaries for the craftinginventory;
+		//check boundaries for the crafting inventory
 		InventoryType type = craftingInventory.getType();
 		switch(type) {
 			case CRAFTING:
@@ -159,26 +154,6 @@ public final class SimpleShapedRecipe extends SimpleCraftingRecipe implements Sh
 			}
 		}
 		return true;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<? extends ItemStack> getLeftOverItems(CraftingInventory craftingInventory) {
-		return Arrays.stream(craftingInventory.getMatrix())
-				.map(itemStack -> {
-					if (itemStack == null) return null;					
-					ItemStack clone = itemStack.clone();
-					MaterialData craftingResult = InventoryUtils.getSingleIngredientResult(itemStack.getData());
-					if (craftingResult.getItemType() != Material.AIR) {
-						clone.setData(craftingResult);
-						return clone;
-					}
-					if (itemStack.getAmount() <= 1) return null;
-					clone.setAmount(itemStack.getAmount() - 1);
-					return clone;
-				}).collect(Collectors.toList());
 	}
 
 	/**

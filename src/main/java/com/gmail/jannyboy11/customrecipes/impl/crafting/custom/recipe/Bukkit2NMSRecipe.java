@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
@@ -20,6 +21,7 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingManager;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapelessRecipe;
@@ -33,6 +35,7 @@ import net.minecraft.server.v1_12_R1.ItemStack;
 import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.NonNullList;
+import net.minecraft.server.v1_12_R1.RecipeItemStack;
 import net.minecraft.server.v1_12_R1.World;
 
 public class Bukkit2NMSRecipe implements IRecipe, NBTSerializable {
@@ -80,6 +83,13 @@ public class Bukkit2NMSRecipe implements IRecipe, NBTSerializable {
 	@Override
 	public ItemStack b() {
 		return CraftItemStack.asNMSCopy(crRecipe.getResult());
+	}
+	
+	@Override
+	public NonNullList<RecipeItemStack> d() {
+	    return crRecipe.getIngredients().stream()
+	            .map(CRCraftingIngredient::asNMSIngredient)
+	            .collect(Collectors.toCollection(NonNullList::a));
 	}
 
 	@Override

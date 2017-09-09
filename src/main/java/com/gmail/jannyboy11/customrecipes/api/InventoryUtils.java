@@ -24,7 +24,7 @@ public final class InventoryUtils {
 	 * @return true when the given ItemStack is empty, otherwise false
 	 */
 	public static boolean isEmptyStack(ItemStack itemStack) {
-		return itemStack == null || itemStack.getType() == Material.AIR;
+		return itemStack == null || itemStack.getType() == Material.AIR || itemStack.getAmount() < 1;
 	}
 	
 	/**

@@ -19,6 +19,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient.CRChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.serialize.NBTSerializable;
 import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
@@ -62,6 +63,13 @@ public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe, NBTS
 	@Override
 	public boolean isHidden() {
 		return nmsRecipe.c();
+	}
+	
+	@Override
+	public List<CRChoiceIngredient> getIngredients() {
+	    return nmsRecipe.d().stream()
+	            .map(CRCraftingIngredient::getVanilla)
+	            .collect(Collectors.toList());
 	}
 
 	@Override

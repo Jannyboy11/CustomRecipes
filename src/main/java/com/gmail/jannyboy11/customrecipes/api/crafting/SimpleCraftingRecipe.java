@@ -1,11 +1,17 @@
 package com.gmail.jannyboy11.customrecipes.api.crafting;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.bukkit.Material;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.MaterialData;
+
+import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 
 /**
  * Base class for crafting recipes.
@@ -73,6 +79,35 @@ public abstract class SimpleCraftingRecipe implements CraftingRecipe, Configurat
 	public ItemStack craftItem(CraftingInventory craftingInventory) {
 		return result == null ? null : result.clone();
 	}
+	
+	/**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<? extends ItemStack> getLeftOverItems(CraftingInventory craftingInventory) {
+        ItemStack[] matrix = craftingInventory.getMatrix();
+        List<ItemStack> leftOver = new ArrayList<>(matrix.length);
+        
+        for (int i = 0; i < matrix.length; i++) {
+            ItemStack itemStack = matrix[i];
+            
+            if (InventoryUtils.isEmptyStack(itemStack)) {
+                leftOver.add(null);
+                continue;
+            }
+            
+            ItemStack clone = itemStack.clone();
+            MaterialData craftingResult = InventoryUtils.getSingleIngredientResult(itemStack.getData());
+            if (craftingResult.getItemType() != Material.AIR) {
+                clone.setData(craftingResult);
+                leftOver.add(clone);           
+                continue;
+            }
+        }
+        
+        craftingInventory.setContents(leftOver.toArray(new ItemStack[matrix.length]));
+        return leftOver;
+    }
 	
 	/**
 	 * {@inheritDoc}

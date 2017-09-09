@@ -19,10 +19,10 @@ Link to the [SpigotMC page](https://www.spigotmc.org/resources/custom-recipes.11
 
 I'm using Apache Maven, however there is one dependency that is not available in a public repository, that is the Spigot server jar.
 To get Spigot, download [BuildTools](https://www.spigotmc.org/wiki/buildtools/) (make sure to read that wiki page) and run it with ```java -jar BuildTools.jar``` in your git shell.
-This should compile the 1.12 build of Spigot for you.
+This should compile the 1.12.1 build of Spigot for you.
 
 If you own a private maven repository, you can put it up there and add it to the pom.xml of this project, but if you don't you can install it in your local repository.
-Run ```mvn install:install-file -Dfile=spigot-1.12.jar -DgroupId=org.spigotmc -DartifactId=Spigot -Dversion=1.12-R0.1-SNAPSHOT -Dpackaging=jar```.
+Run ```mvn install:install-file -Dfile=spigot-1.12.1.jar -DgroupId=org.spigotmc -DartifactId=Spigot -Dversion=1.12-R0.1-SNAPSHOT -Dpackaging=jar```.
 More on this [here](https://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html).
 Once you've done this, the dependencies in the pom.xml should resolve.
 

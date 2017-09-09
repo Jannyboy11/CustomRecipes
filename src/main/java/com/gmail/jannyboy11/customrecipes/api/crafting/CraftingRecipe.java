@@ -50,8 +50,16 @@ public interface CraftingRecipe extends Representable, Recipe, ConfigurationSeri
 	public ItemStack getResult();
 	
 	/**
+	 * Get the ingredients of this recipe. The ordef or the ingredients may or may not be important depending the recipe type.
+	 * 
+	 * @return the list of ingredients.
+	 */
+    List<? extends CraftingIngredient> getIngredients();
+	
+	/**
 	 * Get the list of ItemStacks that remain in the crafting table after crafting.
 	 * The size of the list is the same as the the size of the ingredient inventory.
+	 * This method also takes out the items from the crafting inventory.
 	 * 
 	 * @param craftingInventory the crafting inventory - either a 3x3 workbench inventory, or the 2x2 hand crafting inventory
 	 * @return the ItemStacks that are left over after crafting completed - can contain null or AIR ItemStacks

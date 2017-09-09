@@ -2,11 +2,21 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.gmail.jannyboy11</groupId>
   <artifactId>CustomRecipes</artifactId>
-  <version>2.2.0-SNAPSHOT</version>
+  <version>2.2.1-SNAPSHOT</version>
   <name>CustomRecipes</name>
   <description>Create and remove recipes for your Spigot server</description>
   
   <build>
+  
+    <defaultGoal>clean package install</defaultGoal>
+
+      <resources>
+        <resource>
+          <directory>src/main/resources</directory>
+          <filtering>true</filtering>
+        </resource>
+      </resources>
+  
     <plugins>
     
       <plugin>
@@ -32,6 +42,19 @@
         </executions>
       </plugin>
       
+	  <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.0.0-M1</version>
+        <configuration>
+          <show>protected</show>
+          <nohelp>true</nohelp>
+          <failOnError>false</failOnError>
+          <links>
+            <link>https://hub.spigotmc.org/javadocs/spigot/</link>
+          </links>
+        </configuration>
+      </plugin>
     </plugins>
     
   </build>

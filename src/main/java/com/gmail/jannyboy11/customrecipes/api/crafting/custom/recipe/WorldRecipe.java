@@ -13,7 +13,7 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedReci
 public interface WorldRecipe extends ShapedRecipe {
 	
 	/**
-	 * Get the unique universal identifier of the world that this recipe works in
+	 * Get the unique universal identifier of the world that this recipe works in.
 	 * 
 	 * @return the uuid
 	 */
