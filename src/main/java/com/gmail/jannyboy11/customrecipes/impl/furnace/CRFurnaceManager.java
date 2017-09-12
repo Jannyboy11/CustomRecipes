@@ -1,197 +1,148 @@
 package com.gmail.jannyboy11.customrecipes.impl.furnace;
 
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.Objects;
 
+import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
+import org.bukkit.inventory.ItemStack;
 
 import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceManager;
-import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceRecipe.FurnaceRecipe;
-import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
-import com.google.common.collect.Iterators;
+import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.furnace.custom.NMSFurnaceManager;
+import com.gmail.jannyboy11.customrecipes.impl.furnace.custom.NMSFurnaceRecipe;
+import com.gmail.jannyboy11.customrecipes.util.MapIterator;
 
-import net.minecraft.server.v1_12_R1.ItemStack;
-import net.minecraft.server.v1_12_R1.RecipesFurnace;
-
+//TODO more api methods
 public class CRFurnaceManager implements FurnaceManager {
+    
+    private final NMSFurnaceManager nmsManager;
+    
+    public CRFurnaceManager(NMSFurnaceManager nmsManager) {
+        this.nmsManager = Objects.requireNonNull(nmsManager);
+    }
 
-	public void clear() {
-		clearVanilla();
-		clearCustom();
-	}
+    @Override
+    public Iterator<com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe> iterator() {
+        return new MapIterator<>(nmsManager.iterator(), NMSFurnaceRecipe::getBukkitRecipe);
+    }
 
-	public void clearCustom() {
-		RecipesFurnace.getInstance().customRecipes.clear();
-		RecipesFurnace.getInstance().customExperience.clear();
-	}
+    @Override
+    public FurnaceRecipe addCustomRecipe(FurnaceRecipe furnaceRecipe) {
+        NMSFurnaceRecipe nms = CRFurnaceRecipe.getNMSRecipe(furnaceRecipe);
+        nmsManager.addCustomRecipe(nms);
+        return nms.getBukkitRecipe();
+    }
 
-	@Override
-	public void clearVanilla() {
-		RecipesFurnace.getInstance().recipes.clear();
-		vanillaXp(RecipesFurnace.getInstance()).clear();
-	}
+    @Override
+    public FurnaceRecipe addVanillaRecipe(FurnaceRecipe furnaceRecipe) {
+        NMSFurnaceRecipe nms = CRFurnaceRecipe.getNMSRecipe(furnaceRecipe);
+        nmsManager.addVanillaRecipe(nms);
+        return nms.getBukkitRecipe();
+    }
 
-	@Override
-	public void reset() {
-		ReflectionUtil.setStaticFinalFieldValue(null, "a", new RecipesFurnace());
-	}
+    @Override
+    public Iterator<? extends FurnaceRecipe> customIterator() {
+        return new MapIterator<>(nmsManager.customIterator(), NMSFurnaceRecipe::getBukkitRecipe);
+    }
 
-	@Override
-	public CRFurnaceRecipe getRecipe(org.bukkit.inventory.ItemStack bukkitStack) {
-		CRFurnaceRecipe recipe = null;
+    @Override
+    public Iterator<? extends FurnaceRecipe> vanillaIterator() {
+        return new MapIterator<>(nmsManager.vanillaIterator(), NMSFurnaceRecipe::getBukkitRecipe);
+    }
 
-		recipe = getCustomRecipe(bukkitStack);
-		if (recipe != null) return recipe;
+    @Override
+    public FurnaceRecipe getRecipe(ItemStack ingredient) {
+        NMSFurnaceRecipe result = nmsManager.getRecipe(CraftItemStack.asNMSCopy(ingredient));
+        return result == null ? null : result.getBukkitRecipe();
+    }
 
-		recipe = getVanillaRecipe(bukkitStack);
+    @Override
+    public FurnaceRecipe getCustomRecipe(ItemStack ingredient) {
+        NMSFurnaceRecipe result = nmsManager.getCustomRecipe(CraftItemStack.asNMSCopy(ingredient));
+        return result == null ? null : result.getBukkitRecipe();
+    }
 
-		return recipe;
-	}
-	
-	public CRFurnaceRecipe getVanillaRecipe(ItemStack nmsStack) {
-		RecipesFurnace recipesFurnace = RecipesFurnace.getInstance();
-		return getRecipe(recipesFurnace, recipesFurnace.recipes, vanillaXp(recipesFurnace), nmsStack);
-	}
+    @Override
+    public FurnaceRecipe getVanillaRecipe(ItemStack ingredient) {
+        NMSFurnaceRecipe result = nmsManager.getCustomRecipe(CraftItemStack.asNMSCopy(ingredient));
+        return result == null ? null : result.getBukkitRecipe();
+    }
 
-	@Override
-	public CRFurnaceRecipe getVanillaRecipe(org.bukkit.inventory.ItemStack bukkitStack) {
-		return getVanillaRecipe(CraftItemStack.asNMSCopy(bukkitStack));
-	}
+    @Override
+    public void reset() {
+        nmsManager.reset();
+    }
 
-	public CRFurnaceRecipe getCustomRecipe(ItemStack nmsStack) {
-		RecipesFurnace recipesFurnace = RecipesFurnace.getInstance();
-		return getRecipe(recipesFurnace, recipesFurnace.customRecipes, recipesFurnace.customExperience, nmsStack);
-	}
-	
-	@Override
-	public CRFurnaceRecipe getCustomRecipe(org.bukkit.inventory.ItemStack bukkitStack) {
-		return getCustomRecipe(CraftItemStack.asNMSCopy(bukkitStack));
-	}
+    @Override
+    public void clearVanilla() {
+        nmsManager.clearVanilla();
+    }
 
-	public CRFurnaceRecipe getRecipe(RecipesFurnace recipesFurnace, Map<ItemStack, ItemStack> results, Map<ItemStack, Float> xps, ItemStack ingredient) {
-		//has to be done this way since ItemStack doesn't override equals nor hashCode
-		return results.keySet().stream()
-				.filter(inMap -> furnaceEquals(recipesFurnace, inMap, ingredient))
-				.findAny()
-				.map(actualIngredient -> new CRFurnaceRecipe(new FurnaceRecipe(recipesFurnace, results, xps, actualIngredient)))
-				.orElse(null);
-	}
+    @Override
+    public void clearCustom() {
+        nmsManager.clearCustom();
+    }
+    
+    public void clear() {
+        nmsManager.clear();
+    }
 
-	@Override
-	public Iterator<com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe> iterator() {
-		return Iterators.concat(customIterator(), vanillaIterator());
-	}
+    @Override
+    public FurnaceRecipe removeRecipe(ItemStack ingredient) {
+        NMSFurnaceRecipe recipe = nmsManager.removeRecipe(CraftItemStack.asNMSCopy(ingredient));
+        return recipe == null ? null : recipe.getBukkitRecipe();
+    }
 
-	@Override
-	public Iterator<CRFurnaceRecipe> vanillaIterator() {
-		RecipesFurnace recipesFurnace = RecipesFurnace.getInstance();
+    @Override
+    public FurnaceRecipe removeVanillaRecipe(ItemStack ingredient) {
+        NMSFurnaceRecipe recipe = nmsManager.removeVanillaRecipe(CraftItemStack.asNMSCopy(ingredient));
+        return recipe == null ? null : recipe.getBukkitRecipe();
+    }
 
-		return recipesFurnace.recipes.keySet().stream()
-				.map(ingr -> new CRFurnaceRecipe(new FurnaceRecipe(recipesFurnace, recipesFurnace.recipes, vanillaXp(recipesFurnace), ingr)))
-				.iterator();
-	}
+    @Override
+    public FurnaceRecipe removeCustomRecipe(ItemStack ingredient) {
+        NMSFurnaceRecipe recipe = nmsManager.removeCustomRecipe(CraftItemStack.asNMSCopy(ingredient));
+        return recipe == null ? null : recipe.getBukkitRecipe();
+    }
+    
+    
+    @Override
+    public FurnaceRecipe removeRecipe(NamespacedKey key) {
+        NMSFurnaceRecipe recipe = nmsManager.removeRecipe(CraftNamespacedKey.toMinecraft(key));
+        return recipe == null ? null : recipe.getBukkitRecipe();
+    }
+    
+    @Override
+    public FurnaceRecipe removeVanillaRecipe(NamespacedKey key) {
+        NMSFurnaceRecipe recipe = nmsManager.removeVanillaRecipe(CraftNamespacedKey.toMinecraft(key));
+        return recipe == null ? null : recipe.getBukkitRecipe();
+    }
 
-	@Override
-	public Iterator<CRFurnaceRecipe> customIterator() {
-		RecipesFurnace recipesFurnace = RecipesFurnace.getInstance();
+    @Override
+    public FurnaceRecipe removeCustomRecipe(NamespacedKey key) {
+        NMSFurnaceRecipe recipe = nmsManager.removeCustomRecipe(CraftNamespacedKey.toMinecraft(key));
+        return recipe == null ? null : recipe.getBukkitRecipe();
+    }
+    
+    
+    @Override
+    public FurnaceRecipe getRecipe(NamespacedKey key) {
+        NMSFurnaceRecipe recipe = nmsManager.getRecipe(CraftNamespacedKey.toMinecraft(key));
+        return recipe == null ? null : recipe.getBukkitRecipe();
+    }
+    
+    @Override
+    public FurnaceRecipe getCustomRecipe(NamespacedKey key) {
+        NMSFurnaceRecipe recipe = nmsManager.getCustomRecipe(CraftNamespacedKey.toMinecraft(key));
+        return recipe == null ? null : recipe.getBukkitRecipe();
+    }
 
-		return recipesFurnace.customRecipes.keySet().stream()
-				.map(ingr -> new CRFurnaceRecipe(new FurnaceRecipe(recipesFurnace, recipesFurnace.customRecipes, recipesFurnace.customExperience, ingr)))
-				.iterator();
-	}
-
-	@Override
-	public CRFurnaceRecipe removeRecipe(org.bukkit.inventory.ItemStack ingredient) {
-		CRFurnaceRecipe recipe = removeCustomRecipe(ingredient);
-		if (recipe == null) recipe = removeVanillaRecipe(ingredient);
-		return recipe;
-	}
-
-	@Override
-	public CRFurnaceRecipe removeVanillaRecipe(org.bukkit.inventory.ItemStack ingredient) {
-		RecipesFurnace recipesFurnace = RecipesFurnace.getInstance();
-		ItemStack nmsIngredient = CraftItemStack.asNMSCopy(ingredient);
-
-		CRFurnaceRecipe crRecipe = getVanillaRecipe(ingredient);
-		if (crRecipe == null) return null;
-		
-		FurnaceRecipe handle = crRecipe.getHandle();
-		ItemStack result = handle.getResult();
-		float xp = handle.getXp();
-
-		//has to be done in this way since ItemStack doesn't override equals and hashCode.
-		recipesFurnace.recipes.keySet().removeIf(inMap -> furnaceEquals(recipesFurnace, inMap, nmsIngredient));
-		vanillaXp(recipesFurnace).keySet().removeIf(inMap -> furnaceEquals(recipesFurnace, inMap, nmsIngredient));
-
-		//set to dummy maps since the recipe is a live object
-		handle.setIngredientMap(Collections.singletonMap(nmsIngredient, result));
-		handle.setXpMap(Collections.singletonMap(nmsIngredient, xp));
-
-		return crRecipe;
-	}
-
-	@Override
-	public CRFurnaceRecipe removeCustomRecipe(org.bukkit.inventory.ItemStack ingredient) {
-		RecipesFurnace recipesFurnace = RecipesFurnace.getInstance();
-		ItemStack nmsIngredient = CraftItemStack.asNMSCopy(ingredient);
-
-		//the removed recipe
-		CRFurnaceRecipe crRecipe = getCustomRecipe(ingredient);
-		if (crRecipe == null) return null;
-		
-		FurnaceRecipe handle = crRecipe.getHandle();
-		ItemStack result = handle.getResult();
-		float xp = handle.getXp();
-
-		//has to be done in this way since ItemStack doesn't override equals and hashCode.
-		recipesFurnace.customRecipes.keySet().removeIf(inMap -> furnaceEquals(recipesFurnace, inMap, nmsIngredient));
-		recipesFurnace.customExperience.keySet().removeIf(inMap -> furnaceEquals(recipesFurnace, inMap, nmsIngredient));
-
-		//set to dummy maps since the recipe is a live object
-		handle.setIngredientMap(Collections.singletonMap(nmsIngredient, result));
-		handle.setXpMap(Collections.singletonMap(nmsIngredient, xp));
-
-		return crRecipe;
-	}
-
-	@Override
-	public CRFurnaceRecipe addCustomRecipe(com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe furnaceRecipe) {
-		RecipesFurnace recipesFurnace = RecipesFurnace.getInstance();
-
-		org.bukkit.inventory.ItemStack ingredient = furnaceRecipe.getIngredient();
-		if (ingredient == null) return null;
-
-		return CRFurnaceRecipe.registerFromSimple(false, furnaceRecipe, recipesFurnace, recipesFurnace.customRecipes, recipesFurnace.customExperience);
-	}
-
-	@Override
-	public CRFurnaceRecipe addVanillaRecipe(com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe furnaceRecipe) {
-		RecipesFurnace recipesFurnace = RecipesFurnace.getInstance();
-
-		org.bukkit.inventory.ItemStack ingredient = furnaceRecipe.getIngredient();
-		if (ingredient == null) return null;
-
-		return CRFurnaceRecipe.registerFromSimple(true, furnaceRecipe, recipesFurnace, recipesFurnace.recipes, vanillaXp(recipesFurnace));
-	}
-
-	public static boolean furnaceEquals(RecipesFurnace recipesFurnace, ItemStack stack1, ItemStack stack2) {
-		if (stack2.getData() == 0) {
-			stack2 = stack2.cloneItemStack();
-			stack2.setData(Short.MAX_VALUE);
-		}
-		boolean furnaceEquals = (boolean) ReflectionUtil.invokeInstanceMethod(recipesFurnace, "a", stack1, stack2);
-		return furnaceEquals;
-	}
-
-	@Override
-	public boolean ingredientEquals(org.bukkit.inventory.ItemStack stack1, org.bukkit.inventory.ItemStack stack2) {
-		return furnaceEquals(RecipesFurnace.getInstance(), CraftItemStack.asNMSCopy(stack1), CraftItemStack.asNMSCopy(stack2));
-	}
-
-
-	public static Map<ItemStack, Float> vanillaXp(RecipesFurnace recipesFurnace) {
-		return (Map<ItemStack, Float>) ReflectionUtil.getDeclaredFieldValue(recipesFurnace, "experience");
-	}
+    @Override
+    public FurnaceRecipe getVanillaRecipe(NamespacedKey key) {
+        NMSFurnaceRecipe recipe = nmsManager.getVanillaRecipe(CraftNamespacedKey.toMinecraft(key));
+        return recipe == null ? null : recipe.getBukkitRecipe();
+    }
 
 }

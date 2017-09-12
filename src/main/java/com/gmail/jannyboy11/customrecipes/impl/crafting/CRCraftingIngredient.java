@@ -40,7 +40,8 @@ public class CRCraftingIngredient<I extends RecipeItemStack> implements Crafting
 		return NBTSerializable.super.serialize();
 	}
 
-	public static CRChoiceIngredient getVanilla(RecipeItemStack ingredient) {
+	public static CRChoiceIngredient asBukkitIngredient(RecipeItemStack ingredient) {
+	    //TODO can we handle subclasses of RecipeItemStack?
 		return ingredient == RecipeItemStack.a ? CREmptyIngredient.INSTANCE : new CRChoiceIngredient(ingredient);
 	}
 	

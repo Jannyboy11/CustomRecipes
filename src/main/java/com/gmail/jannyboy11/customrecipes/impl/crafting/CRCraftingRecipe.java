@@ -68,7 +68,7 @@ public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe, NBTS
 	@Override
 	public List<CRChoiceIngredient> getIngredients() {
 	    return nmsRecipe.d().stream()
-	            .map(CRCraftingIngredient::getVanilla)
+	            .map(CRCraftingIngredient::asBukkitIngredient)
 	            .collect(Collectors.toList());
 	}
 

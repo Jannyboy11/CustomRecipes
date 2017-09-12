@@ -32,7 +32,7 @@ public class AddRecipeCommandExecutor implements CommandExecutor {
 		String type = args[0];		
 		BiConsumer<? super Player, ? super List<String>> adder = recipeAdders.get(type);
 		if (adder == null) {
-			sender.sendMessage(ChatColor.RED + "Unrecognized recipe type " + ChatColor.WHITE + args[0] + ChatColor.RED + ".");
+			sender.sendMessage(ChatColor.RED + "Unrecognized recipe type " + ChatColor.WHITE + type + ChatColor.RED + ".");
 			sender.sendMessage(ChatColor.RED + "Please choose from " + ChatColor.WHITE + recipeAdders.keySet().toString() + ChatColor.RED + ".");
 			return true;
 		}

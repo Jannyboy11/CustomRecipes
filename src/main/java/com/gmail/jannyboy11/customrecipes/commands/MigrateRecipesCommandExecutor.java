@@ -17,7 +17,7 @@ import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.tobukkit.C
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceRecipe;
-import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceRecipe.FurnaceRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.furnace.custom.NMSFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
@@ -204,10 +204,9 @@ public class MigrateRecipesCommandExecutor implements CommandExecutor {
 					NBTTagCompound ingredientTag = readTag.getCompound("Ingredient");
 					ItemStack ingredient = ingredientTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(ingredientTag);
 					float xp = readTag.hasKeyOfType("Experience", NBTUtil.FLOAT) ? readTag.getFloat("Experience") : 0F;
-
-					FurnaceRecipe furnaceRecipe = new FurnaceRecipe(recipesFurnace, recipesFurnace.customRecipes, recipesFurnace.customExperience, ingredient);
-					furnaceRecipe.setResult(result);
-					if (xp > 0) furnaceRecipe.setXp(xp);
+					RecipeItemStack recipeItemStack = RecipeItemStack.a(new ItemStack[]{ingredient});
+					
+					NMSFurnaceRecipe furnaceRecipe = new NMSFurnaceRecipe(nextCustomKey(), recipeItemStack, result, xp);
 					CRFurnaceRecipe cr = new CRFurnaceRecipe(furnaceRecipe);
 
 					plugin.saveFurnaceRecipeFile(cr);
@@ -349,11 +348,10 @@ public class MigrateRecipesCommandExecutor implements CommandExecutor {
 					ItemStack ingredient = ingredientTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(ingredientTag);
 					float xp = readTag.hasKeyOfType("Experience", NBTUtil.FLOAT) ? readTag.getFloat("Experience") : 0F;
 
-					FurnaceRecipe furnaceRecipe = new FurnaceRecipe(recipesFurnace, recipesFurnace.customRecipes, recipesFurnace.customExperience, ingredient);
-					furnaceRecipe.setResult(result);
-					if (xp > 0) furnaceRecipe.setXp(xp);
-					CRFurnaceRecipe cr = new CRFurnaceRecipe(furnaceRecipe, true); //true because CustomRecipes always used the vanilla maps, because the custom one didn't support xp back in 1.8.
+					RecipeItemStack recipeItemStack = RecipeItemStack.a(new ItemStack[]{ingredient});
+					NMSFurnaceRecipe furnaceRecipe = new NMSFurnaceRecipe(nextCustomKey(), recipeItemStack, result, xp);
 
+					CRFurnaceRecipe cr = new CRFurnaceRecipe(furnaceRecipe);
 					plugin.disableFurnaceRecipeFile(cr);
 				} catch (IOException e) {
 					e.printStackTrace();

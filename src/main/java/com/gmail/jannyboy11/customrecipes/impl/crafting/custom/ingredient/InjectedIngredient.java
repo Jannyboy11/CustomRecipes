@@ -60,7 +60,7 @@ public class InjectedIngredient implements Predicate<ItemStack>, NBTSerializable
 //			return recipeItemstackInjected;
 		    
 		    Constructor<? extends RecipeItemStack> constructor = (Constructor<? extends RecipeItemStack>) ReflectionFactory.getReflectionFactory()
-		            .newConstructorForSerialization(recipeItemStackInjectedClass, Object.class.getConstructor());
+		            .newConstructorForSerialization(recipeItemStackInjectedClass, Object.class.getConstructor()); //TODO generates NPE?
 		    RecipeItemStack recipeItemStackInjected = constructor.newInstance();
 		    ReflectionUtil.setDeclaredFieldValue(recipeItemStackInjected, "predicate", tester);
 		    ReflectionUtil.setFinalFieldValue(recipeItemStackInjected, "choices", new ItemStack[0]);

@@ -120,11 +120,11 @@ public class CRRecipeRegistry extends RegistryMaterials {
 	}
 
 	/**
-	 * An iterator which iterates over all registered recipes
+	 * An iterator which iterates over all registered recipes.
 	 */
 	@Override
 	public Iterator<IRecipe> iterator() {
-		return Collections.unmodifiableSet(byKey.values()).iterator();
+		return byKey.values().iterator();
 	}
 	
 	// ----- methods from RegistryMaterials -----
@@ -132,7 +132,7 @@ public class CRRecipeRegistry extends RegistryMaterials {
 	/**
 	 * Register a new recipe
 	 * 
-	 * @param id the int unique identifier
+	 * @param id the int unique identifier.
 	 */
 	public void a(int id, MinecraftKey key, IRecipe recipe) {
 		byKey.forcePut(key, recipe);

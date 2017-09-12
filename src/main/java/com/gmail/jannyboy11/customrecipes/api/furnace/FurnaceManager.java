@@ -2,6 +2,7 @@ package com.gmail.jannyboy11.customrecipes.api.furnace;
 
 import java.util.Iterator;
 
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -104,12 +105,50 @@ public interface FurnaceManager extends Iterable<FurnaceRecipe> {
 	public FurnaceRecipe removeCustomRecipe(ItemStack ingredient);
 
 	/**
-	 * Get whether an ItemStack is valid as an ingredient
+	 * Removes a furnace recipe by its key.
 	 * 
-	 * @param matchAttempt the ItemStack that is tested against the ingredient
-	 * @param ingredient the ItemStack in a FurnaceRecipe
-	 * @return whether the ingredient equality test succeeds
+	 * @param key the key of the furnace recipe
+	 * @return the removed recipe, or null if no recipe was removed
 	 */
-	public boolean ingredientEquals(ItemStack matchAttempt, ItemStack ingredient);
+    public FurnaceRecipe removeRecipe(NamespacedKey key);
 
+    /**
+     * Removes a vanilla furnace recipe by its key.
+     * 
+     * @param key the key of the furnace recipe
+     * @return the removed recipe, or null if no recipe was removed
+     */
+    public FurnaceRecipe removeVanillaRecipe(NamespacedKey key);
+
+    /**
+     * Removes a custom furnace recipe by its key.
+     * 
+     * @param key the key of the furnace recipe
+     * @return the removed recipe, or null if not recipe was removed
+     */
+    public FurnaceRecipe removeCustomRecipe(NamespacedKey key);
+
+    /**
+     * Gets a furnace recipe by its key.
+     * 
+     * @param key the key of the furnace recipe
+     * @return the registered recipe, or null if no recipe with that key was registered
+     */
+    public FurnaceRecipe getRecipe(NamespacedKey key);
+
+    /**
+     * Gets a furnace custom recipe by its key.
+     * 
+     * @param key the key of the furnace recipe
+     * @return the registered recipe, or null if no recipe with that key was registered
+     */
+    public FurnaceRecipe getCustomRecipe(NamespacedKey key);
+
+    /**
+     * Gets a furnace vanilla recipe by its key.
+     * 
+     * @param key the key of the furnace recipe
+     * @return the registered recipe, or null if no recipe with that key was registered
+     */
+    public FurnaceRecipe getVanillaRecipe(NamespacedKey key);
 }

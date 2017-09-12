@@ -64,7 +64,7 @@ public class CRShapelessRecipe<R extends ShapelessRecipes> extends CRVanillaReci
 	
 	@Override
 	public List<CRChoiceIngredient> getIngredients() {
-		return nmsIngredients().stream().map(CRCraftingIngredient::getVanilla).collect(Collectors.toList());
+		return nmsIngredients().stream().map(CRCraftingIngredient::asBukkitIngredient).collect(Collectors.toList());
 	}
 	
 	@SuppressWarnings("unchecked")
