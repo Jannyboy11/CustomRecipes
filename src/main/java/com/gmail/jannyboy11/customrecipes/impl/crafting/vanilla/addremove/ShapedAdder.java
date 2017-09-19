@@ -19,6 +19,7 @@ import org.bukkit.inventory.InventoryHolder;
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient.CRChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
@@ -97,8 +98,8 @@ public class ShapedAdder implements BiConsumer<Player, List<String>> {
 					return;
 				}
 
-				ShapedRecipes nmsRecipe = holder.toRecipe();
-				CRShapedRecipe<ShapedRecipes> shapedRecipe = new CRShapedRecipe<>(nmsRecipe);
+				NMSShapedRecipe<ShapedRecipes> nmsRecipe = holder.toRecipe();
+				CRShapedRecipe<ShapedRecipes, NMSShapedRecipe<ShapedRecipes>> shapedRecipe = new CRShapedRecipe<>(nmsRecipe);
 				List<List<String>> recipeIngredients = shapedRecipe.getIngredients().stream()
 						.map((CRChoiceIngredient ingr) -> ingr.getChoices().stream()
 								.map(InventoryUtils::getItemName).collect(Collectors.toList()))
@@ -107,10 +108,13 @@ public class ShapedAdder implements BiConsumer<Player, List<String>> {
 						ChatColor.RESET + " -> " +
 						InventoryUtils.getItemName(shapedRecipe.getResult());
 
-				boolean success = holder.plugin.getCraftingManager().addRecipe(holder.key, nmsRecipe, shapedRecipe);
+				boolean success = holder.plugin.getCraftingManager().addRecipe(nmsRecipe.getKey(), nmsRecipe);
 				if (success) {
 					holder.callbackPlayer.sendMessage(String.format("%sAdded shaped recipe: %s%s%s!",
 							ChatColor.GREEN, ChatColor.WHITE, recipeString, ChatColor.WHITE));
+					
+					//TODO this command should be refactor to get modifiers as an argument
+					
 					plugin.saveCraftingRecipeFile("shaped", shapedRecipe);
 				} else {
 					holder.callbackPlayer.sendMessage(ChatColor.RED + "Couldn't create a shaped recipe. Possibly a duplicate key.");
@@ -120,7 +124,7 @@ public class ShapedAdder implements BiConsumer<Player, List<String>> {
 			}
 		}
 
-		private ShapedRecipes toRecipe() {
+		private NMSShapedRecipe<ShapedRecipes> toRecipe() {
 			CraftInventoryCustom dispenserInventory = (CraftInventoryCustom) this.dispenserInventory;
 			IInventory minecraftInventory = (IInventory) ReflectionUtil.getDeclaredFieldValue(dispenserInventory, "inventory");
 			NonNullList<ItemStack> itemStacks = (NonNullList<ItemStack>) ReflectionUtil.getDeclaredFieldValue(minecraftInventory, "items");
@@ -162,7 +166,7 @@ public class ShapedAdder implements BiConsumer<Player, List<String>> {
 
 			ShapedRecipes recipe = new ShapedRecipes(group, width, height, ingredients, result);
 			recipe.setKey(key);
-			return recipe;
+			return new NMSShapedRecipe<>(recipe);
 		}
 
 	}

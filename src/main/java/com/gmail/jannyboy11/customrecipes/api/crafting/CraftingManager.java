@@ -6,19 +6,18 @@ import org.bukkit.NamespacedKey;
  * Represents the crafting manager, the almighty manager of all crafting recipes.
  * 
  * @author Jan
- *
  */
 public interface CraftingManager extends Iterable<CraftingRecipe> {
 
-	/**
-	 * Register a CraftingRecipe to the crafting manager.
-	 * This enables the recipe to work in crafting inventories.
-	 * 
-	 * @param key the key
-	 * @param recipe the recipe
-	 * @return whether the recipe was added successfully
-	 */
-	public boolean addRecipe(NamespacedKey key, CraftingRecipe recipe);
+    /**
+     * Register a CraftingRecipe to the crafting manager.
+     * <br>
+     * This enables the recipe to work in crafting inventories.
+     *
+     * @param recipe the recipe to add.
+     * @return whether the recipe was added successfully
+     */
+    public boolean addRecipe(CraftingRecipe recipe);
 
 	/**
 	 * Remove a CraftingRecipe from the crafting manager by its key.
@@ -54,6 +53,7 @@ public interface CraftingManager extends Iterable<CraftingRecipe> {
 
 	/**
 	 * Reset the crafting manager to the 'vanilla' recipes.
+     * <br>
 	 * Since vanilla recipes are now loaded from JSON files inside the server jar, this method will also load custom recipes in your server jar.
 	 * 
 	 * @return whether JSON files in the server jar were loaded successfully
@@ -61,7 +61,7 @@ public interface CraftingManager extends Iterable<CraftingRecipe> {
 	public boolean reset();
 
 	/**
-	 * Deletes all recipes from the crafting manager, meaning that no recipe will work anymore.
+	 * Deletes all recipes from the crafting manager, meaning that no crafting recipe will work anymore.
 	 */
 	public void clear();
 

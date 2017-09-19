@@ -48,23 +48,25 @@ public class InjectedIngredient implements Predicate<ItemStack>, NBTSerializable
 
 	public RecipeItemStack asNMSIngredient() {
 		try {
-		    //not usable with java 9
+	        //not usable to to illegal access exception
+//          Constructor<? extends RecipeItemStack> constructor = recipeItemStackInjectedClass.getConstructor(Predicate.class);
+//          RecipeItemStack recipeItemStackInjected = constructor.newInstance(tester);
+//          return recipeItemstackInjected;
+		    
+		    //not usable with java 9? It seems sun.misc.Unsafe remains available.
 //			RecipeItemStack recipeItemStackInjected = (RecipeItemStack) unsafe.allocateInstance(recipeItemStackInjectedClass);
 //			ReflectionUtil.setDeclaredFieldValue(recipeItemStackInjected, "predicate", tester);
 //			ReflectionUtil.setFinalFieldValue(recipeItemStackInjected, "choices", new ItemStack[0]);
 //			return recipeItemStackInjected;
-
-		    //not usable to to illegal access exception
-//			Constructor<? extends RecipeItemStack> constructor = recipeItemStackInjectedClass.getConstructor(Predicate.class);
-//			RecipeItemStack recipeItemStackInjected = constructor.newInstance(tester);
-//			return recipeItemstackInjected;
 		    
+		    //l8t3st gr8t3st v3rs!0n. might still break in future jdk releases.
 		    Constructor<? extends RecipeItemStack> constructor = (Constructor<? extends RecipeItemStack>) ReflectionFactory.getReflectionFactory()
 		            .newConstructorForSerialization(recipeItemStackInjectedClass, Object.class.getConstructor()); //TODO generates NPE?
 		    RecipeItemStack recipeItemStackInjected = constructor.newInstance();
 		    ReflectionUtil.setDeclaredFieldValue(recipeItemStackInjected, "predicate", tester);
 		    ReflectionUtil.setFinalFieldValue(recipeItemStackInjected, "choices", new ItemStack[0]);
 		    return recipeItemStackInjected;
+		    
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

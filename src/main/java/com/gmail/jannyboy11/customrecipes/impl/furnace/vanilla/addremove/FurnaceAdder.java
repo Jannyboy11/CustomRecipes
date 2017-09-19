@@ -19,16 +19,15 @@ import org.bukkit.inventory.InventoryHolder;
 
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
-import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFixedFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.custom.NMSFurnaceManager;
-import com.gmail.jannyboy11.customrecipes.impl.furnace.custom.NMSFurnaceRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.furnace.vanilla.NMSFixedFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
 import net.minecraft.server.v1_12_R1.IInventory;
 import net.minecraft.server.v1_12_R1.ItemStack;
 import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.NonNullList;
-import net.minecraft.server.v1_12_R1.RecipeItemStack;
 
 public class FurnaceAdder implements BiConsumer<Player, List<String>> {
 
@@ -116,7 +115,7 @@ public class FurnaceAdder implements BiConsumer<Player, List<String>> {
                     }
                 }
 
-                CRFurnaceRecipe furnaceRecipe = new CRFurnaceRecipe(registerRecipe());
+                CRFixedFurnaceRecipe furnaceRecipe = new CRFixedFurnaceRecipe(registerRecipe());
                 String ingredientString = InventoryUtils.getItemName(ingredient);
 
                 String recipeString = ingredientString + "" + ChatColor.RESET + " -> "
@@ -135,15 +134,14 @@ public class FurnaceAdder implements BiConsumer<Player, List<String>> {
             }
         }
 
-        private NMSFurnaceRecipe registerRecipe() {
+        private NMSFixedFurnaceRecipe registerRecipe() {
             CraftInventoryCustom dispenserInventory = (CraftInventoryCustom) this.hopperInventory;
             IInventory minecraftInventory = (IInventory) ReflectionUtil.getDeclaredFieldValue(dispenserInventory, "inventory");
             NonNullList<ItemStack> itemStacks = (NonNullList<ItemStack>) ReflectionUtil.getDeclaredFieldValue(minecraftInventory, "items");
             NMSFurnaceManager recipesFurnace = NMSFurnaceManager.getInstance();
 
             ItemStack ingredientStack = itemStacks.stream().filter(nmsStack -> !nmsStack.isEmpty()).findFirst().get();
-            RecipeItemStack ingredient = RecipeItemStack.a(new ItemStack[] {ingredientStack});            
-            NMSFurnaceRecipe furnaceRecipe = new NMSFurnaceRecipe(key, ingredient, result, xp);
+            NMSFixedFurnaceRecipe furnaceRecipe = new NMSFixedFurnaceRecipe(key, ingredientStack, result, xp);
 
             if (vanilla) {
                 recipesFurnace.addVanillaRecipe(furnaceRecipe);

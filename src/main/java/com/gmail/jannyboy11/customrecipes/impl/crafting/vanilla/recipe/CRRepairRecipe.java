@@ -1,12 +1,13 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe;
 
-import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.RepairRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.RepairRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSRepair;
 
 import net.minecraft.server.v1_12_R1.RecipeRepair;
 
-public class CRRepairRecipe extends CRShapelessRecipe<RecipeRepair> implements RepairRecipe {
+public class CRRepairRecipe extends CRShapelessRecipe<RecipeRepair, NMSRepair> implements RepairRecipe {
 
-	public CRRepairRecipe(RecipeRepair nmsRecipe) {
+	public CRRepairRecipe(NMSRepair nmsRecipe) {
 		super(nmsRecipe);
 	}
 	

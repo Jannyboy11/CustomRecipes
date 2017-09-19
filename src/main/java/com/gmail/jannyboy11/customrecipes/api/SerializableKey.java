@@ -8,6 +8,11 @@ import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
+/**
+ * Represents a {@link org.bukkit.NamespacedKey} that implements ConfigurationSerializable.
+ * 
+ * @author Jan
+ */
 public class SerializableKey implements ConfigurationSerializable, Keyed {
     
     protected final NamespacedKey key;
@@ -17,7 +22,7 @@ public class SerializableKey implements ConfigurationSerializable, Keyed {
     }
     
     public SerializableKey(NamespacedKey namespacedKey) {
-        this.key = Objects.requireNonNull(namespacedKey);
+        this.key = Objects.requireNonNull(namespacedKey, "namespacedKey cannot be null");
     }
 
     @Override
@@ -37,6 +42,25 @@ public class SerializableKey implements ConfigurationSerializable, Keyed {
     @Override
     public NamespacedKey getKey() {
         return key;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof SerializableKey)) return false;
+        
+        SerializableKey that = (SerializableKey) o;
+        return Objects.equals(this.getKey(), that.getKey());
+    }
+    
+    @Override
+    public int hashCode() {
+        return getKey().hashCode();
+    }
+    
+    @Override
+    public String toString() {
+        return getClass().getName() + "{key()=" + getKey() + "}";
     }
 
 }

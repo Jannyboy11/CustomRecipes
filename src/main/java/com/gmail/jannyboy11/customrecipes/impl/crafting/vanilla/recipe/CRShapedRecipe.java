@@ -5,28 +5,29 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.ShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient.CRChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
 import net.minecraft.server.v1_12_R1.ItemStack;
-import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.NBTTagList;
 import net.minecraft.server.v1_12_R1.NonNullList;
 import net.minecraft.server.v1_12_R1.RecipeItemStack;
 import net.minecraft.server.v1_12_R1.ShapedRecipes;
 
-public class CRShapedRecipe<R extends ShapedRecipes> extends CRVanillaRecipe<R> implements ShapedRecipe {
+public class CRShapedRecipe<V extends ShapedRecipes, S extends NMSShapedRecipe<V>> extends CRCraftingRecipe<V, S> implements ShapedRecipe {
 
-	public CRShapedRecipe(R nmsRecipe) {
+	public CRShapedRecipe(S nmsRecipe) {
 		super(nmsRecipe);
 	}
 	
 	public CRShapedRecipe(NBTTagCompound recipeCompound) {
-		this((R) deserializeNmsRecipe(recipeCompound));
+		this((S) new NMSShapedRecipe((V) deserializeNmsRecipe(recipeCompound)));
 	}
 	
 	public CRShapedRecipe(Map<String, ?> map) {
@@ -45,7 +46,8 @@ public class CRShapedRecipe<R extends ShapedRecipes> extends CRVanillaRecipe<R> 
 		serialized.set("ingredients", ingredients);
 		return serialized;
 	}
-	
+
+	//TODO change return type to NMSCraftingRecipe? or even better, refactor this functionality to NMSCraftingRecipe?
 	protected static ShapedRecipes deserializeNmsRecipe(NBTTagCompound recipeCompound) {
 		String group = recipeCompound.hasKeyOfType("group", NBTUtil.STRING) ? recipeCompound.getString("group") : "";
 		int width = recipeCompound.getInt("width");
@@ -92,16 +94,10 @@ public class CRShapedRecipe<R extends ShapedRecipes> extends CRVanillaRecipe<R> 
 	}
 	
 	@Override
-	public MinecraftKey getMinecraftKey() {
-		return nmsRecipe.key;
-	}
-	
-	
-	@Override
 	public boolean equals(Object o) {
 		if (o == this) return true;
 		if (!(o instanceof ShapedRecipe)) return false;
-		if (o instanceof CRShapedRecipe) return Objects.equals(this.nmsRecipe, ((CRShapedRecipe<?>) o).nmsRecipe);
+		if (o instanceof CRShapedRecipe) return Objects.equals(this.nmsRecipe, ((CRShapedRecipe<?, ?>) o).nmsRecipe);
 		
 		ShapedRecipe that = (ShapedRecipe) o;
 		

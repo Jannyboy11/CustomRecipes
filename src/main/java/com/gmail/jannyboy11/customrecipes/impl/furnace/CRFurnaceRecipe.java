@@ -3,29 +3,22 @@ package com.gmail.jannyboy11.customrecipes.impl.furnace;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
+import org.bukkit.inventory.ItemStack;
 
-import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.custom.Bukkit2NMSFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.custom.NMSFurnaceRecipe;
-import com.gmail.jannyboy11.customrecipes.serialize.NBTSerializable;
 
-import net.minecraft.server.v1_12_R1.NBTTagCompound;
+public class CRFurnaceRecipe<N extends NMSFurnaceRecipe> implements FurnaceRecipe {
 
-public class CRFurnaceRecipe implements FurnaceRecipe, NBTSerializable {
-
-    private final NMSFurnaceRecipe nmsRecipe;
+    protected final N nmsRecipe;
     
-    public CRFurnaceRecipe(NMSFurnaceRecipe injectedFurnaceRecipe) {
-        this.nmsRecipe = injectedFurnaceRecipe;
+    public CRFurnaceRecipe(N nmsFurnaceRecipe) {
+        this.nmsRecipe = nmsFurnaceRecipe;
     }
     
-    public CRFurnaceRecipe(NBTTagCompound serialized) {
-        this(new NMSFurnaceRecipe(serialized));
-    }
-
-    
+    //TODO move this to RecipeUtils
+    @Deprecated
     public static NMSFurnaceRecipe getNMSRecipe(FurnaceRecipe bukkit) {
         if (bukkit instanceof CRFurnaceRecipe) {
             return ((CRFurnaceRecipe) bukkit).nmsRecipe;
@@ -34,7 +27,7 @@ public class CRFurnaceRecipe implements FurnaceRecipe, NBTSerializable {
         }
     }
     
-    public NMSFurnaceRecipe getHandle() {
+    public N getHandle() {
         return nmsRecipe;
     }
     
@@ -44,37 +37,18 @@ public class CRFurnaceRecipe implements FurnaceRecipe, NBTSerializable {
     }
 
     @Override
-    public NBTTagCompound serializeToNbt() {
-        return nmsRecipe.serializeToNbt();
+    public boolean isIngredient(ItemStack input) {
+        return nmsRecipe.checkInput(CraftItemStack.asNMSCopy(input));
     }
 
     @Override
-    public CraftingIngredient getIngredient() {
-        return CRCraftingIngredient.asBukkitIngredient(nmsRecipe.getIngredient());
+    public CraftItemStack smelt(ItemStack input) {
+        return CraftItemStack.asCraftMirror(nmsRecipe.getResult(CraftItemStack.asNMSCopy(input)));
     }
 
     @Override
-    public CraftItemStack getResult() {
-        return CraftItemStack.asCraftMirror(nmsRecipe.getResult());
+    public float experienceReward(ItemStack input) {
+        return nmsRecipe.getExperience(CraftItemStack.asNMSCopy(input));
     }
-
-    @Override
-    public float getXp() {
-        return nmsRecipe.getExperience();
-    }
-
-    @Override
-    public void setIngredient(CraftingIngredient ingredient) {
-        nmsRecipe.setIngredient(CRCraftingIngredient.asNMSIngredient(ingredient));
-    }
-
-    @Override
-    public void setResult(org.bukkit.inventory.ItemStack result) {
-        nmsRecipe.setResult(CraftItemStack.asNMSCopy(result));
-    }
-
-    @Override
-    public void setXp(float xp) {
-        nmsRecipe.setExperience(xp);
-    }
+    
 }

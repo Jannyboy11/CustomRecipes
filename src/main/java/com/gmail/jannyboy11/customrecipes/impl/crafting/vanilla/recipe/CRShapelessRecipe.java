@@ -5,9 +5,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.ShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient.CRChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSCraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
@@ -19,14 +22,14 @@ import net.minecraft.server.v1_12_R1.NonNullList;
 import net.minecraft.server.v1_12_R1.RecipeItemStack;
 import net.minecraft.server.v1_12_R1.ShapelessRecipes;
 
-public class CRShapelessRecipe<R extends ShapelessRecipes> extends CRVanillaRecipe<R> implements ShapelessRecipe {
+public class CRShapelessRecipe<V extends ShapelessRecipes, S extends NMSShapelessRecipe<V>> extends CRCraftingRecipe<V, S> implements ShapelessRecipe {
 
-	public CRShapelessRecipe(R nmsRecipe) {
+	public CRShapelessRecipe(S nmsRecipe) {
 		super(nmsRecipe);
 	}
 	
 	public CRShapelessRecipe(NBTTagCompound recipeCompound) {
-		this((R) deserializeNmsRecipe(recipeCompound));
+		this((S) new NMSShapelessRecipe((V) deserializeNmsRecipe(recipeCompound)));
 	}
 	
 	public CRShapelessRecipe(Map<String, ?> map) {
@@ -43,7 +46,8 @@ public class CRShapelessRecipe<R extends ShapelessRecipes> extends CRVanillaReci
 		serialized.set("ingredients", ingredients);
 		return serialized;
 	}
-	
+
+	//TODO refactor this method to NMSCraftingRecipe?
 	protected static ShapelessRecipes deserializeNmsRecipe(NBTTagCompound recipeCompound) {
 		String group = recipeCompound.hasKeyOfType("group", NBTUtil.STRING) ? recipeCompound.getString("group") : "";
 		NonNullList<RecipeItemStack> ingredients = NonNullList.a();
@@ -73,11 +77,6 @@ public class CRShapelessRecipe<R extends ShapelessRecipes> extends CRVanillaReci
 	}
 	
 	@Override
-	public MinecraftKey getMinecraftKey() {
-		return nmsRecipe.key;
-	}
-	
-	@Override
 	public String getGroup() {
 		return (String) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "c");
 	}
@@ -86,7 +85,7 @@ public class CRShapelessRecipe<R extends ShapelessRecipes> extends CRVanillaReci
 	public boolean equals(Object o) {
 		if (o == this) return true;
 		if (!(o instanceof ShapelessRecipe)) return false;
-		if (o instanceof CRShapelessRecipe) return Objects.equals(this.nmsRecipe, ((CRShapelessRecipe<?>) o).nmsRecipe);
+		if (o instanceof CRShapelessRecipe) return Objects.equals(this.nmsRecipe, ((CRShapelessRecipe<?, ?>) o).nmsRecipe);
 		
 		ShapelessRecipe that = (ShapelessRecipe) o;
 		

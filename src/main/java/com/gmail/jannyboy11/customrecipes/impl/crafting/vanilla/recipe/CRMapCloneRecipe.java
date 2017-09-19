@@ -1,12 +1,13 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe;
 
-import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.MapCloneRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.MapCloneRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSMapClone;
 
 import net.minecraft.server.v1_12_R1.RecipeMapClone;
 
-public class CRMapCloneRecipe extends CRShapelessRecipe<RecipeMapClone> implements MapCloneRecipe {
+public class CRMapCloneRecipe extends CRShapelessRecipe<RecipeMapClone, NMSMapClone> implements MapCloneRecipe {
 
-	public CRMapCloneRecipe(RecipeMapClone nmsRecipe) {
+	public CRMapCloneRecipe(NMSMapClone nmsRecipe) {
 		super(nmsRecipe);
 	}
 

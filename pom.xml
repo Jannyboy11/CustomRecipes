@@ -2,13 +2,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.gmail.jannyboy11</groupId>
   <artifactId>CustomRecipes</artifactId>
-  <version>2.3.0-SNAPSHOT</version>
+  <version>3.0.0-alpha-SNAPSHOT</version>
   <name>CustomRecipes</name>
-  <description>Create and remove recipes for your Spigot server</description>
+  <description>In-game crafting and furnace recipe management for your Spigot server!</description>
   
   <build>
   
-    <defaultGoal>clean package install</defaultGoal>
+    <defaultGoal>clean install</defaultGoal>
 
       <resources>
         <resource>
@@ -51,7 +51,6 @@
           <nohelp>true</nohelp>
           <excludePackageNames>
             com.gmail.jannyboy11.customrecipes.commands:
-            com.gmail.jannyboy11.customrecipes.gui:
             com.gmail.jannyboy11.customrecipes.impl:
             com.gmail.jannyboy11.customrecipes.serialize:
             com.gmail.jannyboy11.customrecipes.util
@@ -75,8 +74,8 @@
     
     <dependency>
       <groupId>org.spigotmc</groupId>
-      <artifactId>Spigot</artifactId>
-      <version>1.12-R0.1-SNAPSHOT</version>
+      <artifactId>spigot</artifactId>
+      <version>1.12.2-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

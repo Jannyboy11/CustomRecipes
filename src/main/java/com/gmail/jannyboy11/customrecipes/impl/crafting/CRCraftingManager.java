@@ -5,7 +5,9 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.Bukkit2NMSRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.RecipeUtils;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.Bukkit2NMSCraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSCraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.*;
 import com.gmail.jannyboy11.customrecipes.util.MapIterator;
 import com.google.common.collect.BiMap;
@@ -29,14 +31,12 @@ import net.minecraft.server.v1_12_R1.ShapelessRecipes;
 
 /**
  * The CraftingManager implementation.
+ * <br>
  * This class can be extended by other NMS plugins.
  * 
  * @author Jan
  */
 public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api.crafting.CraftingManager {
-
-	protected final BiMap<IRecipe, CraftingRecipe> nms2cr = HashBiMap.create();
-	protected final BiMap<CraftingRecipe, IRecipe> cr2nms = nms2cr.inverse();
 
 	protected CRRecipeRegistry recipeRegistry;
 
@@ -44,41 +44,22 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 		ensurePatchedRegistry();
 	}
 
-	/**
-	 * Add a crafting recipe.
-	 * 
-	 * @deprecated internal use only. Use {@link CRCraftingManager#addRecipe(MinecraftKey, IRecipe, CraftingRecipe)} instead.
-	 * @param key
-	 * @param recipe
-	 * @return whether the recipe was registered.
-	 */
-	@Deprecated
-	protected boolean putRecipe(MinecraftKey key, CraftingRecipe recipe) {
-		if (recipe == null || key == null) return false;
-		
-		//should I care about implementations that don't extend CRCraftingRecipe?
-
-		if (recipe instanceof CRCraftingRecipe) {
-			@SuppressWarnings("rawtypes")
-			CRCraftingRecipe wrapper = (CRCraftingRecipe) recipe;
-			return addRecipe(key, wrapper.getHandle(), wrapper);
-		} else {
-			Bukkit2NMSRecipe nmsifiedRecipe = new Bukkit2NMSRecipe(recipe);
-			return addRecipe(key, nmsifiedRecipe, recipe);
-		}
-		
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
+    /**
+     * {@inheritDoc}
+     */
 	@Override
-	public boolean addRecipe(NamespacedKey key, CraftingRecipe recipe) {
-		if (key == null || recipe == null) return false;
-		
-		MinecraftKey minecraftKey = CraftNamespacedKey.toMinecraft(key);
+	public boolean addRecipe(CraftingRecipe recipe) {
+	    if (recipe == null) return false;
 
-		return putRecipe(minecraftKey, recipe);
+	    MinecraftKey key = CraftNamespacedKey.toMinecraft(recipe.getKey());
+	    return addRecipe(key, RecipeUtils.getNMSRecipe(recipe));
+    }
+	
+	
+	public boolean addRecipe(NMSCraftingRecipe nmsRecipe) {
+	    if (nmsRecipe == null) return false;
+	    
+	    return addRecipe(nmsRecipe.getKey(), nmsRecipe);
 	}
 
 	/**
@@ -86,38 +67,16 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 	 * 
 	 * @param key the key of the recipe
 	 * @param nmsRecipe the Minecraft variant of the recipe
-	 * @param crRecipe the CustomRecipes variant of the recipe
 	 * @return whether the recipe was registered
 	 */
-	public boolean addRecipe(MinecraftKey key, IRecipe nmsRecipe, CraftingRecipe crRecipe) {
-		if (key == null || nmsRecipe == null || crRecipe == null) return false;
+	public boolean addRecipe(MinecraftKey key, IRecipe nmsRecipe) {
+		if (key == null || nmsRecipe == null) return false;
 		
 		IRecipe existing = CraftingManager.a(key);
 		if (existing != null) return false; //duplicate key
 					
-		nms2cr.forcePut(nmsRecipe, crRecipe);
 		CraftingManager.a(key, nmsRecipe);
-		nmsRecipe.setKey(key);
 		return true;
-	}
-	
-	
-	/**
-	 * Get the mirror or handle from a registered recipe
-	 * @param nms the nms variant
-	 * @return the custom recipes variant
-	 */
-	public CraftingRecipe mirrorOrHandle(IRecipe nms) {
-		return nms2cr.get(nms);
-	}
-	
-	/**
-	 * Get the mirror or handle from a registered recipe
-	 * @param cr the custom recipes variant
-	 * @return the nms variant
-	 */
-	public IRecipe mirrorOrHandle(CraftingRecipe cr) {
-		return cr2nms.get(cr);
 	}
 	
 
@@ -135,7 +94,6 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 	 */
 	@Override
 	public void clear() {
-		nms2cr.clear();
 		CraftingManager.recipes = recipeRegistry = new CRRecipeRegistry();
 	}
 
@@ -145,49 +103,13 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 	 * @param recipe the minecraft recipe
 	 * @return the custom recipes mirror
 	 */
-	public CraftingRecipe fromNMSRecipe(IRecipe recipe) {
+	private CraftingRecipe fromNMSRecipe(IRecipe recipe) {
 		if (recipe == null) return null;
 
-		//the recipe could be a custom implementation. return that one if present
-		CraftingRecipe fromNMS = nms2cr.get(recipe);
-		if (fromNMS != null) return fromNMS;
+        //TODO use RecipeUtils
+        //TODO or should I delete this method? and move it to RecipeUtils completely?
 
-		//guaranteed to be absent
-		return nms2cr.computeIfAbsent(recipe, r -> {
-			//if not not custom, check which vanilla implementation. order is important.
-			//register it as well to ensure reference equality when this method is called again
-			if (r instanceof RecipeArmorDye) {
-				return new CRArmorDyeRecipe((RecipeArmorDye) r);
-			} else if (r instanceof RecipesBanner.AddRecipe) {
-				return new CRBannerAddPatternRecipe((RecipesBanner.AddRecipe) r);
-			} else if (r instanceof RecipesBanner.DuplicateRecipe){
-				return new CRBannerDuplicateRecipe((RecipesBanner.DuplicateRecipe) r);
-			} else if (r instanceof RecipeBookClone) {
-				return new CRBookCloneRecipe((RecipeBookClone) r);
-			} else if (r instanceof RecipeFireworks) {
-				return new CRFireworksRecipe((RecipeFireworks) r);
-			} else if (r instanceof RecipeMapClone) {
-				return new CRMapCloneRecipe((RecipeMapClone) r);
-			} else if (r instanceof RecipeMapExtend) {
-				return new CRMapExtendRecipe((RecipeMapExtend) r);
-			} else if (r instanceof RecipeRepair) {
-				return new CRRepairRecipe((RecipeRepair) r);
-			} else if (r instanceof RecipiesShield.Decoration) {
-				return new CRShieldDecorationRecipe((RecipiesShield.Decoration) r);
-			} else if (r instanceof RecipeShulkerBox.Dye) {
-				return new CRShulkerBoxDyeRecipe((RecipeShulkerBox.Dye) r);
-			} else if (r instanceof RecipeTippedArrow) {
-				return new CRTippedArrowRecipe((RecipeTippedArrow) r);
-			} else if (r instanceof ShapedRecipes) {
-				return new CRShapedRecipe<>((ShapedRecipes) r);
-			} else if (r instanceof ShapelessRecipes) {
-				return new CRShapelessRecipe<>((ShapelessRecipes) r);
-			} 
-
-			//unknown type of recipe.
-			//best we can do is return a generic crafting recipe 
-			return new CRCraftingRecipe<>(recipe);
-		});
+        return null;
 	}
 	
 	/**
@@ -198,20 +120,11 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 	 */
 	public IRecipe toNMSRecipe(CraftingRecipe craftingRecipe) {
 		if (craftingRecipe == null) return null;
-		
-		IRecipe fromCR = cr2nms.get(craftingRecipe);
-		if (fromCR != null) return fromCR;
-		
-		if (craftingRecipe instanceof CRCraftingRecipe) {
-			//best we can do - try to get the nms handle
-			fromCR = ((CRCraftingRecipe) craftingRecipe).getHandle();
-		} else {
-			//fallback - use a bukkit2nms mirror
-			fromCR = new Bukkit2NMSRecipe(craftingRecipe);
-		}
-		
-		cr2nms.put(craftingRecipe, fromCR);
-		return fromCR;
+
+		//TODO use RecipeUtils
+        //TODO or should I delete this method? and move it to RecipeUtils completely?
+
+		return null;
 	}
 
 	/**
@@ -220,10 +133,11 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 	 * @param minecraftKey the key
 	 * @return the recipe if one was registered for the key, or null if no recipe was registered for the key
 	 */
-	public IRecipe getNMSRecipe(MinecraftKey minecraftKey) {
+	public NMSCraftingRecipe<?> getNMSRecipe(MinecraftKey minecraftKey) {
 		if (minecraftKey == null) return null;
+		ensurePatchedRegistry();
 		
-		return CraftingManager.a(minecraftKey);
+		return recipeRegistry.get(minecraftKey);
 	}
 	
 	/**
@@ -234,7 +148,7 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 		if (key == null) return null;
 		
 		MinecraftKey mcKey = CraftNamespacedKey.toMinecraft(key);
-		IRecipe mcRecipe = getNMSRecipe(mcKey);
+		NMSCraftingRecipe<?> mcRecipe = getNMSRecipe(mcKey);
 		if (mcRecipe == null) return null;
 		return fromNMSRecipe(mcRecipe);
 	}
@@ -245,11 +159,11 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 	 * @param key the key
 	 * @return the recipe what was registered for the key, or null if the key was not registered
 	 */
-	public IRecipe removeRecipe(MinecraftKey key) {
+	public NMSCraftingRecipe removeRecipe(MinecraftKey key) {
 		ensurePatchedRegistry();
 
-		IRecipe nmsRecipe = recipeRegistry.removeRecipe(key);
-		if (nmsRecipe != null) nms2cr.remove(nmsRecipe);
+		NMSCraftingRecipe nmsRecipe = recipeRegistry.removeRecipe(key);
+
 		return nmsRecipe;
 	}
 
@@ -261,11 +175,10 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 		if (key == null) return null;
 		
 		MinecraftKey mcKey = CraftNamespacedKey.toMinecraft(key);
-		IRecipe removed = removeRecipe(mcKey);
+		NMSCraftingRecipe removed = removeRecipe(mcKey);
 		if (removed == null) return null;
 		
 		CraftingRecipe recipe = fromNMSRecipe(removed);
-		nms2cr.remove(removed);
 		
 		return recipe;
 	}
@@ -314,7 +227,6 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 		if (recipe == null) return null;
 		ensurePatchedRegistry();
 
-		nms2cr.remove(recipe);
 		return recipeRegistry.removeRecipe(recipe);
 	}
 	
@@ -393,7 +305,7 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 	 * This method must be called every time before the crafting manager tries to remove a recipe,
 	 * because other plugins may set the recipe registry to the vanilla implementation by calling {@link org.bukkit.Server#resetRecipes()} or {@link org.bukkit.Server#clearRecipes()}. 
 	 */
-	protected void ensurePatchedRegistry() {
+	public void ensurePatchedRegistry() {
 		if (CraftingManager.recipes != recipeRegistry) {
 			CraftingManager.recipes = recipeRegistry = new CRRecipeRegistry(CraftingManager.recipes);
 		}

@@ -1,11 +1,10 @@
 package com.gmail.jannyboy11.customrecipes.api;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingManager;
-import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
-import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapedRecipe;
-import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.ShapelessRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.ShapedRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.ShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceManager;
-import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe;
+import com.gmail.jannyboy11.customrecipes.api.furnace.recipe.FixedFurnaceRecipe;
 
 /**
  * The Custom Recipes application programming interface.
@@ -46,29 +45,19 @@ public interface CustomRecipesApi {
 	 * @param bukkitRecipe the bukkit recipe
 	 * @return the CustomRecipes variant
 	 */
-	public FurnaceRecipe asCustomRecipesMirror(org.bukkit.inventory.FurnaceRecipe bukkitRecipe);
+	public FixedFurnaceRecipe asCustomRecipesMirror(org.bukkit.inventory.FurnaceRecipe bukkitRecipe);
 
 	/**
-	 * Tests whether the crafting recipe is a vanilla kind.
+	 * Get the furnace manager.
 	 * 
-	 * @param recipe the recipe
-	 * @return whether it's implementation is a vanilla implementation
-	 * @deprecated weird method to put in the API, also, there is no equivalent for furnace recipes.
-	 */
-	@Deprecated
-	public boolean isVanillaRecipeType(CraftingRecipe recipe);
-
-	/**
-	 * Get the furnace manager
 	 * @return the furnace manager
 	 */
 	public FurnaceManager getFurnaceManager();
 
 	/**
-	 * Get the crafting manager
+	 * Get the crafting manager.
+	 * 
 	 * @return the crafting manager
 	 */
 	public CraftingManager getCraftingManager();
-	
-	
 }

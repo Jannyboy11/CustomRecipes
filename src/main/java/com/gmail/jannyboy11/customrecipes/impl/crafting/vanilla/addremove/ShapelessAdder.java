@@ -21,6 +21,7 @@ import org.bukkit.inventory.InventoryHolder;
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient.CRChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
@@ -93,8 +94,8 @@ public class ShapelessAdder implements BiConsumer<Player, List<String>> {
 				ShapelessRecipeHolder holder = (ShapelessRecipeHolder) event.getInventory().getHolder();
 				if (holder != this) return;
 
-				ShapelessRecipes nmsRecipe = holder.toRecipe();
-				CRShapelessRecipe<ShapelessRecipes> shapelessRecipe = new CRShapelessRecipe<>(nmsRecipe);
+				NMSShapelessRecipe<ShapelessRecipes> nmsRecipe = holder.toRecipe();
+				CRShapelessRecipe<ShapelessRecipes, NMSShapelessRecipe<ShapelessRecipes>> shapelessRecipe = new CRShapelessRecipe<>(nmsRecipe);
 
 				List<List<String>> recipeIngredients = shapelessRecipe
 						.getIngredients().stream().map((CRChoiceIngredient ingr) -> ingr.getChoices().stream()
@@ -104,10 +105,13 @@ public class ShapelessAdder implements BiConsumer<Player, List<String>> {
 				String recipeString = recipeIngredients + "" + ChatColor.RESET + " -> "
 						+ InventoryUtils.getItemName(shapelessRecipe.getResult());
 
-				boolean success = holder.plugin.getCraftingManager().addRecipe(holder.key, nmsRecipe, shapelessRecipe);
+				boolean success = holder.plugin.getCraftingManager().addRecipe(nmsRecipe.getKey(), nmsRecipe);
 				if (success) {
 					holder.callbackPlayer.sendMessage(String.format("%sAdded shapeless recipe: %s%s%s!",
 							ChatColor.GREEN, ChatColor.WHITE, recipeString, ChatColor.WHITE));
+					
+					//TODO this command should be refactor to get modifiers as an argument
+					
 					plugin.saveCraftingRecipeFile("shapeless", shapelessRecipe);
 				} else {
 					holder.callbackPlayer.sendMessage(ChatColor.RED + "Couldn't create a permission recipe. Possibly a duplicate key.");
@@ -117,7 +121,7 @@ public class ShapelessAdder implements BiConsumer<Player, List<String>> {
 			}
 		}
 
-		private ShapelessRecipes toRecipe() {
+		private NMSShapelessRecipe<ShapelessRecipes> toRecipe() {
 			CraftInventoryCustom dispenserInventory = (CraftInventoryCustom) this.dispenserInventory;
 			IInventory minecraftInventory = (IInventory) ReflectionUtil.getDeclaredFieldValue(dispenserInventory, "inventory");
 			NonNullList<ItemStack> itemStacks = (NonNullList<ItemStack>) ReflectionUtil.getDeclaredFieldValue(minecraftInventory, "items");
@@ -129,7 +133,7 @@ public class ShapelessAdder implements BiConsumer<Player, List<String>> {
 
 			ShapelessRecipes recipe = new ShapelessRecipes(group, result, ingredients);
 			recipe.setKey(key);
-			return recipe;
+			return new NMSShapelessRecipe<>(recipe);
 		}
 
 	}

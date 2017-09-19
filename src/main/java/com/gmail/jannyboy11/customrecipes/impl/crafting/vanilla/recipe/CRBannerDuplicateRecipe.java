@@ -1,12 +1,13 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe;
 
-import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.recipe.BannerDuplicateRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.BannerDuplicateRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSBannerDuplicate;
 
-import net.minecraft.server.v1_12_R1.RecipesBanner.DuplicateRecipe;
+import net.minecraft.server.v1_12_R1.RecipesBanner;
 
-public class CRBannerDuplicateRecipe extends CRShapelessRecipe<DuplicateRecipe> implements BannerDuplicateRecipe {
+public class CRBannerDuplicateRecipe extends CRShapelessRecipe<RecipesBanner.DuplicateRecipe, NMSBannerDuplicate> implements BannerDuplicateRecipe {
 
-	public CRBannerDuplicateRecipe(DuplicateRecipe nmsRecipe) {
+	public CRBannerDuplicateRecipe(NMSBannerDuplicate nmsRecipe) {
 		super(nmsRecipe);
 	}
 	

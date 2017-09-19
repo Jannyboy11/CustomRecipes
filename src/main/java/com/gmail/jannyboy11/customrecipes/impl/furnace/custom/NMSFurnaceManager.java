@@ -8,6 +8,7 @@ import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
 
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.InjectedIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.furnace.vanilla.NMSFixedFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 import com.google.common.collect.Iterators;
 
@@ -17,7 +18,7 @@ import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.RecipeItemStack;
 import net.minecraft.server.v1_12_R1.RecipesFurnace;
 
-//TODO use InventoryUtils.getItemName for the NamespacedKeys?
+//TODO use InventoryUtils.getItemName for the NamespacedKeys of vanilla recipes?
 public class NMSFurnaceManager extends RecipesFurnace implements Iterable<NMSFurnaceRecipe> {
     
     private final Map<MinecraftKey, NMSFurnaceRecipe> vanillaRecipes;
@@ -51,10 +52,9 @@ public class NMSFurnaceManager extends RecipesFurnace implements Iterable<NMSFur
         instance.recipes.forEach((ingredient, result) -> {                
             Item item = ingredient.getItem();
             MinecraftKey key = new MinecraftKey(item.getName());
-            RecipeItemStack newIngredient = makeVanillaIngredient(ingredient);
             float xp = super.b(ingredient);
             
-            NMSFurnaceRecipe injectedFurnaceRecipe = new NMSFurnaceRecipe(key, newIngredient, result, xp);
+            NMSFurnaceRecipe injectedFurnaceRecipe = new NMSFixedFurnaceRecipe(key, ingredient, result, xp);
             vanillaRecipes.put(key, injectedFurnaceRecipe);
         });
     }
@@ -63,10 +63,9 @@ public class NMSFurnaceManager extends RecipesFurnace implements Iterable<NMSFur
         instance.customRecipes.forEach((ingredient, result) -> {
             Item item = ingredient.getItem();
             MinecraftKey key = CraftNamespacedKey.toMinecraft(CustomRecipesPlugin.getInstance().getKey(item.getName()));
-            RecipeItemStack newIngredient = makeVanillaIngredient(ingredient);
             float xp = super.b(ingredient);
             
-            NMSFurnaceRecipe injectedFurnaceRecipe = new NMSFurnaceRecipe(key, newIngredient, result, xp);
+            NMSFurnaceRecipe injectedFurnaceRecipe = new NMSFixedFurnaceRecipe(key, ingredient, result, xp);
             customRecipes.put(key, injectedFurnaceRecipe);
         });
     }
@@ -85,42 +84,40 @@ public class NMSFurnaceManager extends RecipesFurnace implements Iterable<NMSFur
     }
     
     @Override
-    public void a(ItemStack input, ItemStack result, float xp) {
-        super.a(input, result, xp);
+    public void a(ItemStack ingredient, ItemStack result, float xp) {
+        super.a(ingredient, result, xp);
         if (instance == null) return; //if we are called from the super constructor, return. ugly hack!        
         
-        MinecraftKey key = new MinecraftKey(input.getItem().getName());
-        RecipeItemStack ingredient = makeVanillaIngredient(input);
-        NMSFurnaceRecipe recipe = new NMSFurnaceRecipe(key, ingredient, result, xp);
+        MinecraftKey key = new MinecraftKey(ingredient.getItem().getName());
+        NMSFurnaceRecipe recipe = new NMSFixedFurnaceRecipe(key, ingredient, result, xp);
         vanillaRecipes.put(key, recipe);
     }
     
     @Override
-    public void registerRecipe(ItemStack input, ItemStack result, float xp) {
-        super.a(input, result, xp);
+    public void registerRecipe(ItemStack ingredient, ItemStack result, float xp) {
+        super.a(ingredient, result, xp);
         if (instance == null) return; //if we are called from the super constructor, return. ugly hack!
         
-        MinecraftKey key = CraftNamespacedKey.toMinecraft(CustomRecipesPlugin.getInstance().getKey(input.getItem().getName()));
-        RecipeItemStack ingredient = makeVanillaIngredient(input);
-        NMSFurnaceRecipe recipe = new NMSFurnaceRecipe(key, ingredient, result, xp);
+        MinecraftKey key = CraftNamespacedKey.toMinecraft(CustomRecipesPlugin.getInstance().getKey(ingredient.getItem().getName()));
+        NMSFurnaceRecipe recipe = new NMSFixedFurnaceRecipe(key, ingredient, result, xp);
         customRecipes.put(key, recipe);
     }
     
     @Override
-    public ItemStack getResult(ItemStack itemstack) {
+    public ItemStack getResult(ItemStack input) {
         for (NMSFurnaceRecipe recipe : this) {
-           if (recipe.getIngredient().a(itemstack)) {
-               return recipe.getResult();
+           if (recipe.checkInput(input)) {
+               return recipe.getResult(input);
            }
         }
         return ItemStack.a;
     }
     
     @Override
-    public float b(ItemStack itemstack) {
+    public float b(ItemStack input) {
         for (NMSFurnaceRecipe recipe : this) {
-            if (recipe.getIngredient().a(itemstack)) {
-                return recipe.getExperience();
+            if (recipe.checkInput(input)) {
+                return recipe.getExperience(input);
             }
         }
         return 0F;
@@ -183,7 +180,7 @@ public class NMSFurnaceManager extends RecipesFurnace implements Iterable<NMSFur
     protected static NMSFurnaceRecipe getRecipe(ItemStack ingredientTest, Iterator<? extends NMSFurnaceRecipe> iterator) {
         while (iterator.hasNext()) {
             NMSFurnaceRecipe recipe = iterator.next();
-            if (recipe.getIngredient().a(ingredientTest)) {
+            if (recipe.checkInput(ingredientTest)) {
                 return recipe;
             }
         }
@@ -202,10 +199,10 @@ public class NMSFurnaceManager extends RecipesFurnace implements Iterable<NMSFur
         return getRecipe(itemStack, vanillaIterator());
     }
 
-    protected static NMSFurnaceRecipe removeRecipe(ItemStack ingredient, Iterator<? extends NMSFurnaceRecipe> iterator) {
+    protected static NMSFurnaceRecipe removeRecipe(ItemStack ingredientTest, Iterator<? extends NMSFurnaceRecipe> iterator) {
         while (iterator.hasNext()) {
             NMSFurnaceRecipe recipe = iterator.next();
-            if (recipe.getIngredient().a(ingredient)) {
+            if (recipe.checkInput(ingredientTest)) {
                 iterator.remove();
                 return recipe;
             }

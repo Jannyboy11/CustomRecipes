@@ -1,20 +1,18 @@
 package com.gmail.jannyboy11.customrecipes.impl.furnace.custom;
 
 import java.util.Objects;
-
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
 
 import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingIngredient;
 
 import net.minecraft.server.v1_12_R1.ItemStack;
 import net.minecraft.server.v1_12_R1.MinecraftKey;
-import net.minecraft.server.v1_12_R1.RecipeItemStack;
 
 public class Bukkit2NMSFurnaceRecipe extends NMSFurnaceRecipe {
     
     public Bukkit2NMSFurnaceRecipe(FurnaceRecipe bukkit) {
+        super(CraftNamespacedKey.toMinecraft(bukkit.getKey()));
         this.bukkit = Objects.requireNonNull(bukkit);
     }
     
@@ -23,35 +21,16 @@ public class Bukkit2NMSFurnaceRecipe extends NMSFurnaceRecipe {
         return CraftNamespacedKey.toMinecraft(bukkit.getKey());
     }
     
-    @Override
-    public RecipeItemStack getIngredient() {
-        return CRCraftingIngredient.asNMSIngredient(bukkit.getIngredient());
+    public boolean checkInput(ItemStack input) {
+        return bukkit.isIngredient(CraftItemStack.asCraftMirror(input));
     }
     
-    @Override
-    public ItemStack getResult() {
-        return CraftItemStack.asNMSCopy(bukkit.getResult());
+    public ItemStack getResult(ItemStack input) {
+        return CraftItemStack.asNMSCopy(bukkit.smelt(CraftItemStack.asCraftMirror(input)));
     }
     
-    @Override
-    public float getExperience() {
-        return bukkit.getXp();
-    }
-    
-    @Override
-    public Bukkit2NMSFurnaceRecipe setIngredient(RecipeItemStack ingredient) {
-        bukkit.setIngredient(CRCraftingIngredient.asBukkitIngredient(ingredient));
-        return this;
-    }
-    
-    public Bukkit2NMSFurnaceRecipe setResult(ItemStack result) {
-        bukkit.setResult(CraftItemStack.asCraftMirror(result));
-        return this;
-    }
-    
-    public Bukkit2NMSFurnaceRecipe setExperience(float experience) {
-        bukkit.setXp(experience);
-        return this;
+    public float getExperience(ItemStack input) {
+        return bukkit.experienceReward(CraftItemStack.asCraftMirror(input));
     }
     
     @Override
@@ -66,6 +45,16 @@ public class Bukkit2NMSFurnaceRecipe extends NMSFurnaceRecipe {
     @Override
     public int hashCode() {
         return bukkit.hashCode();
+    }
+    
+    @Override
+    protected FurnaceRecipe createBukkitRecipe() {
+        return bukkit;
+    }
+    
+    @Override
+    public FurnaceRecipe getBukkitRecipe() {
+        return bukkit;
     }
 
 }

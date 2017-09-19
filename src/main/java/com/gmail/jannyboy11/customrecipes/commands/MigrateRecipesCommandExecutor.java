@@ -11,13 +11,18 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.PermissionRecipe;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.tobukkit.CRPermissionRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSShapedRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapelessRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFixedFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.custom.NMSFurnaceRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.furnace.vanilla.NMSFixedFurnaceRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.modifier.CRModifiedCraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.modifier.NMSModifiedCraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.modifier.custom.PermissionModifier;
 import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
@@ -33,6 +38,7 @@ import net.minecraft.server.v1_12_R1.RecipesFurnace;
 import net.minecraft.server.v1_12_R1.ShapedRecipes;
 import net.minecraft.server.v1_12_R1.ShapelessRecipes;
 
+//TODO add 2.2.1 -> 3.0.0 case
 public class MigrateRecipesCommandExecutor implements CommandExecutor {
 
 	private Random random = new Random();
@@ -105,7 +111,7 @@ public class MigrateRecipesCommandExecutor implements CommandExecutor {
 					MinecraftKey key = nextCustomKey();
 					shaped.setKey(key);
 
-					CRShapedRecipe<ShapedRecipes> cr = new CRShapedRecipe<>(shaped);
+					CRShapedRecipe cr = new CRShapedRecipe(new NMSShapedRecipe(shaped));
 					plugin.saveCraftingRecipeFile("shaped", cr);
 
 				} catch (IOException e) {
@@ -140,7 +146,7 @@ public class MigrateRecipesCommandExecutor implements CommandExecutor {
 					MinecraftKey key = nextCustomKey();
 					shaped.setKey(key);
 
-					CRShapelessRecipe<ShapelessRecipes> cr = new CRShapelessRecipe<>(shaped);
+					CRShapelessRecipe cr = new CRShapelessRecipe(new NMSShapelessRecipe(shaped));
 					plugin.saveCraftingRecipeFile("shapeless", cr);
 
 				} catch (IOException e) {
@@ -178,7 +184,9 @@ public class MigrateRecipesCommandExecutor implements CommandExecutor {
 					MinecraftKey key = nextCustomKey();
 					shaped.setKey(key);
 
-					CRPermissionRecipe cr = new CRPermissionRecipe(shaped);
+					//TODO use permission modifier.
+					NMSModifiedCraftingRecipe nmsModified = new NMSModifiedCraftingRecipe(new PermissionModifier(permission), new NMSShapedRecipe(shaped));
+					CRModifiedCraftingRecipe cr = new CRModifiedCraftingRecipe(nmsModified);
 					plugin.saveCraftingRecipeFile("permission", cr);
 
 				} catch (IOException e) {
@@ -204,10 +212,9 @@ public class MigrateRecipesCommandExecutor implements CommandExecutor {
 					NBTTagCompound ingredientTag = readTag.getCompound("Ingredient");
 					ItemStack ingredient = ingredientTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(ingredientTag);
 					float xp = readTag.hasKeyOfType("Experience", NBTUtil.FLOAT) ? readTag.getFloat("Experience") : 0F;
-					RecipeItemStack recipeItemStack = RecipeItemStack.a(new ItemStack[]{ingredient});
 					
-					NMSFurnaceRecipe furnaceRecipe = new NMSFurnaceRecipe(nextCustomKey(), recipeItemStack, result, xp);
-					CRFurnaceRecipe cr = new CRFurnaceRecipe(furnaceRecipe);
+					NMSFixedFurnaceRecipe furnaceRecipe = new NMSFixedFurnaceRecipe(nextCustomKey(), ingredient, result, xp);
+					CRFixedFurnaceRecipe cr = new CRFixedFurnaceRecipe(furnaceRecipe);
 
 					plugin.saveFurnaceRecipeFile(cr);
 				} catch (IOException e) {
@@ -262,7 +269,7 @@ public class MigrateRecipesCommandExecutor implements CommandExecutor {
 					if (match != null) {
 						
 						//very nice! great success!
-						CRShapedRecipe<ShapedRecipes> crShapedRecipe = new CRShapedRecipe<>(match);
+						CRShapedRecipe crShapedRecipe = new CRShapedRecipe(new NMSShapedRecipe(match));
 						plugin.disableCraftingRecipeFile("shaped", crShapedRecipe);
 						
 					} else {
@@ -315,7 +322,7 @@ public class MigrateRecipesCommandExecutor implements CommandExecutor {
 					if (match != null) {
 						
 						//very nice! great success!
-						CRShapelessRecipe<ShapelessRecipes> crShapedRecipe = new CRShapelessRecipe<>(match);
+						CRShapelessRecipe crShapedRecipe = new CRShapelessRecipe(new NMSShapelessRecipe(match));
 						plugin.disableCraftingRecipeFile("shapeless", crShapedRecipe);
 						
 					} else {
@@ -348,10 +355,9 @@ public class MigrateRecipesCommandExecutor implements CommandExecutor {
 					ItemStack ingredient = ingredientTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(ingredientTag);
 					float xp = readTag.hasKeyOfType("Experience", NBTUtil.FLOAT) ? readTag.getFloat("Experience") : 0F;
 
-					RecipeItemStack recipeItemStack = RecipeItemStack.a(new ItemStack[]{ingredient});
-					NMSFurnaceRecipe furnaceRecipe = new NMSFurnaceRecipe(nextCustomKey(), recipeItemStack, result, xp);
+					NMSFixedFurnaceRecipe furnaceRecipe = new NMSFixedFurnaceRecipe(nextCustomKey(), ingredient, result, xp);
 
-					CRFurnaceRecipe cr = new CRFurnaceRecipe(furnaceRecipe);
+					CRFixedFurnaceRecipe cr = new CRFixedFurnaceRecipe(furnaceRecipe);
 					plugin.disableFurnaceRecipeFile(cr);
 				} catch (IOException e) {
 					e.printStackTrace();

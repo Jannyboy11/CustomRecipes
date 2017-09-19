@@ -1,24 +1,32 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
+
+import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.RecipeUtils;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSCraftingRecipe;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+
+import net.minecraft.server.v1_12_R1.CraftingManager;
 import net.minecraft.server.v1_12_R1.IRecipe;
 import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.RegistryMaterials;
 
 public class CRRecipeRegistry extends RegistryMaterials {
 
-	private final BiMap<MinecraftKey, IRecipe> byKey = HashBiMap.create(256);
-	private final BiMap<Integer, IRecipe> byId = HashBiMap.create(256);
+	private final BiMap<MinecraftKey, NMSCraftingRecipe<?>> keyToRecipe = HashBiMap.create(256);
+	private final BiMap<NMSCraftingRecipe<?>, MinecraftKey> recipeToKey = keyToRecipe.inverse();
 	
-	private final BiMap<IRecipe, MinecraftKey> toKey = byKey.inverse();
-	private final BiMap<IRecipe, Integer> toId = byId.inverse();
+	private final BiMap<MinecraftKey, Integer> keyToId = HashBiMap.create(256);
+	private final BiMap<Integer, MinecraftKey> idToKey = keyToId.inverse();
 	
-	private IRecipe[] lazyRandomValuesProvider;
+	//TODO use this to generate IDs when needed, also update it when new IDs are given.
+	private int nextId = 0;
+	
+	private NMSCraftingRecipe<?>[] lazyRandomValuesProvider;
 	
 	
 	public CRRecipeRegistry() {
@@ -52,11 +60,11 @@ public class CRRecipeRegistry extends RegistryMaterials {
 	 * @param key the key
 	 * @return the recipe, or null if no recipe was associated with that key
 	 */
-	public IRecipe get(MinecraftKey key) {
-		return byKey.get(key);
+	public NMSCraftingRecipe<?> get(MinecraftKey key) {
+		return keyToRecipe.get(key);
 	}
 	@Override
-	public IRecipe get(Object key) {
+	public NMSCraftingRecipe<?> get(Object key) {
 		return get((MinecraftKey) key);
 	}
 	
@@ -71,7 +79,7 @@ public class CRRecipeRegistry extends RegistryMaterials {
 	 */
 	@Deprecated
 	public void a(MinecraftKey key, IRecipe recipe) {
-		byKey.forcePut(key, recipe);
+		a(nextId++, key, getNMSCraftingRecipe(recipe));
 		stateChanged();
 	}
 	@Override
@@ -80,23 +88,23 @@ public class CRRecipeRegistry extends RegistryMaterials {
 	}
 	
 	/**
-	 * Get a keyset of all registered recipes.
+	 * Get a key set of all registered recipes.
 	 */
 	@Override
 	public Set<MinecraftKey> keySet() {
-		return Collections.unmodifiableSet(byKey.keySet());
+		return keyToRecipe.keySet();
 	}
 	
 	/**
 	 * Get a random value out of this registry.
 	 */
 	@Override
-	public IRecipe a(Random random) {
+	public NMSCraftingRecipe<?> a(Random random) {
 		if (lazyRandomValuesProvider == null) {
 			//lazy initialization
-			int size = byKey.size();
-			lazyRandomValuesProvider = new IRecipe[size];
-			Iterator<IRecipe> iterator = iterator();
+			int size = keyToRecipe.size();
+			lazyRandomValuesProvider = new NMSCraftingRecipe[size];
+			Iterator<NMSCraftingRecipe<?>> iterator = iterator();
 			for (int i = 0; i < size; i++) {
 				lazyRandomValuesProvider[i] = iterator.next();
 			}
@@ -112,7 +120,7 @@ public class CRRecipeRegistry extends RegistryMaterials {
 	 * @return true if the key was registered for a recipe, otherwise false
 	 */
 	public boolean d(MinecraftKey key) {
-		return byKey.containsKey(key);
+		return keyToRecipe.containsKey(key);
 	}
 	@Override
 	public boolean d(Object key) {
@@ -123,8 +131,8 @@ public class CRRecipeRegistry extends RegistryMaterials {
 	 * An iterator which iterates over all registered recipes.
 	 */
 	@Override
-	public Iterator<IRecipe> iterator() {
-		return byKey.values().iterator();
+	public Iterator<NMSCraftingRecipe<?>> iterator() {
+		return keyToRecipe.values().iterator();
 	}
 	
 	// ----- methods from RegistryMaterials -----
@@ -135,8 +143,8 @@ public class CRRecipeRegistry extends RegistryMaterials {
 	 * @param id the int unique identifier.
 	 */
 	public void a(int id, MinecraftKey key, IRecipe recipe) {
-		byKey.forcePut(key, recipe);
-		byId.forcePut(id, recipe);
+		keyToRecipe.forcePut(key, getNMSCraftingRecipe(recipe));
+		idToKey.forcePut(getNewSafeId(id), key);
 		stateChanged();
 	}
 	@Override
@@ -151,7 +159,7 @@ public class CRRecipeRegistry extends RegistryMaterials {
 	 * @return a minecraft key or null if the recipe was not registered
 	 */
 	public MinecraftKey b(IRecipe recipe) {
-		return toKey.get(recipe);
+		return recipeToKey.get(recipe);
 	}
 	@Override
 	public MinecraftKey b(Object recipe) {
@@ -165,7 +173,10 @@ public class CRRecipeRegistry extends RegistryMaterials {
 	 * @return the integer id, or -1 if no id was registered for the recipe
 	 */
 	public int a(IRecipe recipe) {
-		return toId.getOrDefault(recipe, -1);
+	    MinecraftKey key = recipeToKey.get(recipe);
+	    if (key == null) return -1;
+	    
+		return keyToId.getOrDefault(key, -1);
 	}
 	@Override
 	public int a(Object recipe) {
@@ -179,23 +190,55 @@ public class CRRecipeRegistry extends RegistryMaterials {
 	 * @return IRecipe the recipe that is associated with hat key, or null if no recipe was available for that key.
 	 */
 	@Override
-	public IRecipe getId(int id) {
-		return byId.get(id);
+	public NMSCraftingRecipe<?> getId(int id) {
+		MinecraftKey key = idToKey.get(id);
+		if (key == null) return null;
+		return keyToRecipe.get(key);
 	}
 	
 	// ----- extra methods needed for CustomRecipes -----
+	
+	private int getNewSafeId(final int id) {
+        nextId = id >= nextId ? Math.max(nextId, id) + 1 : nextId;
+	    
+	    MinecraftKey key = idToKey.remove(id);
+	    if (key != null) {
+	        //id was already mapped to a recipe, re-map the old mapping!
+	        
+	        idToKey.put(nextId, key);
+	        nextId++;
+	        return id;
+	    } else {
+	        //id was not mapped
+
+	        return id;
+	    }
+	}
+	
+	private NMSCraftingRecipe<?> getNMSCraftingRecipe(IRecipe vanilla) {
+	    MinecraftKey key = b(vanilla);
+	    if (key != null) {
+	        return keyToRecipe.get(key);
+	    } else if (vanilla instanceof NMSCraftingRecipe) {
+	        return (NMSCraftingRecipe) vanilla;
+	    } else {	        
+	        return RecipeUtils.wrapVanilla(vanilla);
+	    }
+	}
 	
 	/**
 	 * Removes a recipe from this registry.
 	 * 
 	 * @param recipe a recipe
-	 * @return whether the recipe was removed
+	 * @return the key that was removed, or null if no key was registered for the recipe
 	 */
 	public MinecraftKey removeRecipe(IRecipe recipe) {
-		MinecraftKey removed = toKey.remove(recipe);
-		toId.remove(recipe);
-		if (removed != null) stateChanged();
-		return removed;
+		MinecraftKey removedKey = recipeToKey.remove(recipe);
+		if (removedKey != null) {
+		    keyToId.remove(removedKey);
+		    stateChanged();
+		}
+		return removedKey;
 	}
 	
 	/**
@@ -204,10 +247,10 @@ public class CRRecipeRegistry extends RegistryMaterials {
 	 * @param key the key of a recipe
 	 * @return the recipe that was associated with the key, or null if there was no association
 	 */
-	public IRecipe removeRecipe(MinecraftKey key) {
-		IRecipe recipe = byKey.remove(key);
+	public NMSCraftingRecipe<?> removeRecipe(MinecraftKey key) {
+		NMSCraftingRecipe<?> recipe = keyToRecipe.remove(key);
 		if (recipe != null) {
-			toId.remove(recipe);
+			keyToId.remove(key);
 			stateChanged();
 			return recipe;
 		}
@@ -221,10 +264,12 @@ public class CRRecipeRegistry extends RegistryMaterials {
 	 * @param id the integer id
 	 * @return the recipe that was associated with the id, or null if there was no association
 	 */
-	public IRecipe removeRecipe(int id) {
-		IRecipe recipe = byId.remove(id);
+	public NMSCraftingRecipe<?> removeRecipe(int id) {
+	    MinecraftKey key = idToKey.remove(id);
+	    if (key == null) return null;
+	    
+		NMSCraftingRecipe<?> recipe = keyToRecipe.remove(key);
 		if (recipe != null) {
-			toKey.remove(recipe);
 			stateChanged();
 			return recipe;
 		}
@@ -238,8 +283,8 @@ public class CRRecipeRegistry extends RegistryMaterials {
 	 * @param recipe the recipe
 	 * @return true if the recipe is registered, otherwise false
 	 */
-	public boolean isRegistered(IRecipe recipe) {
-		return toKey.containsKey(recipe);
+	public boolean isRegistered(NMSCraftingRecipe<?> recipe) {
+		return recipeToKey.containsKey(recipe);
 	}
 	
 }

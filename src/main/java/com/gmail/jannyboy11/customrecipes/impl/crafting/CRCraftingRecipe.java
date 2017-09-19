@@ -1,41 +1,32 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
 import org.bukkit.inventory.CraftingInventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-
-import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.RecipeUtils;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient.CRChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSCraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.serialize.NBTSerializable;
 import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
-import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
-
-import net.minecraft.server.v1_12_R1.CraftingManager;
 import net.minecraft.server.v1_12_R1.IRecipe;
 import net.minecraft.server.v1_12_R1.InventoryCrafting;
 import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.WorldServer;
 
-public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe, NBTSerializable {
+public class CRCraftingRecipe<V extends IRecipe, R extends NMSCraftingRecipe<V>> implements CraftingRecipe, NBTSerializable {
 	
 	protected final R nmsRecipe;
 	
-	protected CRCraftingRecipe(R nmsRecipe) {		
+	public CRCraftingRecipe(R nmsRecipe) {		
 		this.nmsRecipe = Objects.requireNonNull(nmsRecipe);
 	}
 
@@ -44,14 +35,14 @@ public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe, NBTS
 		CraftWorld cWorld = (CraftWorld) world;
 		
 		WorldServer nmsWorld = cWorld.getHandle();
-		InventoryCrafting nmsCraftingInventory = getNmsCraftingInventory(craftingInventory);
+		InventoryCrafting nmsCraftingInventory = RecipeUtils.getNmsCraftingInventory(craftingInventory);
 
 		return nmsRecipe.a(nmsCraftingInventory, nmsWorld);
 	}
 
 	@Override
 	public CraftItemStack craftItem(CraftingInventory craftingInventory) {
-		InventoryCrafting nmsCraftingInventory = getNmsCraftingInventory(craftingInventory);
+		InventoryCrafting nmsCraftingInventory = RecipeUtils.getNmsCraftingInventory(craftingInventory);
 		return CraftItemStack.asCraftMirror(nmsRecipe.craftItem(nmsCraftingInventory));
 	}
 
@@ -74,17 +65,13 @@ public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe, NBTS
 
 	@Override
 	public List<CraftItemStack> getLeftOverItems(CraftingInventory craftingInventory) {
-		InventoryCrafting nmsCraftingInventory = getNmsCraftingInventory(craftingInventory);
+		InventoryCrafting nmsCraftingInventory = RecipeUtils.getNmsCraftingInventory(craftingInventory);
 		return nmsRecipe.b(nmsCraftingInventory).stream()
 				.map(CraftItemStack::asCraftMirror)
 				.collect(Collectors.toList());
 	}
 	
-	public static InventoryCrafting getNmsCraftingInventory(CraftingInventory bukkitInventory) {
-		return (InventoryCrafting) ReflectionUtil.getDeclaredFieldValue(bukkitInventory, "inventory");
-	}
-	
-	public IRecipe getHandle() {
+	public NMSCraftingRecipe<V> getHandle() {
 		return nmsRecipe;
 	}
 	
@@ -94,39 +81,8 @@ public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe, NBTS
 	 * @return the key if this recipe is registered, otherwise null
 	 */
 	public final NamespacedKey getKey() {
-		MinecraftKey mcKey = getMinecraftKey();
+		MinecraftKey mcKey = nmsRecipe.getKey();
 		return mcKey == null ? null : CraftNamespacedKey.fromMinecraft(mcKey);
-	}
-	
-	public MinecraftKey getMinecraftKey() {
-		return CraftingManager.recipes.b(nmsRecipe);
-	}
-	
-	@Override
-	public ItemStack getRepresentation() {
-		ItemStack result = getResult();
-		
-		ItemStack representation = (result == null || result.getType() == Material.AIR) ? new ItemStack(Material.AIR) : result.clone();
-		if (representation.getType() == Material.AIR) {
-			representation = new ItemStack(Material.STRUCTURE_BLOCK);
-			ItemMeta meta = representation.getItemMeta();
-			meta.setDisplayName(InventoryUtils.getItemName(getResult()));
-			meta.setLore(Arrays.asList("Result: UNKNOWN", ChatColor.DARK_GRAY + "Key: " + getMinecraftKey()));
-			representation.setItemMeta(meta);
-			return representation;
-		}
-		
-		ItemMeta meta = representation.getItemMeta();
-
-		List<String> lore = new ArrayList<>();
-		lore.add(ChatColor.DARK_GRAY + "Hidden: " + isHidden());
-		lore.add(ChatColor.DARK_GRAY + "Key: " + getMinecraftKey());
-		
-		meta.setDisplayName(ChatColor.GRAY + InventoryUtils.getItemName(getResult()));
-		meta.setLore(lore);
-		
-		representation.setItemMeta(meta);
-		return representation;
 	}
 	
 	public NBTTagCompound serializeToNbt() {
@@ -134,7 +90,7 @@ public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe, NBTS
 		compound.set("result", nmsRecipe.b().save(new NBTTagCompound()));
 		if (hasGroup()) compound.setString("group", getGroup());
 		if (isHidden()) compound.setBoolean("hidden", isHidden());
-		MinecraftKey key = getMinecraftKey();
+		MinecraftKey key = nmsRecipe.getKey();
 		if (key != null) compound.set("key", NBTUtil.serializeKey(key));
 		return compound;
 	}
@@ -158,7 +114,7 @@ public class CRCraftingRecipe<R extends IRecipe> implements CraftingRecipe, NBTS
 	public String toString() {
 		return getClass().getName() + "{" +
 				"key()=" + getKey() +
-				",result()=" + InventoryUtils.getItemName(getResult()) +
+				",result()=" + getResult() +
 				",hidden()=" + isHidden() +
 				"}";
 	}

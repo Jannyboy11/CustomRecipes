@@ -19,7 +19,7 @@ commands:
     usage: /listrecipes <type>
     permission: customrecipes.listrecipes
   migraterecipes:
-    description: Migrate recipes from CustomRecipes v1.1.0 to v2.x.x
+    description: Migrate recipes from CustomRecipes v1.1.0 to v2.2.1
     usage: /migraterecipes
     permission: customrecipes.migraterecipes
 

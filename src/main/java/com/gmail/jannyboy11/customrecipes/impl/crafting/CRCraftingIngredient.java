@@ -5,8 +5,8 @@ import java.util.Map;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
-import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingIngredient;
-import com.gmail.jannyboy11.customrecipes.api.crafting.vanilla.ingredient.ChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.api.ingredient.ChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.api.ingredient.Ingredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.Bukkit2NMSIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient.CRChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient.CREmptyIngredient;
@@ -17,7 +17,7 @@ import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.RecipeItemStack;
 
-public class CRCraftingIngredient<I extends RecipeItemStack> implements CraftingIngredient, NBTSerializable {
+public class CRCraftingIngredient<I extends RecipeItemStack> implements Ingredient, NBTSerializable {
 
 	protected final I nmsIngredient;
 
@@ -51,14 +51,14 @@ public class CRCraftingIngredient<I extends RecipeItemStack> implements Crafting
 			return crIngredient.nmsIngredient;
 		}
 		
-		RecipeItemStack nmsIngredient = asNMSIngredient((CraftingIngredient) ingredient);
+		RecipeItemStack nmsIngredient = asNMSIngredient((Ingredient) ingredient);
 		ItemStack[] choices = ingredient.getChoices().stream().map(CraftItemStack::asNMSCopy).toArray(size -> new ItemStack[size]);
 		ReflectionUtil.setFinalFieldValue(nmsIngredient, "choices", choices);
 		
 		return nmsIngredient;
 	}
 
-	public static RecipeItemStack asNMSIngredient(CraftingIngredient ingredient) {
+	public static RecipeItemStack asNMSIngredient(Ingredient ingredient) {
 		if (ingredient instanceof CRCraftingIngredient) {
 			@SuppressWarnings("unchecked")
 			CRCraftingIngredient<RecipeItemStack> crIngredient = (CRCraftingIngredient<RecipeItemStack>) ingredient;
