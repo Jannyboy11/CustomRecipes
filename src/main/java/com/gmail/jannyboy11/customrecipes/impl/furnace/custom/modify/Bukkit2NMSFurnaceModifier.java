@@ -1,8 +1,8 @@
-package com.gmail.jannyboy11.customrecipes.impl.modifier;
+package com.gmail.jannyboy11.customrecipes.impl.furnace.custom.modify;
 
 import java.util.Objects;
 
-import com.gmail.jannyboy11.customrecipes.api.modifier.FurnaceModifier;
+import com.gmail.jannyboy11.customrecipes.api.furnace.modify.FurnaceModifier;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.custom.Bukkit2NMSFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.custom.NMSFurnaceRecipe;
 

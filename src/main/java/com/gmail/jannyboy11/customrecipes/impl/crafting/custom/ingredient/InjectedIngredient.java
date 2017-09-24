@@ -61,7 +61,7 @@ public class InjectedIngredient implements Predicate<ItemStack>, NBTSerializable
 		    
 		    //l8t3st gr8t3st v3rs!0n. might still break in future jdk releases.
 		    Constructor<? extends RecipeItemStack> constructor = (Constructor<? extends RecipeItemStack>) ReflectionFactory.getReflectionFactory()
-		            .newConstructorForSerialization(recipeItemStackInjectedClass, Object.class.getConstructor()); //TODO generates NPE?
+		            .newConstructorForSerialization(recipeItemStackInjectedClass, Object.class.getConstructor());
 		    RecipeItemStack recipeItemStackInjected = constructor.newInstance();
 		    ReflectionUtil.setDeclaredFieldValue(recipeItemStackInjected, "predicate", tester);
 		    ReflectionUtil.setFinalFieldValue(recipeItemStackInjected, "choices", new ItemStack[0]);

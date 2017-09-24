@@ -1,4 +1,4 @@
-package com.gmail.jannyboy11.customrecipes.impl.modifier.custom;
+package com.gmail.jannyboy11.customrecipes.impl.crafting.custom.modify;
 
 import java.util.Objects;
 import java.util.function.BiPredicate;
@@ -17,7 +17,7 @@ import net.minecraft.server.v1_12_R1.NonNullList;
 import net.minecraft.server.v1_12_R1.RecipeItemStack;
 import net.minecraft.server.v1_12_R1.World;
 
-public class ProxyRecipe implements IRecipe {
+public class NMSProxyCraftingRecipe implements IRecipe {
 
     private final BiPredicate<? super InventoryCrafting, ? super World> testInventory;
     private final Function<? super InventoryCrafting, ? extends ItemStack> craftItem;
@@ -28,7 +28,7 @@ public class ProxyRecipe implements IRecipe {
     private final Supplier<? extends Recipe> toBukkitRecipe;
     private final Consumer<? super MinecraftKey> setKey;
 
-    public ProxyRecipe(BiPredicate<? super InventoryCrafting, ? super World> testInventory,
+    public NMSProxyCraftingRecipe(BiPredicate<? super InventoryCrafting, ? super World> testInventory,
             Function<? super InventoryCrafting, ? extends ItemStack> craftItem,
             Supplier<? extends ItemStack> getResult,
             Function<? super InventoryCrafting, ? extends NonNullList<ItemStack>> takeItems,

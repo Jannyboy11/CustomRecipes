@@ -9,7 +9,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
 /**
- * Represents a {@link org.bukkit.NamespacedKey} that implements ConfigurationSerializable.
+ * Represents a {@link NamespacedKey} that implements {@link ConfigurationSerializable}.
  * 
  * @author Jan
  */
@@ -17,6 +17,7 @@ public class SerializableKey implements ConfigurationSerializable, Keyed {
     
     protected final NamespacedKey key;
     
+    @SuppressWarnings("deprecation")
     public SerializableKey(String namespace, String key) {
         this(new NamespacedKey(namespace, key));
     }

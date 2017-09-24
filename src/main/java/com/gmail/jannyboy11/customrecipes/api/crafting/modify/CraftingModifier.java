@@ -1,4 +1,4 @@
-package com.gmail.jannyboy11.customrecipes.api.modifier;
+package com.gmail.jannyboy11.customrecipes.api.crafting.modify;
 
 import java.util.function.UnaryOperator;
 

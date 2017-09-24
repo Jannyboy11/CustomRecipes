@@ -1,4 +1,4 @@
-package com.gmail.jannyboy11.customrecipes.impl.modifier;
+package com.gmail.jannyboy11.customrecipes.impl.crafting.custom.modify;
 
 import java.util.Objects;
 

@@ -1,15 +1,13 @@
-package com.gmail.jannyboy11.customrecipes.impl.modifier;
+package com.gmail.jannyboy11.customrecipes.impl.crafting.custom.modify;
 
 import java.util.Collections;
 import java.util.Map;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
-import com.gmail.jannyboy11.customrecipes.api.modifier.CraftingModifier;
-import com.gmail.jannyboy11.customrecipes.api.modifier.ModifiedCraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.modify.CraftingModifier;
+import com.gmail.jannyboy11.customrecipes.api.crafting.modify.ModifiedCraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSCraftingRecipe;
-import com.gmail.jannyboy11.customrecipes.serialize.NBTSerializable;
-import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
 
 import net.minecraft.server.v1_12_R1.IRecipe;
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
@@ -17,7 +15,7 @@ import net.minecraft.server.v1_12_R1.NBTTagCompound;
 public class CRModifiedCraftingRecipe 
         <T extends IRecipe, R extends IRecipe, 
         NT extends NMSCraftingRecipe<T>, NR extends NMSCraftingRecipe<R>,
-        M extends NMSModifiedCraftingRecipe<T, R, NT, NR>> 
+        M extends NMSModifiedCraftingRecipe<T, R, NT, NR>>
     
         extends CRCraftingRecipe<NR, M> implements ModifiedCraftingRecipe<CraftingRecipe> {
     

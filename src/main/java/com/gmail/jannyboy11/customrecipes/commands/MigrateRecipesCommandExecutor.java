@@ -11,18 +11,16 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.modify.NMSPermissionModifier;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.PermissionRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFixedFurnaceRecipe;
-import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFurnaceRecipe;
-import com.gmail.jannyboy11.customrecipes.impl.furnace.custom.NMSFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.vanilla.NMSFixedFurnaceRecipe;
-import com.gmail.jannyboy11.customrecipes.impl.modifier.CRModifiedCraftingRecipe;
-import com.gmail.jannyboy11.customrecipes.impl.modifier.NMSModifiedCraftingRecipe;
-import com.gmail.jannyboy11.customrecipes.impl.modifier.custom.PermissionModifier;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.modify.CRModifiedCraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.modify.NMSModifiedCraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
@@ -185,7 +183,7 @@ public class MigrateRecipesCommandExecutor implements CommandExecutor {
 					shaped.setKey(key);
 
 					//TODO use permission modifier.
-					NMSModifiedCraftingRecipe nmsModified = new NMSModifiedCraftingRecipe(new PermissionModifier(permission), new NMSShapedRecipe(shaped));
+					NMSModifiedCraftingRecipe nmsModified = new NMSModifiedCraftingRecipe(new NMSPermissionModifier(permission), new NMSShapedRecipe(shaped));
 					CRModifiedCraftingRecipe cr = new CRModifiedCraftingRecipe(nmsModified);
 					plugin.saveCraftingRecipeFile("permission", cr);
 

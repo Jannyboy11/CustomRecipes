@@ -1,23 +1,24 @@
-package com.gmail.jannyboy11.customrecipes.impl.modifier.custom;
+package com.gmail.jannyboy11.customrecipes.impl.crafting.custom.modify;
 
 import java.util.Objects;
 
 import org.bukkit.entity.Player;
 
-import com.gmail.jannyboy11.customrecipes.api.modifier.CraftingModifier;
+import com.gmail.jannyboy11.customrecipes.api.crafting.modify.CraftingModifier;
+
 import net.minecraft.server.v1_12_R1.IRecipe;
 
-public class PermissionModifier extends AbstractCraftingModifier<IRecipe, IRecipe> {
+public class NMSPermissionModifier extends NMSAbstractCraftingModifier<IRecipe, IRecipe> {
     
     private final String permission;
     
-    public PermissionModifier(String permission) {
+    public NMSPermissionModifier(String permission) {
         this.permission = Objects.requireNonNull(permission);
     }
 
     @Override
     public IRecipe modify(IRecipe base) {
-        return new ProxyRecipe((inventoryCrafting, world) -> {
+        return new NMSProxyCraftingRecipe((inventoryCrafting, world) -> {
             if (inventoryCrafting.getOwner() instanceof Player) {
                 Player player = (Player) inventoryCrafting.getOwner();
                 if (!player.hasPermission(permission)) return false;
@@ -36,8 +37,11 @@ public class PermissionModifier extends AbstractCraftingModifier<IRecipe, IRecip
 
     @Override
     protected CraftingModifier createBukkitModifier() {
-        // TODO Auto-generated method stub
-        return null;
+        return new CRPermissionModifier(this);
+    }
+    
+    public String getPermission() {
+        return permission;
     }
 
 }

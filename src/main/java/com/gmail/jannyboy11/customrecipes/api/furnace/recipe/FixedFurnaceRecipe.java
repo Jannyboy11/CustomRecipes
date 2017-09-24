@@ -38,6 +38,34 @@ public interface FixedFurnaceRecipe extends Recipe, FurnaceRecipe, Configuration
      * @return the experience
      */
     public float getExperience();
+
+    /**
+     * Serializes this fixed furnace recipe.
+     * <br>
+     * The map contents contains at least:
+     * <ul>
+     *     <li>key: "key", value: a {@link SerializableKey}</li>
+     *     <li>key: "ingredient", value: an {@link ItemStack}</li>
+     *     <li>key: "result", value: an {@link ItemStack}</li>
+     * </ul>
+     * and may optionally contain
+     * <ul>
+     *     <li>key: "experience", value: a {@link Float}</li>
+     * </ul>
+     * if the recicipe has a fixed amount of experience.
+     * <br>
+     * implementations may provide more fields.
+     */
+    @Override
+    public default Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("key", new SerializableKey(getKey()));
+        map.put("ingredient", getIngredient());
+        map.put("result", getResult());
+        float xp = getExperience();
+        if (xp > 0F) map.put("experience", xp);
+        return map;
+    }
     
     /**
      * Tests whether the input ItemStack is accepted by this recipe.
@@ -70,22 +98,6 @@ public interface FixedFurnaceRecipe extends Recipe, FurnaceRecipe, Configuration
     @Override
     public default float experienceReward(ItemStack input) {
         return getExperience();
-    }
-    
-    /**
-     * Serializes this fixed furnace recipe.
-     * <br>
-     * The map contents 
-     */
-    @Override
-    public default Map<String, Object> serialize() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("key", new SerializableKey(getKey()));
-        map.put("ingredient", getIngredient());
-        map.put("result", getResult());
-        float xp = getExperience();
-        if (xp > 0F) map.put("experience", xp);
-        return map;
     }
 
 }

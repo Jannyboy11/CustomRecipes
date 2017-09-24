@@ -1,10 +1,11 @@
-package com.gmail.jannyboy11.customrecipes.impl.modifier;
+package com.gmail.jannyboy11.customrecipes.impl.crafting.custom.modify;
 
 import java.util.Objects;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
-import com.gmail.jannyboy11.customrecipes.api.modifier.CraftingModifier;
+import com.gmail.jannyboy11.customrecipes.api.crafting.modify.CraftingModifier;
 import com.gmail.jannyboy11.customrecipes.impl.RecipeUtils;
+
 import net.minecraft.server.v1_12_R1.IRecipe;
 
 public class Bukkit2NMSCraftingModifier implements NMSCraftingModifier<IRecipe, IRecipe> {

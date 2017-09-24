@@ -43,6 +43,10 @@ public abstract class NMSCraftingRecipe<R extends IRecipe> implements IRecipe {
         return "";
     }
     
+    public R getHandle() {
+        return delegate;
+    }
+    
     @Override
     public boolean a(InventoryCrafting inventoryCrafting, World world) {
         return delegate.a(inventoryCrafting, world);

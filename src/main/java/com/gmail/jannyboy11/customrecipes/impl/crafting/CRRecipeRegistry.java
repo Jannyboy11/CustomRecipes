@@ -4,13 +4,11 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 
-import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.RecipeUtils;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSCraftingRecipe;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
-import net.minecraft.server.v1_12_R1.CraftingManager;
 import net.minecraft.server.v1_12_R1.IRecipe;
 import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.RegistryMaterials;
@@ -222,7 +220,7 @@ public class CRRecipeRegistry extends RegistryMaterials {
 	    } else if (vanilla instanceof NMSCraftingRecipe) {
 	        return (NMSCraftingRecipe) vanilla;
 	    } else {	        
-	        return RecipeUtils.wrapVanilla(vanilla);
+	        return RecipeUtils.vanillaToNMS(vanilla);
 	    }
 	}
 	

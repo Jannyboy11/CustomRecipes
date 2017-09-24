@@ -46,10 +46,6 @@ public class Bukkit2NMSCraftingRecipe extends NMSCraftingRecipe<IRecipe> impleme
         return Collections.singletonMap("bukkit", bukkit);
     }
 
-    public CraftingRecipe getHandle() {
-        return bukkit;
-    }
-
     @Override
     public MinecraftKey getKey() {
         NamespacedKey key = bukkit.getKey();
