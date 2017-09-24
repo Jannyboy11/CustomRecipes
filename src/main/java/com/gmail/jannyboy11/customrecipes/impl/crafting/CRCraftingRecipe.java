@@ -22,7 +22,7 @@ import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.WorldServer;
 
-public class CRCraftingRecipe<V extends IRecipe, R extends NMSCraftingRecipe<V>> implements CraftingRecipe, NBTSerializable {
+public class CRCraftingRecipe<V extends IRecipe, R extends NMSCraftingRecipe<V>> implements CraftingRecipe {
 	
 	protected final R nmsRecipe;
 	
@@ -70,30 +70,16 @@ public class CRCraftingRecipe<V extends IRecipe, R extends NMSCraftingRecipe<V>>
 				.map(CraftItemStack::asCraftMirror)
 				.collect(Collectors.toList());
 	}
-	
-	public NMSCraftingRecipe<V> getHandle() {
-		return nmsRecipe;
-	}
-	
-	/**
-	 * Get the key of this recipe
-	 * 
-	 * @return the key if this recipe is registered, otherwise null
-	 */
+
+	@Override
 	public final NamespacedKey getKey() {
 		MinecraftKey mcKey = nmsRecipe.getKey();
 		return mcKey == null ? null : CraftNamespacedKey.fromMinecraft(mcKey);
 	}
-	
-	public NBTTagCompound serializeToNbt() {
-		NBTTagCompound compound = new NBTTagCompound();
-		compound.set("result", nmsRecipe.b().save(new NBTTagCompound()));
-		if (hasGroup()) compound.setString("group", getGroup());
-		if (isHidden()) compound.setBoolean("hidden", isHidden());
-		MinecraftKey key = nmsRecipe.getKey();
-		if (key != null) compound.set("key", NBTUtil.serializeKey(key));
-		return compound;
-	}
+
+    public NMSCraftingRecipe<V> getHandle() {
+        return nmsRecipe;
+    }
 	
 
 	@Override
@@ -116,6 +102,7 @@ public class CRCraftingRecipe<V extends IRecipe, R extends NMSCraftingRecipe<V>>
 				"key()=" + getKey() +
 				",result()=" + getResult() +
 				",hidden()=" + isHidden() +
+                ",ingredients()=" + getIngredients() +
 				"}";
 	}
 	

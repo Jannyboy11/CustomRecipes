@@ -1,5 +1,6 @@
 package com.gmail.jannyboy11.customrecipes.serialize;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

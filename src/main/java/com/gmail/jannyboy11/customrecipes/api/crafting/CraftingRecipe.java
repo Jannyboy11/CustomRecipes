@@ -16,7 +16,7 @@ import com.gmail.jannyboy11.customrecipes.api.ingredient.Ingredient;
  * @author Jan
  *
  */
-public interface CraftingRecipe extends Keyed, Recipe, ConfigurationSerializable {
+public interface CraftingRecipe extends Keyed, Recipe {
 	
 	/**
 	 * Tests whether the items in the crafting inventory match to this crafting recipe.

@@ -1,6 +1,8 @@
 package com.gmail.jannyboy11.customrecipes.api.ingredient;
 
 import java.util.List;
+
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -8,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
  * 
  * @author Jan
  */
-public interface ChoiceIngredient extends Ingredient {
+public interface ChoiceIngredient extends Ingredient, ConfigurationSerializable {
 	
 	/**
 	 * Get the list of choices.
