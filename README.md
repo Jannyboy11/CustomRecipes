@@ -13,7 +13,7 @@ Link to the [SpigotMC page](https://www.spigotmc.org/resources/custom-recipes.11
 - Recipes are saved in the NBT format, preserving all item data
 - Extra types of recipes: Permission Recipe, Count Recipe, World Recipe and NBT-specific Recipe
 - Developers API, providing more access than the Bukkit API.
-- Spigot 1.12.1 compatible
+- Spigot 1.12.2 compatible
 
 # Compiling
 
@@ -22,7 +22,7 @@ To get Spigot, download [BuildTools](https://www.spigotmc.org/wiki/buildtools/) 
 This should compile the 1.12.2 build of Spigot for you.
 
 If you own a private maven repository, you can put it up there and add it to the pom.xml of this project, but if you don't you can install it in your local repository.
-Run ```mvn install:install-file -Dfile=spigot-1.12.2.jar -DgroupId=org.spigotmc -DartifactId=spigot -Dversion=1.12.2-R0.1-SNAPSHOT -Dpackaging=jar```.
+BuildTools already does this for you, but if you got the server jar from somewhere else, then run ```mvn install:install-file -Dfile=spigot-1.12.2.jar -DgroupId=org.spigotmc -DartifactId=spigot -Dversion=1.12.2-R0.1-SNAPSHOT -Dpackaging=jar```.
 More on this [here](https://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html).
 Once you've done this, the dependencies in the pom.xml should resolve.
 

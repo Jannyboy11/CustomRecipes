@@ -220,7 +220,7 @@ public class CRRecipeRegistry extends RegistryMaterials {
 	    } else if (vanilla instanceof NMSCraftingRecipe) {
 	        return (NMSCraftingRecipe) vanilla;
 	    } else {	        
-	        return RecipeUtils.vanillaToNMS(vanilla);
+	        return RecipeUtils.getNMSRecipe(vanilla);
 	    }
 	}
 	

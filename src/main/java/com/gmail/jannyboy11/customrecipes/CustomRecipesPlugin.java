@@ -417,7 +417,11 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 			File disabledFolder = disabledFolder(recipeType);
 			File disabledFile = new File(disabledFolder, fileName);
 			try {
-				NBTUtil.writeNBTTagCompound(disabledFile, recipe.serializeToNbt());
+				if (recipe instanceof NBTSerializable) {
+					NBTSerializable nbtSerializableRecipe = (NBTSerializable) recipe;
+					NBTUtil.writeNBTTagCompound(disabledFile, nbtSerializableRecipe.serializeToNbt());
+				}
+				//TODO do an assertion? All vanilla recipes should be NBTSerializable
 			} catch (IOException e) {
 				getLogger().log(Level.SEVERE, "Could not disable vanilla crafting recipe!", e);
 			}

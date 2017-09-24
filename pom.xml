@@ -2,9 +2,9 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.gmail.jannyboy11</groupId>
   <artifactId>CustomRecipes</artifactId>
-    <packaging>pom</packaging>
-    <version>3.0.0-alpha-SNAPSHOT</version>
-    <name>CustomRecipes</name>
+  <packaging>jar</packaging>
+  <version>3.0.0-alpha-SNAPSHOT</version>
+  <name>CustomRecipes</name>
   <description>In-game crafting and furnace recipe management for your Spigot server!</description>
   
   <build>
@@ -84,7 +84,7 @@
     <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm</artifactId>
-      <version>5.2</version>
+      <version>5.2</version> <!-- TODO upgrade to 6.0 for Java 9 -->
     </dependency>
     
     <dependency>

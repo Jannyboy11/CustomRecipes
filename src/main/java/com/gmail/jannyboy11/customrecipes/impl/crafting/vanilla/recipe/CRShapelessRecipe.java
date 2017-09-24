@@ -35,10 +35,13 @@ public class CRShapelessRecipe<V extends ShapelessRecipes, S extends NMSShapeles
 	public CRShapelessRecipe(Map<String, ?> map) {
 		this(NBTUtil.fromMap(map));
 	}
-	
-	@Override
+
+	//TODO refactor this to NMSShapelessRecipes?
 	public NBTTagCompound serializeToNbt() {
-		NBTTagCompound serialized = super.serializeToNbt();
+		NBTTagCompound serialized = new NBTTagCompound();
+		serialized.set("key", NBTUtil.serializeKey(getHandle().getKey()));
+		serialized.set("result", NBTUtil.serializeItemStack(getHandle().b()));
+		if (hasGroup()) serialized.setString("group", getGroup());
 		NBTTagList ingredients = new NBTTagList();
 		for (RecipeItemStack ingr : nmsIngredients()) {
 			ingredients.add(NBTUtil.serializeRecipeItemStack(ingr));
@@ -47,7 +50,7 @@ public class CRShapelessRecipe<V extends ShapelessRecipes, S extends NMSShapeles
 		return serialized;
 	}
 
-	//TODO refactor this method to NMSCraftingRecipe?
+	//TODO refactor this method to NMSCraftingRecipe / NMSShapelessRecipes?
 	protected static ShapelessRecipes deserializeNmsRecipe(NBTTagCompound recipeCompound) {
 		String group = recipeCompound.hasKeyOfType("group", NBTUtil.STRING) ? recipeCompound.getString("group") : "";
 		NonNullList<RecipeItemStack> ingredients = NonNullList.a();

@@ -33,10 +33,12 @@ public class CRShapedRecipe<V extends ShapedRecipes, S extends NMSShapedRecipe<V
 	public CRShapedRecipe(Map<String, ?> map) {
 		this(NBTUtil.fromMap(map));
 	}
-	
-	@Override
+
 	public NBTTagCompound serializeToNbt() {
-		NBTTagCompound serialized = super.serializeToNbt();
+		NBTTagCompound serialized = new NBTTagCompound();
+		serialized.set("key", NBTUtil.serializeKey(getHandle().getKey()));
+		serialized.set("result", NBTUtil.serializeItemStack(getHandle().b()));
+		if (hasGroup()) serialized.setString("group", getGroup());
 		serialized.setInt("width", getWidth());
 		serialized.setInt("height", getHeight());
 		NBTTagList ingredients = new NBTTagList();

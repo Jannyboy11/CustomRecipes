@@ -37,31 +37,38 @@ public class RecipeUtils {
         registerNMSCraftingRecipe(RecipiesShield.Decoration.class, NMSShieldDecoration.class);
         registerNMSCraftingRecipe(RecipeShulkerBox.Dye.class, NMSShulkerBoxDye.class);
         registerNMSCraftingRecipe(RecipeTippedArrow.class, NMSTippedArrow.class);
-        registerNMSCraftingRecipe(ShapedRecipes.class, (Class<? extends NMSCraftingRecipe<? extends ShapedRecipes>>) NMSShapedRecipe.class);
-        registerNMSCraftingRecipe(ShapelessRecipes.class, (Class<? extends NMSCraftingRecipe<? extends ShapelessRecipes>>) NMSShapelessRecipe.class);
+        //TODO why dont shaped and shapeless recipes work with registerNMSCraftingRecipe?
+        nmsCraftingRegistry.put(ShapedRecipes.class, NMSShapedRecipe.class);
+        nmsCraftingRegistry.put(ShapelessRecipes.class, NMSShapelessRecipe.class);
     }
 
     public static <V extends IRecipe> void registerNMSCraftingRecipe(Class<? extends V> vanilla, Class<? extends NMSCraftingRecipe<? extends V>> nms) {
         nmsCraftingRegistry.put(vanilla, nms);
     }
 
-    public static CraftingRecipe getBukkitRecipe(final IRecipe nms) {
+
+    public static CraftingRecipe getBukkitRecipe(final IRecipe vanilla) {
+        if (vanilla == null) return null;
+
+        return getNMSRecipe(vanilla).getBukkitRecipe();
+    }
+
+    public static NMSCraftingRecipe<?> getNMSRecipe(IRecipe nms) {
         if (nms == null) return null;
-        if (nms instanceof NMSCraftingRecipe) return ((NMSCraftingRecipe) nms).getBukkitRecipe();
+        if (nms instanceof NMSCraftingRecipe) return (NMSCraftingRecipe) nms;
 
         //try to get from the crafting manager
         CRCraftingManager crCraftingManager = CustomRecipesPlugin.getInstance().getCraftingManager();
         MinecraftKey key = crCraftingManager.getKey(nms);
         if (key != null) {
-            NMSCraftingRecipe<?> nmsRecipe = crCraftingManager.getNMSRecipe(key);
-            return nmsRecipe.getBukkitRecipe();
+            return crCraftingManager.getNMSRecipe(key);
         }
 
         //try to get from the registry
-        Class<? extends IRecipe> vanillaClazz = nms.getClass();
+        Class vanillaClazz = nms.getClass();
         Class<? extends NMSCraftingRecipe> nmsClazz = nmsCraftingRegistry.get(vanillaClazz);
         while (nmsClazz == null && IRecipe.class.isAssignableFrom(vanillaClazz)) {
-            vanillaClazz = (Class<? extends IRecipe>) vanillaClazz.getSuperclass();
+            vanillaClazz = vanillaClazz.getSuperclass();
             nmsClazz = nmsCraftingRegistry.get(vanillaClazz);
         }
         if (nmsClazz != null) {
@@ -69,7 +76,7 @@ public class RecipeUtils {
                 Constructor<? extends NMSCraftingRecipe> nmsConstructor = nmsClazz.getConstructor(vanillaClazz);
                 NMSCraftingRecipe nmsRecipe = nmsConstructor.newInstance(nms);
 
-                return nmsRecipe.getBukkitRecipe();
+                return nmsRecipe;
             } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
                 throw new RuntimeException("There should be a NMSCraftingRecipe registered for IRecipe implementation " + nms.getClass() +
                         " with a public single argument constructor with parameter type " + nms.getClass(), e);
@@ -131,7 +138,8 @@ public class RecipeUtils {
     public static InventoryCrafting getNmsCraftingInventory(final CraftingInventory bukkitInventory) {
         return (InventoryCrafting) ReflectionUtil.getDeclaredFieldValue(bukkitInventory, "inventory");
     }
-    
+
+
     //TODO getBukkitCraftingInventory
     
 }
