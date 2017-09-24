@@ -15,36 +15,61 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
  */
 public class SerializableKey implements ConfigurationSerializable, Keyed {
     
-    protected final NamespacedKey key;
-    
+    private final NamespacedKey key;
+
+    /**
+     * Instantiates this key using a namespace and a key.
+     *
+     * @param namespace the namespace
+     * @param key the key
+     */
     @SuppressWarnings("deprecation")
     public SerializableKey(String namespace, String key) {
         this(new NamespacedKey(namespace, key));
     }
-    
+
+    /**
+     * Instantiates this key using a NamepacedKey.
+     *
+     * @param namespacedKey the key that needs to be serialized
+     */
     public SerializableKey(NamespacedKey namespacedKey) {
         this.key = Objects.requireNonNull(namespacedKey, "namespacedKey cannot be null");
     }
 
+    /**
+     * Serializes this key.
+     *
+     * @return a map containing the namespace and the key
+     */
     @Override
     public Map<String, Object> serialize() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("namespace", key.getNamespace());
-        map.put("key", key.getKey());
-        return map;
+        return Map.of("namespace", key.getNamespace(),
+                "key", key.getKey());
     }
-    
+
+    /**
+     * Deserialization method.
+     *
+     * @param map the map containing the serialized fields
+     * @return a new SerializableKey
+     */
     public static SerializableKey deserialize(Map<String, Object> map) {
         String namespace = String.valueOf(map.get("namespace"));
         String key = String.valueOf(map.get("key"));
         return new SerializableKey(namespace, key);
     }
-    
+
+    /**
+     * Get the key.
+     *
+     * @return the key
+     */
     @Override
     public NamespacedKey getKey() {
         return key;
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
@@ -53,7 +78,7 @@ public class SerializableKey implements ConfigurationSerializable, Keyed {
         SerializableKey that = (SerializableKey) o;
         return Objects.equals(this.getKey(), that.getKey());
     }
-    
+
     @Override
     public int hashCode() {
         return getKey().hashCode();

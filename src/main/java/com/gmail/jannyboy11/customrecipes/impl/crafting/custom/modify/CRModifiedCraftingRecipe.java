@@ -24,19 +24,6 @@ public class CRModifiedCraftingRecipe
     }
 
     @Override
-    public NBTTagCompound serializeToNbt() {
-        //TODO
-        //return nmsRecipe.serializeToNbt(); ? should NMSCraftingManager implement NBTSerializable?
-        return new NBTTagCompound();
-    }
-    
-    @Override
-    public Map<String, Object> serialize() {
-        //TODO
-        return Collections.emptyMap();
-    }
-
-    @Override
     public CraftingRecipe getBaseRecipe() {
         return this.nmsRecipe.getBase().getBukkitRecipe();
     }

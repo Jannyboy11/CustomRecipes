@@ -1,4 +1,4 @@
-package com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient;
+package com.gmail.jannyboy11.customrecipes.impl.ingredient;
 
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 

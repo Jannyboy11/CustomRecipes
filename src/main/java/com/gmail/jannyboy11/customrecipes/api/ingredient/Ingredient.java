@@ -23,6 +23,7 @@ public interface Ingredient extends Predicate<ItemStack> {
 	
 	/**
 	 * Convenience method to make CraftingIngredient fit in functions that take a Predicate<ItemStack>.
+	 * <br>
 	 * The default implementation delegates to {@link Ingredient#isIngredient}.
 	 */
 	public default boolean test(ItemStack itemStack) {

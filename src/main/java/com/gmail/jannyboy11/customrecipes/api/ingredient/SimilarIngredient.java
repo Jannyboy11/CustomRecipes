@@ -7,7 +7,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
 
 /**
- * This ingredient will accept ItemStacks that are similar to the given ItemStack using {@link org.bukkit.inventory.ItemStack#isSimilar(ItemStack)}
+ * This ingredient will accept ItemStacks that are similar to the given ItemStack using {@link ItemStack#isSimilar(ItemStack)}
  * 
  * @author Jan
  *
@@ -27,6 +27,7 @@ public class SimilarIngredient implements Ingredient, ConfigurationSerializable 
 	
 	/**
 	 * Constructor for deserialization.
+	 *
 	 * @param map the map with contents
 	 */
 	public SimilarIngredient(Map<String, Object> map) {
@@ -35,6 +36,7 @@ public class SimilarIngredient implements Ingredient, ConfigurationSerializable 
 	
 	/**
 	 * Serialize method for the ConfigurationSerializable interface.
+	 *
 	 * @return a singleton map with key "similarTo" and value the corresponding ItemStack
 	 */
 	@Override

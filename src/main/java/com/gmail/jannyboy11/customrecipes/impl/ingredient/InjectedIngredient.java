@@ -1,4 +1,4 @@
-package com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient;
+package com.gmail.jannyboy11.customrecipes.impl.ingredient;
 
 import java.lang.reflect.Constructor;
 import java.util.function.Predicate;

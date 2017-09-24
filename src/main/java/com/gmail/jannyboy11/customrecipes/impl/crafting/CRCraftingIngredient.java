@@ -7,7 +7,7 @@ import org.bukkit.inventory.ItemStack;
 
 import com.gmail.jannyboy11.customrecipes.api.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.ingredient.Ingredient;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.Bukkit2NMSIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.ingredient.Bukkit2NMSIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient.CRChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient.CREmptyIngredient;
 import com.gmail.jannyboy11.customrecipes.serialize.NBTSerializable;

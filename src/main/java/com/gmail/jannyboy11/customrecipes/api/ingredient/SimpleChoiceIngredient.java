@@ -73,6 +73,7 @@ public class SimpleChoiceIngredient implements ChoiceIngredient, ConfigurationSe
 	
 	/**
 	 * Instantiate the class using the given choices. The choices list shouldn't be empty and should at least contain one non-empty ItemStack.
+	 *
 	 * @param choices the list of choices
 	 */
 	public SimpleChoiceIngredient(List<? extends ItemStack> choices) {

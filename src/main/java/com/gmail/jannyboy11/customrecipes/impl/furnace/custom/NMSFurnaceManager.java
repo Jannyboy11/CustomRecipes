@@ -7,7 +7,7 @@ import java.util.Map;
 import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
 
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.InjectedIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.ingredient.InjectedIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.vanilla.NMSFixedFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 import com.google.common.collect.Iterators;
@@ -18,7 +18,6 @@ import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.RecipeItemStack;
 import net.minecraft.server.v1_12_R1.RecipesFurnace;
 
-//TODO use InventoryUtils.getItemName for the NamespacedKeys of vanilla recipes?
 public class NMSFurnaceManager extends RecipesFurnace implements Iterable<NMSFurnaceRecipe> {
     
     private final Map<MinecraftKey, NMSFurnaceRecipe> vanillaRecipes;
@@ -34,8 +33,8 @@ public class NMSFurnaceManager extends RecipesFurnace implements Iterable<NMSFur
     
         setInstance(this);        
         
-        copyVanillaRecipes(this);
-        copyCustomRecipes(this);
+        copyVanillaRecipes();
+        copyCustomRecipes();
     }
     
     public static NMSFurnaceManager getInstance() {
@@ -48,28 +47,28 @@ public class NMSFurnaceManager extends RecipesFurnace implements Iterable<NMSFur
     }
     
     
-    private void copyVanillaRecipes(RecipesFurnace instance) {
-        instance.recipes.forEach((ingredient, result) -> {                
+    private void copyVanillaRecipes() {
+        super.recipes.forEach((ingredient, result) -> {
             Item item = ingredient.getItem();
             MinecraftKey key = new MinecraftKey(item.getName());
             float xp = super.b(ingredient);
             
             NMSFurnaceRecipe injectedFurnaceRecipe = new NMSFixedFurnaceRecipe(key, ingredient, result, xp);
-            vanillaRecipes.put(key, injectedFurnaceRecipe);
+            addVanillaRecipe(injectedFurnaceRecipe);
         });
     }
     
-    private void copyCustomRecipes(RecipesFurnace instance) {
-        instance.customRecipes.forEach((ingredient, result) -> {
+    private void copyCustomRecipes() {
+        super.customRecipes.forEach((ingredient, result) -> {
             Item item = ingredient.getItem();
             MinecraftKey key = CraftNamespacedKey.toMinecraft(CustomRecipesPlugin.getInstance().getKey(item.getName()));
             float xp = super.b(ingredient);
             
             NMSFurnaceRecipe injectedFurnaceRecipe = new NMSFixedFurnaceRecipe(key, ingredient, result, xp);
-            customRecipes.put(key, injectedFurnaceRecipe);
+            addCustomRecipe(injectedFurnaceRecipe);
         });
     }
-    
+
     protected final RecipeItemStack makeVanillaIngredient(ItemStack referenceStack) {
         return new InjectedIngredient(itemStack -> furnaceEqualsVanilla(this, itemStack, referenceStack)).asNMSIngredient();
     }
@@ -90,7 +89,8 @@ public class NMSFurnaceManager extends RecipesFurnace implements Iterable<NMSFur
         
         MinecraftKey key = new MinecraftKey(ingredient.getItem().getName());
         NMSFurnaceRecipe recipe = new NMSFixedFurnaceRecipe(key, ingredient, result, xp);
-        vanillaRecipes.put(key, recipe);
+
+        addVanillaRecipe(recipe);
     }
     
     @Override
@@ -100,7 +100,8 @@ public class NMSFurnaceManager extends RecipesFurnace implements Iterable<NMSFur
         
         MinecraftKey key = CraftNamespacedKey.toMinecraft(CustomRecipesPlugin.getInstance().getKey(ingredient.getItem().getName()));
         NMSFurnaceRecipe recipe = new NMSFixedFurnaceRecipe(key, ingredient, result, xp);
-        customRecipes.put(key, recipe);
+
+        addCustomRecipe(recipe);
     }
     
     @Override
@@ -144,7 +145,7 @@ public class NMSFurnaceManager extends RecipesFurnace implements Iterable<NMSFur
     
     public void reset() {
         clear();
-        copyVanillaRecipes(new RecipesFurnace());
+        copyVanillaRecipes();
     }
     
     public NMSFurnaceRecipe getRecipe(MinecraftKey key) {

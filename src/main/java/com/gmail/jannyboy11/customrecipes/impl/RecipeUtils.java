@@ -58,10 +58,10 @@ public class RecipeUtils {
         }
 
         //try to get from the registry
-        Class vanillaClazz = nms.getClass();
+        Class<? extends IRecipe> vanillaClazz = nms.getClass();
         Class<? extends NMSCraftingRecipe> nmsClazz = nmsCraftingRegistry.get(vanillaClazz);
-        while (nmsClazz == null && !vanillaClazz.equals(Object.class)) {
-            vanillaClazz = vanillaClazz.getSuperclass();
+        while (nmsClazz == null && IRecipe.class.isAssignableFrom(vanillaClazz)) {
+            vanillaClazz = (Class<? extends IRecipe>) vanillaClazz.getSuperclass();
             nmsClazz = nmsCraftingRegistry.get(vanillaClazz);
         }
         if (nmsClazz != null) {
@@ -81,7 +81,7 @@ public class RecipeUtils {
     }
 
     
-    public static NMSCraftingRecipe<?> getNMSRecipe(CraftingRecipe bukkit) {
+    public static NMSCraftingRecipe<?> getNMSRecipe(final CraftingRecipe bukkit) {
         if (bukkit == null) return null;
         
         if (bukkit instanceof CRCraftingRecipe) {
@@ -92,7 +92,7 @@ public class RecipeUtils {
         }
     }
     
-    public static NMSFurnaceRecipe getNMSRecipe(FurnaceRecipe bukkit) {
+    public static NMSFurnaceRecipe getNMSRecipe(final FurnaceRecipe bukkit) {
         if (bukkit == null) return null;
         
         if (bukkit instanceof CRFurnaceRecipe) {
@@ -103,14 +103,14 @@ public class RecipeUtils {
         }
     }
     
-    public static FurnaceRecipe getBukkitRecipe(NMSFurnaceRecipe nms) {        
+    public static FurnaceRecipe getBukkitRecipe(final NMSFurnaceRecipe nms) {
         if (nms == null) return null;
         
         return nms.getBukkitRecipe();
     }
     
     
-    public static NMSCraftingModifier getNMSCrafringModifier(CraftingModifier bukkit) {
+    public static NMSCraftingModifier getNMSCrafringModifier(final CraftingModifier bukkit) {
         if (bukkit == null) return null;
         
         if (bukkit instanceof CRCraftingModifier) {
@@ -121,13 +121,14 @@ public class RecipeUtils {
         }
     }
 
-    public static CraftingModifier getBukkitModifier(NMSCraftingModifier nms) {
+    public static CraftingModifier getBukkitModifier(final NMSCraftingModifier nms) {
         if (nms == null) return null;
         
         return nms.getBukkitModifier();
     }
 
-    public static InventoryCrafting getNmsCraftingInventory(CraftingInventory bukkitInventory) {
+
+    public static InventoryCrafting getNmsCraftingInventory(final CraftingInventory bukkitInventory) {
         return (InventoryCrafting) ReflectionUtil.getDeclaredFieldValue(bukkitInventory, "inventory");
     }
     

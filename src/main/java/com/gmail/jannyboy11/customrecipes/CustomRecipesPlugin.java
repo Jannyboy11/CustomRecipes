@@ -7,8 +7,9 @@ import java.util.function.*;
 import java.util.logging.Level;
 import java.util.stream.*;
 
+import com.gmail.jannyboy11.customrecipes.impl.ingredient.Bukkit2NMSIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.ingredient.InjectedIngredient;
 import org.bukkit.NamespacedKey;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
@@ -30,7 +31,6 @@ import com.gmail.jannyboy11.customrecipes.api.ingredient.*;
 import com.gmail.jannyboy11.customrecipes.api.ingredient.SimpleChoiceIngredient.SimpleEmptyIngredient;
 import com.gmail.jannyboy11.customrecipes.commands.*;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.*;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.*;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.Bukkit2NMSCraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.addremove.*;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient.*;
@@ -88,7 +88,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 	@Override
 	public void onLoad() {
 		//define RecipeItemStackInjected subclass
-		InjectedIngredient.inject();		
+		InjectedIngredient.inject();
 
 		//let's hope no other plugins have added crafting recipes here
 		recordVanillaRecipes();

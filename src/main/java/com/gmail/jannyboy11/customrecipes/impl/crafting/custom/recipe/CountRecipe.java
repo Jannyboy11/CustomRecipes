@@ -1,6 +1,6 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe;
 
-import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.CountIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.ingredient.CountIngredient;
 import net.minecraft.server.v1_12_R1.InventoryCrafting;
 import net.minecraft.server.v1_12_R1.ItemStack;
 import net.minecraft.server.v1_12_R1.NonNullList;

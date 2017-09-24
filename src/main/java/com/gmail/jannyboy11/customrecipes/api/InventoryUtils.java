@@ -83,6 +83,7 @@ public final class InventoryUtils {
 	
 	/**
 	 * Get the MaterialData that vanilla crafting recipes leave in a crafting inventory if the ingredient is of stack size 1.
+	 * <br>
 	 * For most materials the returned data will have Material.AIR, but there are exceptions for filled buckets and dragons breath.
 	 * 
 	 * @param ingredient the material data used as a crafting ingredient.

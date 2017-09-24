@@ -40,6 +40,7 @@ public final class WildcardIngredient implements Ingredient, ConfigurationSerial
 	
 	/**
 	 * Deserialization method for the ConfigurationSerializable interface.
+	 *
 	 * @return the singleton instance
 	 */
 	public static WildcardIngredient deserialize(Map<String, Object> map) {
@@ -48,6 +49,7 @@ public final class WildcardIngredient implements Ingredient, ConfigurationSerial
 
 	/**
 	 * Serializes this wild card ingredient.
+	 *
 	 * @return an empty map
 	 */
     @Override

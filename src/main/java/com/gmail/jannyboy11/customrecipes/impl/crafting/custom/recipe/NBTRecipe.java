@@ -1,6 +1,6 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe;
 
-import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.ingredient.NBTIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.ingredient.NBTIngredient;
 
 import net.minecraft.server.v1_12_R1.ItemStack;
 import net.minecraft.server.v1_12_R1.NonNullList;
