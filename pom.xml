@@ -64,6 +64,7 @@
           <show>protected</show>
           <nohelp>true</nohelp>
           <excludePackageNames>
+            <!-- TODO I should split the project up in maven modules -->
             com.gmail.jannyboy11.customrecipes.commands:
             com.gmail.jannyboy11.customrecipes.impl:
             com.gmail.jannyboy11.customrecipes.serialize:
@@ -72,6 +73,7 @@
           <failOnError>false</failOnError>
           <links>
             <link>https://hub.spigotmc.org/javadocs/spigot/</link>
+            <link>http://docs.oracle.com/javase/9/docs/api</link>
           </links>
         </configuration>
       </plugin>

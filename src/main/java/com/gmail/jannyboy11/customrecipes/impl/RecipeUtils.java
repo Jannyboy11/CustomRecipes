@@ -4,8 +4,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
+import com.gmail.jannyboy11.customrecipes.api.furnace.recipe.FixedFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.modify.CRCraftingModifier;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.modify.NMSCraftingModifier;
+import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFixedFurnaceRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.furnace.vanilla.NMSFixedFurnaceRecipe;
 import org.bukkit.inventory.CraftingInventory;
 
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
@@ -96,6 +99,17 @@ public class RecipeUtils {
             return cr.getHandle();
         } else {
             return new Bukkit2NMSCraftingRecipe(bukkit);
+        }
+    }
+
+    public static NMSFixedFurnaceRecipe getNMSRecipe(final FixedFurnaceRecipe bukkit) {
+        if (bukkit == null) return null;
+
+        if (bukkit instanceof CRFixedFurnaceRecipe) {
+            CRFixedFurnaceRecipe cr = (CRFixedFurnaceRecipe) bukkit;
+            return cr.getHandle();
+        } else {
+            return new Bukkit2NMSFixedFurnaceRecipe(bukkit);
         }
     }
     

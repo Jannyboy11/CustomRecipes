@@ -44,7 +44,8 @@ public class CRCraftingIngredient<I extends RecipeItemStack> implements Ingredie
 	    //TODO can we handle subclasses of RecipeItemStack?
 		return ingredient == RecipeItemStack.a ? CREmptyIngredient.INSTANCE : new CRChoiceIngredient(ingredient);
 	}
-	
+
+	//TODO should probably refactor this to RecipeUtils
 	public static RecipeItemStack asNMSIngredient(ChoiceIngredient ingredient) {
 		if (ingredient instanceof CRChoiceIngredient) {
 			CRChoiceIngredient crIngredient = (CRChoiceIngredient) ingredient;
