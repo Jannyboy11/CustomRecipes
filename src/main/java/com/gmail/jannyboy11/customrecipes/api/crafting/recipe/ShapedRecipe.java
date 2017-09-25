@@ -14,36 +14,44 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
  *
  */
 public interface ShapedRecipe extends CraftingRecipe, ConfigurationSerializable {
-	
-	/**
-	 * Get the width of the recipe
-	 * @return
-	 */
-	public int getWidth();
-	
-	/**
-	 * Get the height of the recipe
-	 * @return
-	 */
-	public int getHeight();
-	
-	/**
-	 * Get the ingredients of the recipe.
-	 * The size of the list must be equal to getWidth() * getHeight();
-	 * 
-	 * @return the ingredients
-	 */
-	public List<? extends ChoiceIngredient> getIngredients();
 
-	public default Map<String, Object> serialize() {
-		return Map.of("key", new SerializableKey(getKey()),
-				"ingredients", getIngredients(),
-				"result", getResult(),
-				"hidden", isHidden(),
-				"group", getGroup(),
-				"width", getWidth(),
-				"height", getHeight());
-	}
+    /**
+     * Get the width of the recipe
+     * @return
+     */
+    public int getWidth();
+
+    /**
+     * Get the height of the recipe
+     * @return
+     */
+    public int getHeight();
+
+    /**
+     * Get the ingredients of the recipe.
+     * The size of the list must be equal to getWidth() * getHeight();
+     *
+     * @return the ingredients
+     */
+    public List<? extends ChoiceIngredient> getIngredients();
+
+    /**
+     * Serializes this ShapedRecipe.
+     *
+     * @see org.bukkit.configuration.serialization.ConfigurationSerializable
+     * @see org.bukkit.configuration.serialization.ConfigurationSerialization
+     *
+     * @return a map containing serialized fields
+     */
+    public default Map<String, Object> serialize() {
+        return Map.of("key", new SerializableKey(getKey()),
+                "ingredients", getIngredients(),
+                "result", getResult(),
+                "hidden", isHidden(),
+                "group", getGroup(),
+                "width", getWidth(),
+                "height", getHeight());
+    }
 
 
 }

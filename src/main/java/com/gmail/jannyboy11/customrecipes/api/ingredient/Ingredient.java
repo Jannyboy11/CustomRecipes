@@ -8,7 +8,6 @@ import org.bukkit.inventory.ItemStack;
  * Represents an ingredient for a CraftingRecipe.
  * 
  * @author Jan
- *
  */
 @FunctionalInterface
 public interface Ingredient extends Predicate<ItemStack> {

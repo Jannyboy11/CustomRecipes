@@ -19,7 +19,7 @@ import net.minecraft.server.v1_12_R1.RecipeItemStack;
 
 import sun.reflect.ReflectionFactory;
 
-public class InjectedIngredient implements Predicate<ItemStack>, NBTSerializable {
+public class InjectedIngredient implements Predicate<ItemStack> {
 
 	private static Class<? extends RecipeItemStack> recipeItemStackInjectedClass;
 	
@@ -71,9 +71,7 @@ public class InjectedIngredient implements Predicate<ItemStack>, NBTSerializable
 			throw new RuntimeException(e);
 		}
 	}
-	
 
-	@Override
 	public NBTTagCompound serializeToNbt() {
 		return NBTUtil.serializeRecipeItemStack(asNMSIngredient());
 	}

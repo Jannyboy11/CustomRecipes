@@ -252,5 +252,13 @@ public class NBTUtil {
 		}
 		
 	}
-	
+
+
+    // ============== Miscellanious ==============
+
+    public static boolean isEmptyTag(NBTTagCompound compound) {
+	    return compound == null || compound.isEmpty();
+    }
+
+
 }

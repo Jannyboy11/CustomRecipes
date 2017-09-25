@@ -8,6 +8,7 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.modify.CraftingModifier;
 
 import net.minecraft.server.v1_12_R1.IRecipe;
 
+//TODO implements NBTSerializable?
 public class NMSPermissionModifier extends NMSAbstractCraftingModifier<IRecipe, IRecipe> {
     
     private final String permission;
