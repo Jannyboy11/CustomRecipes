@@ -1,24 +1,24 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting.custom.modify;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.modify.CraftingModifier;
-import com.gmail.jannyboy11.customrecipes.impl.ingredient.NBTIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.ingredient.CountIngredient;
 import com.gmail.jannyboy11.customrecipes.serialize.NBTSerializable;
 import net.minecraft.server.v1_12_R1.*;
 
 import java.util.List;
 import java.util.Objects;
 
-public class NMSNBTModifier extends NMSAbstractCraftingModifier<IRecipe, IRecipe> implements NBTSerializable {
+public class NMSCountModifier extends NMSAbstractCraftingModifier<IRecipe, IRecipe> implements NBTSerializable {
 
-    private final List<NBTTagCompound> tags; //can contain null values
+    // -1 used as no count specified
+    private final List<Integer> counts;
 
-    public NMSNBTModifier(List<NBTTagCompound> tags) {
-        this.tags = Objects.requireNonNull(tags);
+    public NMSCountModifier(List<Integer> counts) {
+        this.counts = Objects.requireNonNull(counts);
     }
 
-    @Override
-    protected CraftingModifier createBukkitModifier() {
-        return new CRNBTModifier(this);
+    public List<Integer> getCounts() {
+        return counts;
     }
 
     @Override
@@ -26,19 +26,19 @@ public class NMSNBTModifier extends NMSAbstractCraftingModifier<IRecipe, IRecipe
         NonNullList<RecipeItemStack> ingredients = base.d();
 
         IRecipe modified = new NMSProxyCraftingRecipe((inventoryCrafting, world) -> {
-            if (tags.size() != ingredients.size()) return false;
+            if (counts.size() != ingredients.size()) return false;
 
-            for (int i = 0; i < tags.size(); i++) {
+            for (int i = 0; i < counts.size(); i++) {
                 RecipeItemStack ingredient = ingredients.get(i);
-                NBTTagCompound tag = tags.get(i);
-                if (tag == null) {
+                Integer count = counts.get(i);
+                if (count == null) {
                     if (ingredient.choices == null) continue;
                     if (ingredient.choices.length == 0) continue;
                     return false;
                 } else {
                     if (ingredient.choices == null) return false;
                     if (ingredient.choices.length == 0) return false;
-                    if (!Objects.equals(ingredient.choices[0].getTag(), tag)) return false;
+                    if (ingredient.choices[0].getCount() == count.intValue()) return false;
                     continue;
                 }
             }
@@ -49,13 +49,16 @@ public class NMSNBTModifier extends NMSAbstractCraftingModifier<IRecipe, IRecipe
                 base::b,
                 base::b,
                 () -> {
-                    NonNullList<RecipeItemStack> nbtSpecificIngredients = NonNullList.a();
+                    NonNullList<RecipeItemStack> countSpecificIngredients = NonNullList.a();
                     for (int i = 0; i < ingredients.size(); i++) {
                         RecipeItemStack toAdd = ingredients.get(i);
-                        if (toAdd.choices != null && toAdd.choices.length != 0) toAdd = new NBTIngredient(toAdd, tags.get(i)).asNMSIngredient();
-                        nbtSpecificIngredients.add(toAdd);
+                        if (toAdd.choices != null && toAdd.choices.length != 0) {
+                            Integer count = counts.get(i);
+                            if (count != null && count != -1) toAdd = new CountIngredient(toAdd, count).asNMSIngredient();
+                        }
+                        countSpecificIngredients.add(toAdd);
                     }
-                    return nbtSpecificIngredients;
+                    return countSpecificIngredients;
                 },
                 base::c,
                 base::toBukkitRecipe,
@@ -65,17 +68,20 @@ public class NMSNBTModifier extends NMSAbstractCraftingModifier<IRecipe, IRecipe
     }
 
     @Override
-    public NBTTagCompound serializeToNbt() {
-        NBTTagCompound serialized = new NBTTagCompound();
-        NBTTagList nbtTagList = new NBTTagList();
-        for (NBTTagCompound tag : tags) {
-            nbtTagList.add(tag == null ? new NBTTagCompound() : tag);
-        }
-        serialized.set("tags", nbtTagList);
-        return serialized;
+    protected CraftingModifier createBukkitModifier() {
+        return new CRCountModifier(this);
     }
 
 
-
+    @Override
+    public NBTTagCompound serializeToNbt() {
+        NBTTagCompound serialized = new NBTTagCompound();
+        NBTTagList counts = new NBTTagList();
+        for (Integer integer : this.counts) {
+            counts.add(new NBTTagInt(integer == null ? -1 : integer.intValue()));
+        }
+        serialized.set("counts", counts);
+        return serialized;
+    }
 
 }

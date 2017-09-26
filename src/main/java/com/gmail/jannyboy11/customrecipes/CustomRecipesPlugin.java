@@ -196,7 +196,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 		ConfigurationSerialization.registerClass(SimpleShapelessRecipe.class);
 
 		//nms mirrors
-		ConfigurationSerialization.registerClass(Bukkit2NMSIngredient.class);
+		//ConfigurationSerialization.registerClass(Bukkit2NMSIngredient.class); //TODO remove this? or find an alternative?
 		ConfigurationSerialization.registerClass(Bukkit2NMSCraftingRecipe.class);
 
 		//nms ingredient wrappers
