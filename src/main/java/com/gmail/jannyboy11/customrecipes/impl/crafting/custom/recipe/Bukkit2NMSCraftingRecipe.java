@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import com.gmail.jannyboy11.customrecipes.impl.RecipeUtils;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.*;
@@ -58,14 +59,9 @@ public class Bukkit2NMSCraftingRecipe extends NMSCraftingRecipe<IRecipe> impleme
     }
 
 
-    public static CraftInventoryCrafting getBukkitCraftingInventory(InventoryCrafting inventoryCrafting) {
-        IInventory resultInventory = inventoryCrafting.resultInventory;
-        return new CraftInventoryCrafting(inventoryCrafting, resultInventory);
-    }
-
     @Override
     public boolean a(InventoryCrafting inventoryCrafting, World world) {
-        CraftInventoryCrafting bukkitInventory = getBukkitCraftingInventory(inventoryCrafting);
+        CraftInventoryCrafting bukkitInventory = RecipeUtils.getBukkitCraftingInventory(inventoryCrafting);
         CraftWorld bukkitWorld = world.getWorld();		
 
         return bukkit.matches(bukkitInventory, bukkitWorld);
@@ -85,7 +81,7 @@ public class Bukkit2NMSCraftingRecipe extends NMSCraftingRecipe<IRecipe> impleme
 
     @Override
     public NonNullList<ItemStack> b(InventoryCrafting inventoryCrafting) {
-        CraftInventoryCrafting bukkitInventory = getBukkitCraftingInventory(inventoryCrafting);
+        CraftInventoryCrafting bukkitInventory = RecipeUtils.getBukkitCraftingInventory(inventoryCrafting);
 
         List<? extends org.bukkit.inventory.ItemStack> bukkitLeftovers = bukkit.getLeftOverItems(bukkitInventory);
         ItemStack[] nmsLeftovers = bukkitLeftovers.stream().map(CraftItemStack::asNMSCopy).toArray(size -> new ItemStack[size]);
@@ -94,7 +90,7 @@ public class Bukkit2NMSCraftingRecipe extends NMSCraftingRecipe<IRecipe> impleme
 
     @Override
     public ItemStack craftItem(InventoryCrafting inventoryCrafting) {
-        CraftInventoryCrafting bukkitInventory = getBukkitCraftingInventory(inventoryCrafting);
+        CraftInventoryCrafting bukkitInventory = RecipeUtils.getBukkitCraftingInventory(inventoryCrafting);
 
         return CraftItemStack.asNMSCopy(bukkit.craftItem(bukkitInventory));
     }

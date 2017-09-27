@@ -47,7 +47,7 @@ public class NMSCountModifier extends NMSAbstractCraftingModifier<IRecipe, IReci
         },
                 base::craftItem,
                 base::b,
-                base::b,
+                matrix -> NonNullList.a(),
                 () -> {
                     NonNullList<RecipeItemStack> countSpecificIngredients = NonNullList.a();
                     for (int i = 0; i < ingredients.size(); i++) {

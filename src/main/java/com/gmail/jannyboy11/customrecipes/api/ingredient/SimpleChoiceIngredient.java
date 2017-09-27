@@ -99,7 +99,7 @@ public class SimpleChoiceIngredient implements ChoiceIngredient, ConfigurationSe
 	 * @param choices the choices
 	 * @return a new SimpleChoiceIngredient
 	 */
-	public static ChoiceIngredient fromChoices(ItemStack... choices) {
+	public static SimpleChoiceIngredient fromChoices(ItemStack... choices) {
 		if (choices == null || choices.length == 0) return ACCEPTING_EMPTY;
 		return new SimpleChoiceIngredient(Arrays.asList(choices));
 	}
