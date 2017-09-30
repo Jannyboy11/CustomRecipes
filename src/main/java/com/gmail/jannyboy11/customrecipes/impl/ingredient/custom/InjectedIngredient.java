@@ -1,4 +1,4 @@
-package com.gmail.jannyboy11.customrecipes.impl.ingredient;
+package com.gmail.jannyboy11.customrecipes.impl.ingredient.custom;
 
 import java.lang.reflect.Constructor;
 import java.util.function.Predicate;
@@ -9,7 +9,6 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-import com.gmail.jannyboy11.customrecipes.serialize.NBTSerializable;
 import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 

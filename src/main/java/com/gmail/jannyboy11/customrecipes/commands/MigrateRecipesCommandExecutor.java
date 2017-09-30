@@ -39,390 +39,390 @@ import net.minecraft.server.v1_12_R1.ShapelessRecipes;
 //TODO add 2.2.1 -> 3.0.0 case
 public class MigrateRecipesCommandExecutor implements CommandExecutor {
 
-	private Random random = new Random();
-	private int incr = random.nextInt();
-	
-	private final CustomRecipesPlugin plugin;
+    private Random random = new Random();
+    private int incr = random.nextInt();
 
-	public MigrateRecipesCommandExecutor(CustomRecipesPlugin plugin) {
-		this.plugin = plugin;
-	}
-	
-	private MinecraftKey nextCustomKey() {
-		return new MinecraftKey("customrecipes", "migrated_" + String.valueOf(incr++));
-	}
+    private final CustomRecipesPlugin plugin;
 
-	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		File pluginDataFolder = plugin.getDataFolder();
+    public MigrateRecipesCommandExecutor(CustomRecipesPlugin plugin) {
+        this.plugin = plugin;
+    }
 
-		if (!pluginDataFolder.exists()) {
-			sender.sendMessage(ChatColor.GREEN + "Plugin data folder does not exists, no recipes were migrated.");
-			return true;
-		}
+    private MinecraftKey nextCustomKey() {
+        return new MinecraftKey("customrecipes", "migrated_" + String.valueOf(incr++));
+    }
 
-		File extraRecipesFolder = new File(pluginDataFolder, "extra_recipes");
-		if (extraRecipesFolder.exists() && extraRecipesFolder.isDirectory()) {
-			migrateExtraRecipes(sender, extraRecipesFolder);
-		} else {
-			sender.sendMessage(ChatColor.RED + "Could not migrate extra recipes, the extra_recipes file does not exist or is not a directory.");
-		}
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        File pluginDataFolder = plugin.getDataFolder();
 
-		File disabledRecipesFolder = new File(pluginDataFolder, "disabled_recipes");
-		if (disabledRecipesFolder.exists() && disabledRecipesFolder.isDirectory()) {
-			migrateDisabledRecipes(sender, disabledRecipesFolder);
-		} else {
-			sender.sendMessage(ChatColor.RED + "Could not migrate disabled recipes, the disabled_recipes file does not exist or is not a directory.");
-		}
+        if (!pluginDataFolder.exists()) {
+            sender.sendMessage(ChatColor.GREEN + "Plugin data folder does not exists, no recipes were migrated.");
+            return true;
+        }
 
-		sender.sendMessage(ChatColor.GREEN + "Migration complete! Restart your server for the migrated recipes to take effect.");
+        File extraRecipesFolder = new File(pluginDataFolder, "extra_recipes");
+        if (extraRecipesFolder.exists() && extraRecipesFolder.isDirectory()) {
+            migrateExtraRecipes(sender, extraRecipesFolder);
+        } else {
+            sender.sendMessage(ChatColor.RED + "Could not migrate extra recipes, the extra_recipes file does not exist or is not a directory.");
+        }
 
-		return true;
-	}
+        File disabledRecipesFolder = new File(pluginDataFolder, "disabled_recipes");
+        if (disabledRecipesFolder.exists() && disabledRecipesFolder.isDirectory()) {
+            migrateDisabledRecipes(sender, disabledRecipesFolder);
+        } else {
+            sender.sendMessage(ChatColor.RED + "Could not migrate disabled recipes, the disabled_recipes file does not exist or is not a directory.");
+        }
+
+        sender.sendMessage(ChatColor.GREEN + "Migration complete! Restart your server for the migrated recipes to take effect.");
+
+        return true;
+    }
 
 
-	private void migrateExtraRecipes(CommandSender sender, File extraFolder) {
-		sender.sendMessage(ChatColor.YELLOW + "Migrating shaped recipes");
-		//shaped
-		File folder = new File(extraFolder, "shaped_recipes");
-		if (folder.exists() && folder.isDirectory()) {
-			for (File file : folder.listFiles()) {
-				String name = file.getName();
+    private void migrateExtraRecipes(CommandSender sender, File extraFolder) {
+        sender.sendMessage(ChatColor.YELLOW + "Migrating shaped recipes");
+        //shaped
+        File folder = new File(extraFolder, "shaped_recipes");
+        if (folder.exists() && folder.isDirectory()) {
+            for (File file : folder.listFiles()) {
+                String name = file.getName();
 
-				try {
-					NBTTagCompound readTag = NBTUtil.readNBTTagCompound(file);
-					NBTTagCompound resultTag = readTag.getCompound("Result");
-					ItemStack result = resultTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(resultTag);
+                try {
+                    NBTTagCompound readTag = NBTUtil.readNBTTagCompound(file);
+                    NBTTagCompound resultTag = readTag.getCompound("Result");
+                    ItemStack result = resultTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(resultTag);
 
-					int width = readTag.getInt("Width");
-					int height = readTag.getInt("Height");
-					NBTTagList nbtIngredients = readTag.getList("Ingredients", NBTUtil.COMPOUND);
-					NonNullList<RecipeItemStack> ingredients = NonNullList.a(width * height, RecipeItemStack.a);
-					for (int i = 0; i < nbtIngredients.size(); i++) {
-						NBTTagCompound ingredientTag = nbtIngredients.get(i);
-						ItemStack ingredientStack = ingredientTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(ingredientTag);
-						RecipeItemStack ingredient = RecipeItemStack.a(new ItemStack[] {ingredientStack});
-						ingredients.set(i, ingredient);
-					}
+                    int width = readTag.getInt("Width");
+                    int height = readTag.getInt("Height");
+                    NBTTagList nbtIngredients = readTag.getList("Ingredients", NBTUtil.COMPOUND);
+                    NonNullList<RecipeItemStack> ingredients = NonNullList.a(width * height, RecipeItemStack.a);
+                    for (int i = 0; i < nbtIngredients.size(); i++) {
+                        NBTTagCompound ingredientTag = nbtIngredients.get(i);
+                        ItemStack ingredientStack = ingredientTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(ingredientTag);
+                        RecipeItemStack ingredient = RecipeItemStack.a(new ItemStack[] {ingredientStack});
+                        ingredients.set(i, ingredient);
+                    }
 
-					ShapedRecipes shaped = new ShapedRecipes("", height, height, ingredients, result);
-					MinecraftKey key = nextCustomKey();
-					shaped.setKey(key);
+                    ShapedRecipes shaped = new ShapedRecipes("", height, height, ingredients, result);
+                    MinecraftKey key = nextCustomKey();
+                    shaped.setKey(key);
 
-					CRShapedRecipe cr = new CRShapedRecipe(new NMSShapedRecipe(shaped));
-					plugin.saveCraftingRecipeFile("shaped", cr);
+                    CRShapedRecipe cr = new CRShapedRecipe(new NMSShapedRecipe(shaped));
+                    plugin.saveCraftingRecipeFile("shaped", cr);
 
-				} catch (IOException e) {
-					e.printStackTrace();
-					sender.sendMessage(ChatColor.RED + "Something went wrong when migrating shaped recipe " + name + ", please check your console for errors.");
-				}
-			}
-		}
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    sender.sendMessage(ChatColor.RED + "Something went wrong when migrating shaped recipe " + name + ", please check your console for errors.");
+                }
+            }
+        }
 
-		sender.sendMessage(ChatColor.YELLOW + "Migrating shapeless recipes");
-		//shapeless
-		folder = new File(extraFolder, "shapeless_recipes");
-		if (folder.exists() && folder.isDirectory()) {
-			for (File file : folder.listFiles()) {
-				String name = file.getName();
+        sender.sendMessage(ChatColor.YELLOW + "Migrating shapeless recipes");
+        //shapeless
+        folder = new File(extraFolder, "shapeless_recipes");
+        if (folder.exists() && folder.isDirectory()) {
+            for (File file : folder.listFiles()) {
+                String name = file.getName();
 
-				try {
-					NBTTagCompound readTag = NBTUtil.readNBTTagCompound(file);
-					NBTTagCompound resultTag = readTag.getCompound("Result");
-					ItemStack result = resultTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(resultTag);
+                try {
+                    NBTTagCompound readTag = NBTUtil.readNBTTagCompound(file);
+                    NBTTagCompound resultTag = readTag.getCompound("Result");
+                    ItemStack result = resultTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(resultTag);
 
-					NBTTagList nbtIngredients = readTag.getList("Ingredients", NBTUtil.COMPOUND);
-					NonNullList<RecipeItemStack> ingredients = NonNullList.a(nbtIngredients.size(), RecipeItemStack.a);
-					for (int i = 0; i < nbtIngredients.size(); i++) {
-						NBTTagCompound ingredientTag = nbtIngredients.get(i);
-						ItemStack ingredientStack = ingredientTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(ingredientTag);
-						RecipeItemStack ingredient = RecipeItemStack.a(new ItemStack[] {ingredientStack});
-						ingredients.set(i, ingredient);
-					}
+                    NBTTagList nbtIngredients = readTag.getList("Ingredients", NBTUtil.COMPOUND);
+                    NonNullList<RecipeItemStack> ingredients = NonNullList.a(nbtIngredients.size(), RecipeItemStack.a);
+                    for (int i = 0; i < nbtIngredients.size(); i++) {
+                        NBTTagCompound ingredientTag = nbtIngredients.get(i);
+                        ItemStack ingredientStack = ingredientTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(ingredientTag);
+                        RecipeItemStack ingredient = RecipeItemStack.a(new ItemStack[] {ingredientStack});
+                        ingredients.set(i, ingredient);
+                    }
 
-					ShapelessRecipes shaped = new ShapelessRecipes("", result, ingredients);
-					MinecraftKey key = nextCustomKey();
-					shaped.setKey(key);
+                    ShapelessRecipes shaped = new ShapelessRecipes("", result, ingredients);
+                    MinecraftKey key = nextCustomKey();
+                    shaped.setKey(key);
 
-					CRShapelessRecipe cr = new CRShapelessRecipe(new NMSShapelessRecipe(shaped));
-					plugin.saveCraftingRecipeFile("shapeless", cr);
+                    CRShapelessRecipe cr = new CRShapelessRecipe(new NMSShapelessRecipe(shaped));
+                    plugin.saveCraftingRecipeFile("shapeless", cr);
 
-				} catch (IOException e) {
-					e.printStackTrace();
-					sender.sendMessage(ChatColor.RED + "Something went wrong when migrating shapeless recipe " + name + ", please check your console for errors.");
-				}
-			}
-		}
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    sender.sendMessage(ChatColor.RED + "Something went wrong when migrating shapeless recipe " + name + ", please check your console for errors.");
+                }
+            }
+        }
 
-		sender.sendMessage(ChatColor.YELLOW + "Migrating permission recipes");
-		//permission
-		folder = new File(extraFolder, "permission_recipes");
-		if (folder.exists() && folder.isDirectory()) {
-			for (File file : folder.listFiles()) {
-				String name = file.getName();
+        sender.sendMessage(ChatColor.YELLOW + "Migrating permission recipes");
+        //permission
+        folder = new File(extraFolder, "permission_recipes");
+        if (folder.exists() && folder.isDirectory()) {
+            for (File file : folder.listFiles()) {
+                String name = file.getName();
 
-				try {
-					NBTTagCompound readTag = NBTUtil.readNBTTagCompound(file);
-					NBTTagCompound resultTag = readTag.getCompound("Result");
-					ItemStack result = resultTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(resultTag);
+                try {
+                    NBTTagCompound readTag = NBTUtil.readNBTTagCompound(file);
+                    NBTTagCompound resultTag = readTag.getCompound("Result");
+                    ItemStack result = resultTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(resultTag);
 
-					int width = readTag.getInt("Width");
-					int height = readTag.getInt("Height");
-					NBTTagList nbtIngredients = readTag.getList("Ingredients", NBTUtil.COMPOUND);
-					NonNullList<RecipeItemStack> ingredients = NonNullList.a(width * height, RecipeItemStack.a);
-					for (int i = 0; i < nbtIngredients.size(); i++) {
-						NBTTagCompound ingredientTag = nbtIngredients.get(i);
-						ItemStack ingredientStack = ingredientTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(ingredientTag);
-						RecipeItemStack ingredient = RecipeItemStack.a(new ItemStack[] {ingredientStack});
-						ingredients.set(i, ingredient);
-					}
-					String permission = readTag.getString("Permission");
+                    int width = readTag.getInt("Width");
+                    int height = readTag.getInt("Height");
+                    NBTTagList nbtIngredients = readTag.getList("Ingredients", NBTUtil.COMPOUND);
+                    NonNullList<RecipeItemStack> ingredients = NonNullList.a(width * height, RecipeItemStack.a);
+                    for (int i = 0; i < nbtIngredients.size(); i++) {
+                        NBTTagCompound ingredientTag = nbtIngredients.get(i);
+                        ItemStack ingredientStack = ingredientTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(ingredientTag);
+                        RecipeItemStack ingredient = RecipeItemStack.a(new ItemStack[] {ingredientStack});
+                        ingredients.set(i, ingredient);
+                    }
+                    String permission = readTag.getString("Permission");
 
-					PermissionRecipe shaped = new PermissionRecipe("", height, height, ingredients, result, permission);
-					MinecraftKey key = nextCustomKey();
-					shaped.setKey(key);
+                    //TODO I whould not be using the PermissionRecipe, instead use a modifier shaped recipe
+                    PermissionRecipe shaped = new PermissionRecipe("", height, height, ingredients, result, permission);
+                    MinecraftKey key = nextCustomKey();
+                    shaped.setKey(key);
 
-					//TODO use permission modifier.
-					NMSModifiedCraftingRecipe nmsModified = new NMSModifiedCraftingRecipe(new NMSPermissionModifier(permission), new NMSShapedRecipe(shaped));
-					CRModifiedCraftingRecipe cr = new CRModifiedCraftingRecipe(nmsModified);
-					plugin.saveCraftingRecipeFile("permission", cr);
+                    NMSModifiedCraftingRecipe nmsModified = new NMSModifiedCraftingRecipe(new NMSPermissionModifier(permission), new NMSShapedRecipe(shaped));
+                    CRModifiedCraftingRecipe cr = new CRModifiedCraftingRecipe(nmsModified);
+                    plugin.saveCraftingRecipeFile("permission", cr);
 
-				} catch (IOException e) {
-					e.printStackTrace();
-					sender.sendMessage(ChatColor.RED + "Something went wrong when migrating permission recipe " + name + ", please check your console for errors.");
-				}
-			}
-		}
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    sender.sendMessage(ChatColor.RED + "Something went wrong when migrating permission recipe " + name + ", please check your console for errors.");
+                }
+            }
+        }
 
-		sender.sendMessage(ChatColor.YELLOW + "Migrating furnace recipes");
-		//furnace
-		folder = new File(extraFolder, "furnace_recipes");
-		if (folder.exists() && folder.isDirectory()) {
+        sender.sendMessage(ChatColor.YELLOW + "Migrating furnace recipes");
+        //furnace
+        folder = new File(extraFolder, "furnace_recipes");
+        if (folder.exists() && folder.isDirectory()) {
 
-			RecipesFurnace recipesFurnace = new RecipesFurnace();
-			for (File file : folder.listFiles()) {
-				String name = file.getName();
+            RecipesFurnace recipesFurnace = new RecipesFurnace();
+            for (File file : folder.listFiles()) {
+                String name = file.getName();
 
-				try {
-					NBTTagCompound readTag = NBTUtil.readNBTTagCompound(file);
-					NBTTagCompound resultTag = readTag.getCompound("Result");
-					ItemStack result = resultTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(resultTag);
-					NBTTagCompound ingredientTag = readTag.getCompound("Ingredient");
-					ItemStack ingredient = ingredientTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(ingredientTag);
-					float xp = readTag.hasKeyOfType("Experience", NBTUtil.FLOAT) ? readTag.getFloat("Experience") : 0F;
-					
-					NMSFixedFurnaceRecipe furnaceRecipe = new NMSFixedFurnaceRecipe(nextCustomKey(), ingredient, result, xp);
-					CRFixedFurnaceRecipe cr = new CRFixedFurnaceRecipe(furnaceRecipe);
+                try {
+                    NBTTagCompound readTag = NBTUtil.readNBTTagCompound(file);
+                    NBTTagCompound resultTag = readTag.getCompound("Result");
+                    ItemStack result = resultTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(resultTag);
+                    NBTTagCompound ingredientTag = readTag.getCompound("Ingredient");
+                    ItemStack ingredient = ingredientTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(ingredientTag);
+                    float xp = readTag.hasKeyOfType("Experience", NBTUtil.FLOAT) ? readTag.getFloat("Experience") : 0F;
 
-					plugin.saveFurnaceRecipeFile(cr);
-				} catch (IOException e) {
-					e.printStackTrace();
-					sender.sendMessage(ChatColor.RED + "Something went wrong when migrating furnace recipe " + name + ", please check your console for errors.");
-				}
-			}
-		}
+                    NMSFixedFurnaceRecipe furnaceRecipe = new NMSFixedFurnaceRecipe(nextCustomKey(), ingredient, result, xp);
+                    CRFixedFurnaceRecipe cr = new CRFixedFurnaceRecipe(furnaceRecipe);
 
-	}
+                    plugin.saveFurnaceRecipeFile(cr);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    sender.sendMessage(ChatColor.RED + "Something went wrong when migrating furnace recipe " + name + ", please check your console for errors.");
+                }
+            }
+        }
 
-	private void migrateDisabledRecipes(CommandSender sender, File disabledFolder) {	
-		
-		sender.sendMessage(ChatColor.YELLOW + "Migrating disabled shaped recipes");
-		//shaped
-		File folder = new File(disabledFolder, "shaped_recipes");
-		if (folder.exists() && folder.isDirectory()) {
-			for (File file : folder.listFiles()) {
-				String name = file.getName();
+    }
 
-				try {
-					NBTTagCompound readTag = NBTUtil.readNBTTagCompound(file);
-					NBTTagCompound resultTag = readTag.getCompound("Result");
-					ItemStack result = resultTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(resultTag);
+    private void migrateDisabledRecipes(CommandSender sender, File disabledFolder) {
 
-					int width = readTag.getInt("Width");
-					int height = readTag.getInt("Height");
-					NBTTagList nbtIngredients = readTag.getList("Ingredients", NBTUtil.COMPOUND);
-					NonNullList<ItemStack> ingredients = NonNullList.a(width * height, ItemStack.a);
-					for (int i = 0; i < nbtIngredients.size(); i++) {
-						NBTTagCompound ingredientTag = nbtIngredients.get(i);
-						ItemStack ingredientStack = ingredientTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(ingredientTag);
-						ingredients.set(i, ingredientStack);
-					}
+        sender.sendMessage(ChatColor.YELLOW + "Migrating disabled shaped recipes");
+        //shaped
+        File folder = new File(disabledFolder, "shaped_recipes");
+        if (folder.exists() && folder.isDirectory()) {
+            for (File file : folder.listFiles()) {
+                String name = file.getName();
 
-					LegacyShapedRecipe legacyShaped = new LegacyShapedRecipe(width, height, result, ingredients);
-					
-					ShapedRecipes match = null;
-					Iterator<IRecipe> iterator = CraftingManager.recipes.iterator();
-					
-					//loop until a match was found
-					while (iterator.hasNext() && match == null) {
-						IRecipe serverRecipe = iterator.next();
-						if (serverRecipe instanceof ShapedRecipes) {
-							ShapedRecipes shaped = (ShapedRecipes) serverRecipe;
-							if (legacyShaped.equalsRecipe(shaped)) {
-								match = shaped;
-							}
-						}
-					}
+                try {
+                    NBTTagCompound readTag = NBTUtil.readNBTTagCompound(file);
+                    NBTTagCompound resultTag = readTag.getCompound("Result");
+                    ItemStack result = resultTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(resultTag);
 
-					if (match != null) {
-						
-						//very nice! great success!
-						CRShapedRecipe crShapedRecipe = new CRShapedRecipe(new NMSShapedRecipe(match));
-						plugin.disableCraftingRecipeFile("shaped", crShapedRecipe);
-						
-					} else {
-						sender.sendMessage(ChatColor.RED + "Couln't migrate disabled shaped recipe \"" + name + "\", no match was found in the crafting manager. Is it already disabled?");
-					}
+                    int width = readTag.getInt("Width");
+                    int height = readTag.getInt("Height");
+                    NBTTagList nbtIngredients = readTag.getList("Ingredients", NBTUtil.COMPOUND);
+                    NonNullList<ItemStack> ingredients = NonNullList.a(width * height, ItemStack.a);
+                    for (int i = 0; i < nbtIngredients.size(); i++) {
+                        NBTTagCompound ingredientTag = nbtIngredients.get(i);
+                        ItemStack ingredientStack = ingredientTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(ingredientTag);
+                        ingredients.set(i, ingredientStack);
+                    }
 
-				} catch (IOException e) {
-					e.printStackTrace();
-					sender.sendMessage(ChatColor.RED + "Something went wrong when migrating disabled shaped recipe " + name + ", please check your console for errors.");
-				}
-			}
-		}
+                    LegacyShapedRecipe legacyShaped = new LegacyShapedRecipe(width, height, result, ingredients);
 
-		sender.sendMessage(ChatColor.YELLOW + "Migrating disabled shapeless recipes");
-		//shapeless
-		folder = new File(disabledFolder, "shapeless_recipes");
-		if (folder.exists() && folder.isDirectory()) {
-			for (File file : folder.listFiles()) {
-				String name = file.getName();
+                    ShapedRecipes match = null;
+                    Iterator<IRecipe> iterator = CraftingManager.recipes.iterator();
 
-				try {
-					NBTTagCompound readTag = NBTUtil.readNBTTagCompound(file);
-					NBTTagCompound resultTag = readTag.getCompound("Result");
-					ItemStack result = resultTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(resultTag);
+                    //loop until a match was found
+                    while (iterator.hasNext() && match == null) {
+                        IRecipe serverRecipe = iterator.next();
+                        if (serverRecipe instanceof ShapedRecipes) {
+                            ShapedRecipes shaped = (ShapedRecipes) serverRecipe;
+                            if (legacyShaped.equalsRecipe(shaped)) {
+                                match = shaped;
+                            }
+                        }
+                    }
 
-					NBTTagList nbtIngredients = readTag.getList("Ingredients", NBTUtil.COMPOUND);
-					NonNullList<ItemStack> ingredients = NonNullList.a(nbtIngredients.size(), ItemStack.a);
-					for (int i = 0; i < nbtIngredients.size(); i++) {
-						NBTTagCompound ingredientTag = nbtIngredients.get(i);
-						ItemStack ingredientStack = ingredientTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(ingredientTag);
-						ingredients.set(i, ingredientStack);
-					}
+                    if (match != null) {
 
-					LegacyShapelessRecipe legacyShapeless = new LegacyShapelessRecipe(result, ingredients);
+                        //very nice! great success!
+                        CRShapedRecipe crShapedRecipe = new CRShapedRecipe(new NMSShapedRecipe(match));
+                        plugin.disableCraftingRecipeFile("shaped", crShapedRecipe);
 
-					ShapelessRecipes match = null;
-					Iterator<IRecipe> iterator = CraftingManager.recipes.iterator();
-					
-					//loop until a match was found
-					while (iterator.hasNext() && match == null) {
-						IRecipe serverRecipe = iterator.next();
-						if (serverRecipe instanceof ShapelessRecipes) {
-							ShapelessRecipes shapeless = (ShapelessRecipes) serverRecipe;
-							if (legacyShapeless.equalsRecipe(shapeless)) {
-								match = shapeless;
-							}
-						}
-					}
+                    } else {
+                        sender.sendMessage(ChatColor.RED + "Couln't migrate disabled shaped recipe \"" + name + "\", no match was found in the crafting manager. Is it already disabled?");
+                    }
 
-					if (match != null) {
-						
-						//very nice! great success!
-						CRShapelessRecipe crShapedRecipe = new CRShapelessRecipe(new NMSShapelessRecipe(match));
-						plugin.disableCraftingRecipeFile("shapeless", crShapedRecipe);
-						
-					} else {
-						sender.sendMessage(ChatColor.RED + "Couln't migrate disabled shapeless recipe \"" + name + "\", no match was found in the crafting manager. Is it already disabled?");
-					}
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    sender.sendMessage(ChatColor.RED + "Something went wrong when migrating disabled shaped recipe " + name + ", please check your console for errors.");
+                }
+            }
+        }
 
-				} catch (IOException e) {
-					e.printStackTrace();
-					sender.sendMessage(ChatColor.RED + "Something went wrong when migrating disabled shapeless recipe " + name + ", please check your console for errors.");
-				}
-			}
-		}
+        sender.sendMessage(ChatColor.YELLOW + "Migrating disabled shapeless recipes");
+        //shapeless
+        folder = new File(disabledFolder, "shapeless_recipes");
+        if (folder.exists() && folder.isDirectory()) {
+            for (File file : folder.listFiles()) {
+                String name = file.getName();
 
-		//no disabled permission recipes
-		
-		sender.sendMessage(ChatColor.YELLOW + "Migrating disabled furnace recipes");
-		//furnace
-		folder = new File(disabledFolder, "furnace_recipes");
-		if (folder.exists() && folder.isDirectory()) {
+                try {
+                    NBTTagCompound readTag = NBTUtil.readNBTTagCompound(file);
+                    NBTTagCompound resultTag = readTag.getCompound("Result");
+                    ItemStack result = resultTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(resultTag);
 
-			RecipesFurnace recipesFurnace = new RecipesFurnace();
-			for (File file : folder.listFiles()) {
-				String name = file.getName();
+                    NBTTagList nbtIngredients = readTag.getList("Ingredients", NBTUtil.COMPOUND);
+                    NonNullList<ItemStack> ingredients = NonNullList.a(nbtIngredients.size(), ItemStack.a);
+                    for (int i = 0; i < nbtIngredients.size(); i++) {
+                        NBTTagCompound ingredientTag = nbtIngredients.get(i);
+                        ItemStack ingredientStack = ingredientTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(ingredientTag);
+                        ingredients.set(i, ingredientStack);
+                    }
 
-				try {
-					NBTTagCompound readTag = NBTUtil.readNBTTagCompound(file);
-					NBTTagCompound resultTag = readTag.getCompound("Result");
-					ItemStack result = resultTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(resultTag);
-					NBTTagCompound ingredientTag = readTag.getCompound("Ingredient");
-					ItemStack ingredient = ingredientTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(ingredientTag);
-					float xp = readTag.hasKeyOfType("Experience", NBTUtil.FLOAT) ? readTag.getFloat("Experience") : 0F;
+                    LegacyShapelessRecipe legacyShapeless = new LegacyShapelessRecipe(result, ingredients);
 
-					NMSFixedFurnaceRecipe furnaceRecipe = new NMSFixedFurnaceRecipe(nextCustomKey(), ingredient, result, xp);
+                    ShapelessRecipes match = null;
+                    Iterator<IRecipe> iterator = CraftingManager.recipes.iterator();
 
-					CRFixedFurnaceRecipe cr = new CRFixedFurnaceRecipe(furnaceRecipe);
-					plugin.disableFurnaceRecipeFile(cr);
-				} catch (IOException e) {
-					e.printStackTrace();
-					sender.sendMessage(ChatColor.RED + "Something went wrong when migrating disabled furnace recipe " + name + ", please check your console for errors.");
-				}
-			}
-		}
+                    //loop until a match was found
+                    while (iterator.hasNext() && match == null) {
+                        IRecipe serverRecipe = iterator.next();
+                        if (serverRecipe instanceof ShapelessRecipes) {
+                            ShapelessRecipes shapeless = (ShapelessRecipes) serverRecipe;
+                            if (legacyShapeless.equalsRecipe(shapeless)) {
+                                match = shapeless;
+                            }
+                        }
+                    }
 
-	}
-	
-	
-	//shaped recipe as in minecraft 1.11 and earlier versions. ingredients was just a list of itemstacks
-	private static class LegacyShapedRecipe {
-		private int width;
-		private int heigth;
-		private ItemStack result;
-		private NonNullList<ItemStack> ingredients;
-		
-		public LegacyShapedRecipe(int width, int heigth, ItemStack result, NonNullList<ItemStack> ingredients) {
-			this.width = width;
-			this.heigth = heigth;
-			this.result = result;
-			this.ingredients = ingredients;
-		}
-		
-		public boolean equalsRecipe(ShapedRecipes oneTwelveVersion) {
-			int width = (int) ReflectionUtil.getDeclaredFieldValue(oneTwelveVersion, "width");
-			if (width != this.width) return false;
-			
-			int heigth = (int) ReflectionUtil.getDeclaredFieldValue(oneTwelveVersion, "height");
-			if (heigth != this.heigth) return false;
-			
-			ItemStack result = (ItemStack) ReflectionUtil.getDeclaredFieldValue(oneTwelveVersion, "result");
-			if (!ItemStack.fastMatches(result, this.result)) return false;
-			
-			NonNullList<RecipeItemStack> ingredients = (NonNullList<RecipeItemStack>) ReflectionUtil.getDeclaredFieldValue(oneTwelveVersion, "items");
-			for (int i = 0; i < ingredients.size(); i++) {
-				RecipeItemStack ingredient = ingredients.get(i);
-				if (!ingredient.a(this.ingredients.get(i))) return false; //legacy ingredient was not accepted by the 1.12 ingredient
-			}
-			
-			return true;
-		}
-	}
-	
-	//shapeless recipe as in minecraft 1.11 and earlier versions
-	private static class LegacyShapelessRecipe {
-		private ItemStack result;
-		private NonNullList<ItemStack> ingredients;
-		
-		public LegacyShapelessRecipe(ItemStack result, NonNullList<ItemStack> ingredients) {
-			this.result = result;
-			this.ingredients = ingredients;
-		}
-		
-		public boolean equalsRecipe(ShapelessRecipes oneTwelveVersion) {
-			ItemStack result = (ItemStack) ReflectionUtil.getDeclaredFieldValue(oneTwelveVersion, "result");
-			if (!ItemStack.fastMatches(result, this.result)) return false;
-			
-			NonNullList<RecipeItemStack> ingredients = (NonNullList<RecipeItemStack>) ReflectionUtil.getDeclaredFieldValue(oneTwelveVersion, "ingredients");
-			for (int i = 0; i < ingredients.size(); i++) {
-				RecipeItemStack ingredient = ingredients.get(i);
-				if (!ingredient.a(this.ingredients.get(i))) return false; //legacy ingredient was not accepted by the 1.12 ingredient
-			}
-			
-			return true;
-		}
-	}
+                    if (match != null) {
+
+                        //very nice! great success!
+                        CRShapelessRecipe crShapedRecipe = new CRShapelessRecipe(new NMSShapelessRecipe(match));
+                        plugin.disableCraftingRecipeFile("shapeless", crShapedRecipe);
+
+                    } else {
+                        sender.sendMessage(ChatColor.RED + "Couln't migrate disabled shapeless recipe \"" + name + "\", no match was found in the crafting manager. Is it already disabled?");
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    sender.sendMessage(ChatColor.RED + "Something went wrong when migrating disabled shapeless recipe " + name + ", please check your console for errors.");
+                }
+            }
+        }
+
+        //no disabled permission recipes
+
+        sender.sendMessage(ChatColor.YELLOW + "Migrating disabled furnace recipes");
+        //furnace
+        folder = new File(disabledFolder, "furnace_recipes");
+        if (folder.exists() && folder.isDirectory()) {
+
+            RecipesFurnace recipesFurnace = new RecipesFurnace();
+            for (File file : folder.listFiles()) {
+                String name = file.getName();
+
+                try {
+                    NBTTagCompound readTag = NBTUtil.readNBTTagCompound(file);
+                    NBTTagCompound resultTag = readTag.getCompound("Result");
+                    ItemStack result = resultTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(resultTag);
+                    NBTTagCompound ingredientTag = readTag.getCompound("Ingredient");
+                    ItemStack ingredient = ingredientTag.isEmpty() ? ItemStack.a : NBTUtil.deserializeItemStack(ingredientTag);
+                    float xp = readTag.hasKeyOfType("Experience", NBTUtil.FLOAT) ? readTag.getFloat("Experience") : 0F;
+
+                    NMSFixedFurnaceRecipe furnaceRecipe = new NMSFixedFurnaceRecipe(nextCustomKey(), ingredient, result, xp);
+
+                    CRFixedFurnaceRecipe cr = new CRFixedFurnaceRecipe(furnaceRecipe);
+                    plugin.disableFurnaceRecipeFile(cr);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    sender.sendMessage(ChatColor.RED + "Something went wrong when migrating disabled furnace recipe " + name + ", please check your console for errors.");
+                }
+            }
+        }
+
+    }
+
+
+    //shaped recipe as in minecraft 1.11 and earlier versions. ingredients was just a list of itemstacks
+    private static class LegacyShapedRecipe {
+        private int width;
+        private int heigth;
+        private ItemStack result;
+        private NonNullList<ItemStack> ingredients;
+
+        public LegacyShapedRecipe(int width, int heigth, ItemStack result, NonNullList<ItemStack> ingredients) {
+            this.width = width;
+            this.heigth = heigth;
+            this.result = result;
+            this.ingredients = ingredients;
+        }
+
+        public boolean equalsRecipe(ShapedRecipes oneTwelveVersion) {
+            int width = (int) ReflectionUtil.getDeclaredFieldValue(oneTwelveVersion, "width");
+            if (width != this.width) return false;
+
+            int heigth = (int) ReflectionUtil.getDeclaredFieldValue(oneTwelveVersion, "height");
+            if (heigth != this.heigth) return false;
+
+            ItemStack result = (ItemStack) ReflectionUtil.getDeclaredFieldValue(oneTwelveVersion, "result");
+            if (!ItemStack.fastMatches(result, this.result)) return false;
+
+            NonNullList<RecipeItemStack> ingredients = (NonNullList<RecipeItemStack>) ReflectionUtil.getDeclaredFieldValue(oneTwelveVersion, "items");
+            for (int i = 0; i < ingredients.size(); i++) {
+                RecipeItemStack ingredient = ingredients.get(i);
+                if (!ingredient.a(this.ingredients.get(i))) return false; //legacy ingredient was not accepted by the 1.12 ingredient
+            }
+
+            return true;
+        }
+    }
+
+    //shapeless recipe as in minecraft 1.11 and earlier versions
+    private static class LegacyShapelessRecipe {
+        private ItemStack result;
+        private NonNullList<ItemStack> ingredients;
+
+        public LegacyShapelessRecipe(ItemStack result, NonNullList<ItemStack> ingredients) {
+            this.result = result;
+            this.ingredients = ingredients;
+        }
+
+        public boolean equalsRecipe(ShapelessRecipes oneTwelveVersion) {
+            ItemStack result = (ItemStack) ReflectionUtil.getDeclaredFieldValue(oneTwelveVersion, "result");
+            if (!ItemStack.fastMatches(result, this.result)) return false;
+
+            NonNullList<RecipeItemStack> ingredients = (NonNullList<RecipeItemStack>) ReflectionUtil.getDeclaredFieldValue(oneTwelveVersion, "ingredients");
+            for (int i = 0; i < ingredients.size(); i++) {
+                RecipeItemStack ingredient = ingredients.get(i);
+                if (!ingredient.a(this.ingredients.get(i))) return false; //legacy ingredient was not accepted by the 1.12 ingredient
+            }
+
+            return true;
+        }
+    }
 
 }

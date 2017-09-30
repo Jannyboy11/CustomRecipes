@@ -1,8 +1,5 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting.custom.modify;
 
-import java.util.Collections;
-import java.util.Map;
-
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.modify.CraftingModifier;
 import com.gmail.jannyboy11.customrecipes.api.crafting.modify.ModifiedCraftingRecipe;
@@ -10,7 +7,6 @@ import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSCraftingRecipe;
 
 import net.minecraft.server.v1_12_R1.IRecipe;
-import net.minecraft.server.v1_12_R1.NBTTagCompound;
 
 public class CRModifiedCraftingRecipe 
         <T extends IRecipe, R extends IRecipe, 

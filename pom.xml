@@ -64,6 +64,7 @@
           <excludePackageNames>
             <!-- TODO I should split the project up in maven modules -->
             com.gmail.jannyboy11.customrecipes.commands:
+            com.gmail.jannyboy11.customrecipes.gui:
             com.gmail.jannyboy11.customrecipes.impl:
             com.gmail.jannyboy11.customrecipes.serialize:
             com.gmail.jannyboy11.customrecipes.util

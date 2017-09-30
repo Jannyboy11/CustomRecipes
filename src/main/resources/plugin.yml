@@ -6,34 +6,20 @@ main: com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin
 website: https://www.spigotmc.org/resources/custom-recipes.11440/
 
 commands:
-  addrecipe:
+  managerecipes:
     description: Create a new recipe
-    usage: /addrecipe <type> <args>
-    permission: customrecipes.addrecipe
-  removerecipe:
-    description: Remove a recipe
-    usage: /removerecipe <type> <args>
-    permission: customrecipes.removerecipe
-  listrecipes:
-    description: List all recipes of a type
-    usage: /listrecipes <type>
-    permission: customrecipes.listrecipes
+    usage: /managerecipes
+    permission: customrecipes.manage
+    aliases: [manrecipes, mrecipes, adminrecipes, arecipes, mr, ar]
   migraterecipes:
-    description: Migrate recipes from CustomRecipes v1.1.0 to v2.2.1
+    description: Migrate recipes from CustomRecipes v2.2.1 to v3.0.0
     usage: /migraterecipes
-    permission: customrecipes.migraterecipes
+    permission: customrecipes.migrate
 
 permissions:
-  customrecipes.addrecipe:
+  customrecipes.manage:
     description: Allows access to /addrecipe
     default: op
-  customrecipes.removerecipe:
-    description: Allows access to /removerecipe
-    default: op
-  customrecipes.migraterecipes:
+  customrecipes.migrate:
     description: Allows access to /migraterecipes
     default: op
-
-  customrecipes.listrecipes:
-    description: Allows access to /listrecipes
-    default: true

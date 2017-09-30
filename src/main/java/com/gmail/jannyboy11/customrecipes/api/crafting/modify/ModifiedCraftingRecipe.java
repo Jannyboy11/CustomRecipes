@@ -6,6 +6,6 @@ public interface ModifiedCraftingRecipe<R extends CraftingRecipe> extends Crafti
     
     public R getBaseRecipe();
     
-    public CraftingModifier getModifier();
+    public CraftingModifier getModifier(); //TODO make this generic?
 
 }

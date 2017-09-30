@@ -3,13 +3,22 @@ package com.gmail.jannyboy11.customrecipes.impl;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.function.Predicate;
 
 import com.gmail.jannyboy11.customrecipes.api.furnace.recipe.FixedFurnaceRecipe;
+import com.gmail.jannyboy11.customrecipes.api.ingredient.ChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.api.ingredient.Ingredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.modify.CRCraftingModifier;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.modify.NMSCraftingModifier;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.CRFixedFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.vanilla.NMSFixedFurnaceRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.ingredient.CRIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.ingredient.custom.Bukkit2NMSIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.ingredient.custom.InjectedIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.ingredient.vanilla.CRChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.ingredient.vanilla.CREmptyIngredient;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryCrafting;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.CraftingInventory;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
@@ -24,6 +33,7 @@ import com.gmail.jannyboy11.customrecipes.impl.furnace.custom.*;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
 import net.minecraft.server.v1_12_R1.*;
+
 public class RecipeUtils {
 
     private RecipeUtils() {}
@@ -40,7 +50,7 @@ public class RecipeUtils {
         registerNMSCraftingRecipe(RecipiesShield.Decoration.class, NMSShieldDecoration.class);
         registerNMSCraftingRecipe(RecipeShulkerBox.Dye.class, NMSShulkerBoxDye.class);
         registerNMSCraftingRecipe(RecipeTippedArrow.class, NMSTippedArrow.class);
-        //TODO why dont shaped and shapeless recipes work with registerNMSCraftingRecipe?
+        //TODO why don't shaped and shapeless recipes work with registerNMSCraftingRecipe?
         nmsCraftingRecipeMappings.put(ShapedRecipes.class, NMSShapedRecipe.class);
         nmsCraftingRecipeMappings.put(ShapelessRecipes.class, NMSShapelessRecipe.class);
     }
@@ -151,6 +161,59 @@ public class RecipeUtils {
     public static CraftInventoryCrafting getBukkitCraftingInventory(InventoryCrafting inventoryCrafting) {
         IInventory resultInventory = inventoryCrafting.resultInventory;
         return new CraftInventoryCrafting(inventoryCrafting, resultInventory);
+    }
+
+
+    public static CRChoiceIngredient asBukkitIngredient(RecipeItemStack ingredient) {
+        //TODO can we handle subclasses of RecipeItemStack?
+        //TODO Right now, we can't because the subclass doesn't have a toBukkit we can override. But this should be a thing.
+        //TODO adjust the RecipeItemStackInjected class
+        return ingredient == RecipeItemStack.a ? CREmptyIngredient.INSTANCE : new CRChoiceIngredient(ingredient);
+    }
+
+    public static RecipeItemStack asNMSIngredient(ChoiceIngredient ingredient) {
+        if (ingredient instanceof CRChoiceIngredient) {
+            CRChoiceIngredient crIngredient = (CRChoiceIngredient) ingredient;
+            return crIngredient.getHandle();
+        }
+
+        Predicate<? super ItemStack> nmsIngredient = asNMSIngredient((Ingredient) ingredient);
+        RecipeItemStack recipeItemStack = nmsIngredient instanceof RecipeItemStack ?
+                (RecipeItemStack) nmsIngredient :
+                new InjectedIngredient(nmsIngredient).asNMSIngredient();
+
+        ItemStack[] choices = ingredient.getChoices().stream()
+                .map(CraftItemStack::asNMSCopy)
+                .toArray(ItemStack[]::new);
+        ReflectionUtil.setFinalFieldValue(recipeItemStack, "choices", choices);
+
+        return recipeItemStack;
+    }
+
+    public static Predicate<? super ItemStack> asNMSIngredient(Ingredient ingredient) {
+        if (ingredient instanceof ChoiceIngredient) {
+            ChoiceIngredient choiceIngredient = (ChoiceIngredient) ingredient;
+            return asNMSIngredient(choiceIngredient);
+        }
+
+        if (ingredient instanceof CRIngredient) {
+            CRIngredient<RecipeItemStack> crIngredient = (CRIngredient<RecipeItemStack>) ingredient;
+            return crIngredient.getHandle();
+        }
+
+        //fallback
+        return new Bukkit2NMSIngredient(ingredient);
+    }
+
+    public static RecipeItemStack asRecipeItemStack(Ingredient ingredient) {
+        Predicate<? super ItemStack> nmsIngredient = asNMSIngredient(ingredient);
+
+        if (nmsIngredient instanceof RecipeItemStack) {
+            RecipeItemStack recipeItemStack = (RecipeItemStack) nmsIngredient;
+            return recipeItemStack;
+        }
+
+        return new InjectedIngredient(nmsIngredient).asNMSIngredient();
     }
     
 }

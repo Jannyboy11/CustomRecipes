@@ -1,6 +1,4 @@
-package com.gmail.jannyboy11.customrecipes.impl.ingredient;
-
-import java.util.Map;
+package com.gmail.jannyboy11.customrecipes.impl.ingredient.custom;
 
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 
@@ -13,11 +11,6 @@ public class Bukkit2NMSIngredient extends InjectedIngredient {
 	public Bukkit2NMSIngredient(Ingredient bukkitIngredient) {
 		super (nmsStack -> bukkitIngredient.test(CraftItemStack.asCraftMirror(nmsStack)));
 		this.bukkitIngredient = bukkitIngredient;
-	}
-	
-	public static Bukkit2NMSIngredient deserialize(Map<String, Object> map) {
-		Ingredient bukkitIngredient = (Ingredient) map.get("bukkitIngredient");
-		return new Bukkit2NMSIngredient(bukkitIngredient);
 	}
 
 }

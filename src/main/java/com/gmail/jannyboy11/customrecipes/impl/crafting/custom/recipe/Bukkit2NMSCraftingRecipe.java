@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import com.gmail.jannyboy11.customrecipes.impl.RecipeUtils;
+import com.gmail.jannyboy11.customrecipes.impl.ingredient.CRIngredient;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.*;
@@ -15,7 +16,6 @@ import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.*;
 import com.gmail.jannyboy11.customrecipes.api.ingredient.ChoiceIngredient;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.*;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.*;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.*;
 import com.gmail.jannyboy11.customrecipes.serialize.NBTSerializable;
@@ -23,7 +23,7 @@ import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
 
 import net.minecraft.server.v1_12_R1.*;
 
-public class Bukkit2NMSCraftingRecipe extends NMSCraftingRecipe<IRecipe> implements NBTSerializable {
+public class Bukkit2NMSCraftingRecipe extends NMSCraftingRecipe<IRecipe> {
 
     //dirty hacks!
     private static final String CUSTOM_RECIPES_BUKKITRECIPE_KEY = "cr-bukkit2nmsrecipe-";
@@ -37,27 +37,12 @@ public class Bukkit2NMSCraftingRecipe extends NMSCraftingRecipe<IRecipe> impleme
     public Bukkit2NMSCraftingRecipe(CraftingRecipe bukkitRecipe) {
         this.bukkit = Objects.requireNonNull(bukkitRecipe);
     }
-    
-    public Bukkit2NMSCraftingRecipe(Map<String, Object> map) {
-        this((CraftingRecipe) map.get("bukkit"));
-    }
-    
-    @Override
-    public Map<String, Object> serialize() {
-        return Collections.singletonMap("bukkit", bukkit);
-    }
 
     @Override
     public MinecraftKey getKey() {
         NamespacedKey key = bukkit.getKey();
         return key == null ? null : CraftNamespacedKey.toMinecraft(key);
     }
-
-    @Override
-    public NBTTagCompound serializeToNbt() {
-        return NBTUtil.fromMap(serialize());
-    }
-
 
     @Override
     public boolean a(InventoryCrafting inventoryCrafting, World world) {
@@ -75,7 +60,7 @@ public class Bukkit2NMSCraftingRecipe extends NMSCraftingRecipe<IRecipe> impleme
     @Override
     public NonNullList<RecipeItemStack> d() {
         return bukkit.getIngredients().stream()
-                .map(CRCraftingIngredient::asNMSIngredient)
+                .map(RecipeUtils::asRecipeItemStack)
                 .collect(Collectors.toCollection(NonNullList::a));
     }
 

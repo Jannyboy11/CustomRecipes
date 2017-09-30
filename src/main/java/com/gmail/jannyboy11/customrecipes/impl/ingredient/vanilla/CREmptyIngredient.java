@@ -1,4 +1,4 @@
-package com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient;
+package com.gmail.jannyboy11.customrecipes.impl.ingredient.vanilla;
 
 import java.util.Map;
 

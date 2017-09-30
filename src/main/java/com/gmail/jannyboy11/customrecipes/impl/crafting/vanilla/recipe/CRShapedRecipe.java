@@ -6,9 +6,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.ShapedRecipe;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.RecipeUtils;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingRecipe;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.ingredient.CRChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.ingredient.vanilla.CRChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
@@ -22,107 +22,109 @@ import net.minecraft.server.v1_12_R1.ShapedRecipes;
 
 public class CRShapedRecipe<V extends ShapedRecipes, S extends NMSShapedRecipe<V>> extends CRCraftingRecipe<V, S> implements ShapedRecipe {
 
-	public CRShapedRecipe(S nmsRecipe) {
-		super(nmsRecipe);
-	}
-	
-	public CRShapedRecipe(NBTTagCompound recipeCompound) {
-		this((S) new NMSShapedRecipe((V) deserializeNmsRecipe(recipeCompound)));
-	}
-	
-	public CRShapedRecipe(Map<String, ?> map) {
-		this(NBTUtil.fromMap(map));
-	}
+    public CRShapedRecipe(S nmsRecipe) {
+        super(nmsRecipe);
+    }
 
-	public NBTTagCompound serializeToNbt() {
-		NBTTagCompound serialized = new NBTTagCompound();
-		serialized.set("key", NBTUtil.serializeKey(getHandle().getKey()));
-		serialized.set("result", NBTUtil.serializeItemStack(getHandle().b()));
-		if (hasGroup()) serialized.setString("group", getGroup());
-		serialized.setInt("width", getWidth());
-		serialized.setInt("height", getHeight());
-		NBTTagList ingredients = new NBTTagList();
-		for (RecipeItemStack ingr : nmsIngredients()) {
-			ingredients.add(NBTUtil.serializeRecipeItemStack(ingr));
-		}
-		serialized.set("ingredients", ingredients);
-		return serialized;
-	}
+    public CRShapedRecipe(NBTTagCompound recipeCompound) {
+        this((S) new NMSShapedRecipe((V) deserializeNmsRecipe(recipeCompound)));
+    }
 
-	//TODO change return type to NMSCraftingRecipe? or even better, refactor this functionality to NMSCraftingRecipe?
-	protected static ShapedRecipes deserializeNmsRecipe(NBTTagCompound recipeCompound) {
-		String group = recipeCompound.hasKeyOfType("group", NBTUtil.STRING) ? recipeCompound.getString("group") : "";
-		int width = recipeCompound.getInt("width");
-		int height = recipeCompound.getInt("height");
-		NonNullList<RecipeItemStack> ingredients = NonNullList.a();
-		NBTTagList nbtIngredients = recipeCompound.getList("ingredients", NBTUtil.COMPOUND);
-		for (int i = 0; i < nbtIngredients.size(); i++) {
-			NBTTagCompound ingredientTag = nbtIngredients.get(i);
-			RecipeItemStack recipeItemStack = NBTUtil.deserializeRecipeItemStack(ingredientTag);
-			ingredients.add(recipeItemStack);
-		}
-		NBTTagCompound resultCompound = (NBTTagCompound) recipeCompound.get("result");
-		ItemStack result = new ItemStack(resultCompound);
-		ShapedRecipes shapedRecipes = new ShapedRecipes(group, width, height, ingredients, result);
-		if (recipeCompound.hasKey("key")) {
-			shapedRecipes.setKey(NBTUtil.deserializeKey(recipeCompound.getCompound("key")));
-		}
-		return shapedRecipes;
-	}
-	
-	@Override
-	public int getWidth() {
-		return (int) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "width");
-	}
-	
-	@Override
-	public int getHeight() {
-		return (int) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "height");
-	}
-	
-	@Override
-	public List<CRChoiceIngredient> getIngredients() {
-		return nmsIngredients().stream().map(CRCraftingIngredient::asBukkitIngredient).collect(Collectors.toList());
-	}
-	
-	@SuppressWarnings("unchecked")
-	protected NonNullList<RecipeItemStack> nmsIngredients() {
-		return (NonNullList<RecipeItemStack>) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "items");
-	}
+    public CRShapedRecipe(Map<String, ?> map) {
+        this(NBTUtil.fromMap(map));
+    }
 
-	@Override
-	public String getGroup() {
-		return (String) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "e");
-	}
-	
-	@Override
-	public boolean equals(Object o) {
-		if (o == this) return true;
-		if (!(o instanceof ShapedRecipe)) return false;
-		if (o instanceof CRShapedRecipe) return Objects.equals(this.nmsRecipe, ((CRShapedRecipe<?, ?>) o).nmsRecipe);
-		
-		ShapedRecipe that = (ShapedRecipe) o;
-		
-		return Objects.equals(this.getResult(), that.getResult()) && Objects.equals(this.getIngredients(), that.getIngredients()) &&
-				Objects.equals(this.getWidth(), that.getWidth()) && Objects.equals(this.getHeight(), that.getHeight()) &&
-				Objects.equals(this.isHidden(), that.isHidden()) && Objects.equals(this.getGroup(), that.getGroup());
-	}
-	
-	@Override
-	public int hashCode() {
-		return Objects.hash(getResult(), getWidth(), getHeight(), getIngredients(), isHidden(), getGroup());
-	}
-	
-	@Override
-	public String toString() {
-		return getClass().getName() + "{" + 
-			"result()=" + getResult() +
-			",width()=" + getWidth() +
-			",heigth()=" + getHeight() +
-			",ingredients()=" + getIngredients() +
-			",hidden()=" + isHidden() +
-			",group()=" + getGroup() +				
-			"}";
-	}
+    public NBTTagCompound serializeToNbt() {
+        NBTTagCompound serialized = new NBTTagCompound();
+        serialized.set("key", NBTUtil.serializeKey(getHandle().getKey()));
+        serialized.set("result", NBTUtil.serializeItemStack(getHandle().b()));
+        if (hasGroup()) serialized.setString("group", getGroup());
+        serialized.setInt("width", getWidth());
+        serialized.setInt("height", getHeight());
+        NBTTagList ingredients = new NBTTagList();
+        for (RecipeItemStack ingr : nmsIngredients()) {
+            ingredients.add(NBTUtil.serializeRecipeItemStack(ingr));
+        }
+        serialized.set("ingredients", ingredients);
+        return serialized;
+    }
+
+    //TODO change return type to NMSCraftingRecipe? or even better, refactor this functionality to NMSCraftingRecipe?
+    protected static ShapedRecipes deserializeNmsRecipe(NBTTagCompound recipeCompound) {
+        String group = recipeCompound.hasKeyOfType("group", NBTUtil.STRING) ? recipeCompound.getString("group") : "";
+        int width = recipeCompound.getInt("width");
+        int height = recipeCompound.getInt("height");
+        NonNullList<RecipeItemStack> ingredients = NonNullList.a();
+        NBTTagList nbtIngredients = recipeCompound.getList("ingredients", NBTUtil.COMPOUND);
+        for (int i = 0; i < nbtIngredients.size(); i++) {
+            NBTTagCompound ingredientTag = nbtIngredients.get(i);
+            RecipeItemStack recipeItemStack = NBTUtil.deserializeRecipeItemStack(ingredientTag);
+            ingredients.add(recipeItemStack);
+        }
+        NBTTagCompound resultCompound = (NBTTagCompound) recipeCompound.get("result");
+        ItemStack result = new ItemStack(resultCompound);
+        ShapedRecipes shapedRecipes = new ShapedRecipes(group, width, height, ingredients, result);
+        if (recipeCompound.hasKey("key")) {
+            shapedRecipes.setKey(NBTUtil.deserializeKey(recipeCompound.getCompound("key")));
+        }
+        return shapedRecipes;
+    }
+
+    @Override
+    public int getWidth() {
+        return (int) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "width");
+    }
+
+    @Override
+    public int getHeight() {
+        return (int) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "height");
+    }
+
+    @Override
+    public List<CRChoiceIngredient> getIngredients() {
+        return nmsIngredients().stream()
+                .map(RecipeUtils::asBukkitIngredient)
+                .collect(Collectors.toList());
+    }
+
+    @SuppressWarnings("unchecked")
+    protected NonNullList<RecipeItemStack> nmsIngredients() {
+        return (NonNullList<RecipeItemStack>) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "items");
+    }
+
+    @Override
+    public String getGroup() {
+        return (String) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "e");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof ShapedRecipe)) return false;
+        if (o instanceof CRShapedRecipe) return Objects.equals(this.nmsRecipe, ((CRShapedRecipe<?, ?>) o).nmsRecipe);
+
+        ShapedRecipe that = (ShapedRecipe) o;
+
+        return Objects.equals(this.getResult(), that.getResult()) && Objects.equals(this.getIngredients(), that.getIngredients()) &&
+                Objects.equals(this.getWidth(), that.getWidth()) && Objects.equals(this.getHeight(), that.getHeight()) &&
+                Objects.equals(this.isHidden(), that.isHidden()) && Objects.equals(this.getGroup(), that.getGroup());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getResult(), getWidth(), getHeight(), getIngredients(), isHidden(), getGroup());
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getName() + "{" +
+            "result()=" + getResult() +
+            ",width()=" + getWidth() +
+            ",heigth()=" + getHeight() +
+            ",ingredients()=" + getIngredients() +
+            ",hidden()=" + isHidden() +
+            ",group()=" + getGroup() +
+            "}";
+    }
 
 }

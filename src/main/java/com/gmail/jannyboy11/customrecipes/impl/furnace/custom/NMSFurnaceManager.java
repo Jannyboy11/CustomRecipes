@@ -7,7 +7,7 @@ import java.util.Map;
 import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
 
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
-import com.gmail.jannyboy11.customrecipes.impl.ingredient.InjectedIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.ingredient.custom.InjectedIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.vanilla.NMSFixedFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 import com.google.common.collect.Iterators;

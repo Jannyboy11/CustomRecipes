@@ -9,6 +9,7 @@ import net.minecraft.server.v1_12_R1.RecipeItemStack;
 import net.minecraft.server.v1_12_R1.ShapedRecipes;
 import net.minecraft.server.v1_12_R1.World;
 
+//TODO find out where this class is used and remove it, use the modifier instead
 public class PermissionRecipe extends ShapedRecipes {
 
 	private final String permission;
