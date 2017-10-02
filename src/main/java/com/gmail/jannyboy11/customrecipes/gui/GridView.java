@@ -123,7 +123,7 @@ public class GridView implements InventoryHolder {
 
     public void fill(int xOffset, int yOffset, int xLength, int yLength, ItemStack with) {
         for (int x = xOffset; x < xLength + xOffset; x++) {
-            for (int y = xOffset; y < yLength + yOffset; y++) {
+            for (int y = yOffset; y < yLength + yOffset; y++) {
                 setItem(x, y, with);
             }
         }
@@ -133,7 +133,7 @@ public class GridView implements InventoryHolder {
         fill(x, yOffset, 1, yLength, with);
     }
 
-    public void horizontalLine(int y, int xOffset, int xLength, ItemStack with) {
+    public void horizontalLine(int xOffset, int y, int xLength, ItemStack with) {
         fill(xOffset, y, xLength, 1, with);
     }
 

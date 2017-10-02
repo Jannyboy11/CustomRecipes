@@ -66,12 +66,6 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
     private Set<MinecraftKey> vanillaCraftingRecipes;
     private Map<net.minecraft.server.v1_12_R1.ItemStack, net.minecraft.server.v1_12_R1.ItemStack> vanillaFurnaceRecipes;
 
-    public CustomRecipesPlugin() {
-        instance = this;
-
-        craftingManager = new CRCraftingManager();
-        furnaceManager = new CRFurnaceManager(NMSFurnaceManager.getInstance());
-    }
 
 
     private void recordVanillaRecipes() {
@@ -95,6 +89,12 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 
     @Override
     public void onLoad() {
+        instance = this;
+
+        craftingManager = new CRCraftingManager();
+        furnaceManager = new CRFurnaceManager(NMSFurnaceManager.getInstance());
+
+
         //define RecipeItemStackInjected subclass
         InjectedIngredient.inject();
 
@@ -188,7 +188,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
         String[] shape = bukkitRecipe.getShape();
         Map<Character, ItemStack> map = bukkitRecipe.getIngredientMap();
         List<? extends ChoiceIngredient> ingredients = Arrays.stream(shape)
-                .flatMapToInt(s -> s.chars())
+                .flatMapToInt(String::chars)
                 .mapToObj(i -> map.get((char) i))
                 .map(SimpleChoiceIngredient::fromChoices)
                 .collect(Collectors.toList());
