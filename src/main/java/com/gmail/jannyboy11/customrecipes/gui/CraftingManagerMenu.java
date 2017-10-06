@@ -34,7 +34,8 @@ public class CraftingManagerMenu extends MenuHolder<CustomRecipesPlugin> {
             CraftingRecipe recipe = recipes.get(listIndex);
 
             //TODO maybe keep track of the buttons in a field? for removal and such
-            MenuButton button = new RedirectItemButton(recipe.getResult(), () -> new CraftingRecipeMenu(getPlugin(), recipe).getInventory()); //NPE?
+            MenuButton button = new RedirectItemButton(recipe.getResult(), () -> new CraftingRecipeMenu(getPlugin(), recipe).getInventory());
+            //TODO doesn't redirect? why not? :( it worked for the MainMenu?
             setButton(inventoryIndex, button);
             
             inventoryIndex++;
@@ -42,7 +43,7 @@ public class CraftingManagerMenu extends MenuHolder<CustomRecipesPlugin> {
         }
     }
     
-    //TODO implement next and previous buttons
+    //TODO implement next and previous buttons as well
     public void clearIcons() {
         
     }

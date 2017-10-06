@@ -77,7 +77,7 @@ public class CRShapedRecipe<V extends ShapedRecipes, S extends NMSShapedRecipe<V
 
     @Override
     public String getGroup() {
-        return (String) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "e");
+       return nmsRecipe.getGroup();
     }
 
     @Override
