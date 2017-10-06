@@ -3,11 +3,16 @@ package com.gmail.jannyboy11.customrecipes.gui;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
+import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.MenuButton;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.MenuHolder;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.RedirectItemButton;
+import com.gmail.jannyboy11.customrecipes.util.ItemBuilder;
 
 public class CraftingManagerMenu extends MenuHolder<CustomRecipesPlugin> {
     
@@ -32,9 +37,11 @@ public class CraftingManagerMenu extends MenuHolder<CustomRecipesPlugin> {
 
         while (listIndex < recipes.size() && inventoryIndex < RECIPES_PER_PAGE) {
             CraftingRecipe recipe = recipes.get(listIndex);
+            ItemStack icon = recipe.getResult();
+            if (InventoryUtils.isEmptyStack(icon)) icon = new ItemBuilder(Material.STRUCTURE_VOID).name(recipe.getKey().toString()).build();
 
             //TODO maybe keep track of the buttons in a field? for removal and such
-            MenuButton button = new RedirectItemButton(recipe.getResult(), () -> new CraftingRecipeMenu(getPlugin(), recipe).getInventory());
+            MenuButton button = new RedirectItemButton(icon, () -> new CraftingRecipeMenu(getPlugin(), recipe).getInventory());
             //TODO doesn't redirect? why not? :( it worked for the MainMenu?
             setButton(inventoryIndex, button);
             

@@ -18,7 +18,7 @@ public class MainMenu extends MenuHolder<CustomRecipesPlugin> {
         super(plugin, InventoryType.HOPPER, "Select a recipe type");
         
         setButton(1, new RedirectItemButton(CRAFTING_BUTTON, () -> new CraftingManagerMenu(plugin).getInventory()));
-        //TODO setButton(2, new RedirectItemButton(FURNACE_BUTTON, () -> new FurnaceManagerMenu(plugin).getInventory()));
+        //TODO setButton(3, new RedirectItemButton(FURNACE_BUTTON, () -> new FurnaceManagerMenu(plugin).getInventory()));
     }
 
 }
