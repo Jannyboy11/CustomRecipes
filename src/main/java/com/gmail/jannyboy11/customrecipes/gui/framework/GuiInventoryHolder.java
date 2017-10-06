@@ -30,7 +30,7 @@ public class GuiInventoryHolder<P extends Plugin> implements InventoryHolder {
     }
     
     @Override
-    public Inventory getInventory() {
+    public final Inventory getInventory() {
         return inventory;
     }
     

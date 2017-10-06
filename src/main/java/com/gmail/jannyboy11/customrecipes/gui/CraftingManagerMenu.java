@@ -37,8 +37,10 @@ public class CraftingManagerMenu extends MenuHolder<CustomRecipesPlugin> {
 
         while (listIndex < recipes.size() && inventoryIndex < RECIPES_PER_PAGE) {
             CraftingRecipe recipe = recipes.get(listIndex);
+            
             ItemStack icon = recipe.getResult();
-            if (InventoryUtils.isEmptyStack(icon)) icon = new ItemBuilder(Material.STRUCTURE_VOID).name(recipe.getKey().toString()).build();
+            if (InventoryUtils.isEmptyStack(icon)) icon = new ItemStack(Material.STRUCTURE_VOID);
+            icon = new ItemBuilder(icon).name(recipe.getKey().toString()).build();
 
             //TODO maybe keep track of the buttons in a field? for removal and such
             MenuButton button = new RedirectItemButton(icon, () -> new CraftingRecipeMenu(getPlugin(), recipe).getInventory());

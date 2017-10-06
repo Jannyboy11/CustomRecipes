@@ -24,7 +24,8 @@ public class MenuHolder<P extends Plugin> extends GuiInventoryHolder<P> {
     
     @Override
     public void onClick(InventoryClickEvent event) {
-        if (event.getClickedInventory() != this.getInventory()) return;
+        if (event.getClickedInventory() == null) return;
+        if (event.getClickedInventory().getHolder() != this) return; //TODO look into this? why does it work for main, but not for crafting recipes
         
         int slot = event.getSlot();
         MenuButton button = buttons.get(slot);

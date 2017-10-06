@@ -55,7 +55,7 @@ public class CraftingRecipeMenu extends MenuHolder<CustomRecipesPlugin> {
         GridView gridView = new GridView(getInventory(), 9, 5);
         
         //layout result
-        gridView.setItem(7, 2, recipe.getResult());
+        gridView.setItem(6, 2, recipe.getResult());
         
         //layout ingredients
         if (recipe instanceof ShapedRecipe) {
@@ -66,7 +66,11 @@ public class CraftingRecipeMenu extends MenuHolder<CustomRecipesPlugin> {
             
             int i = 0;
             for (int w = 0; w < width; w++) {
+                if (i >= recipe.getIngredients().size()) break;
+                
                 for (int h = 0; h < height; h++) {
+                    if (i >= recipe.getIngredients().size()) break;
+                    
                     ChoiceIngredient choiceIngredient = shapedRecipe.getIngredients().get(i);
                     if (!choiceIngredient.getChoices().isEmpty()) {
                         ItemStack firstChoice = choiceIngredient.getChoices().get(0);
@@ -83,7 +87,11 @@ public class CraftingRecipeMenu extends MenuHolder<CustomRecipesPlugin> {
             
             int i = 0;
             for (int w = 0; w < 3; w++) {
+                if (i >= recipe.getIngredients().size()) break;
+                
                 for (int h = 0; h < 3; h++) {
+                    if (i >= recipe.getIngredients().size()) break;
+                    
                     Ingredient ingredient = recipe.getIngredients().get(i);
                     if (!(ingredient instanceof ChoiceIngredient)) continue;
                     
