@@ -154,7 +154,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
         ConfigurationSerialization.registerClass(SimpleFixedFurnaceRecipe.class);
         ConfigurationSerialization.registerClass(CRFixedFurnaceRecipe.class);
 
-        //TODO disable vanilla, check config.
+        //TODO disable vanilla recipes, check config.
 
 
         //commands
@@ -298,6 +298,8 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
      * @param recipeType shaped or shapeless
      * @param recipe the vanilla recipe
      */
+    //TODO replace/re-implement this method for the new file structure
+    @Deprecated
     public void disableCraftingRecipeFile(String recipeType, CRCraftingRecipe recipe) {
         String fileName = craftingRecipeFileName(recipe);
         if (isVanillaCraftingRecipe(recipe.getHandle().getKey())) {

@@ -1,14 +1,9 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
-
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.ShapelessRecipe;
-import com.gmail.jannyboy11.customrecipes.impl.RecipeUtils;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingRecipe;
-import com.gmail.jannyboy11.customrecipes.impl.ingredient.vanilla.CRChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
@@ -41,7 +36,7 @@ public class CRShapelessRecipe<V extends ShapelessRecipes, S extends NMSShapeles
         serialized.set("result", NBTUtil.serializeItemStack(getHandle().b()));
         if (hasGroup()) serialized.setString("group", getGroup());
         NBTTagList ingredients = new NBTTagList();
-        for (RecipeItemStack ingr : nmsIngredients()) {
+        for (RecipeItemStack ingr : nmsRecipe.d()) {
             ingredients.add(NBTUtil.serializeRecipeItemStack(ingr));
         }
         serialized.set("ingredients", ingredients);
@@ -65,23 +60,6 @@ public class CRShapelessRecipe<V extends ShapelessRecipes, S extends NMSShapeles
             shapelessRecipes.setKey(NBTUtil.deserializeKey(recipeCompound.getCompound("key")));
         }
         return shapelessRecipes;
-    }
-
-    @Override
-    public List<CRChoiceIngredient> getIngredients() {
-        return nmsIngredients().stream()
-                .map(RecipeUtils::asBukkitIngredient)
-                .collect(Collectors.toList());
-    }
-
-    @SuppressWarnings("unchecked")
-    private NonNullList<RecipeItemStack> nmsIngredients() {
-        return (NonNullList<RecipeItemStack>) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "ingredients");
-    }
-
-    @Override
-    public String getGroup() {
-        return (String) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "c");
     }
 
     @Override

@@ -106,10 +106,7 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 	private CraftingRecipe fromNMSRecipe(IRecipe recipe) {
 		if (recipe == null) return null;
 
-        //TODO use RecipeUtils
-        //TODO or should I delete this method? and move it to RecipeUtils completely?
-
-        return null;
+        return RecipeUtils.getBukkitRecipe(recipe);
 	}
 	
 	/**
@@ -121,10 +118,7 @@ public class CRCraftingManager implements com.gmail.jannyboy11.customrecipes.api
 	public IRecipe toNMSRecipe(CraftingRecipe craftingRecipe) {
 		if (craftingRecipe == null) return null;
 
-		//TODO use RecipeUtils
-        //TODO or should I delete this method? and move it to RecipeUtils completely?
-
-		return null;
+		return RecipeUtils.getNMSRecipe(craftingRecipe);
 	}
 
 	/**

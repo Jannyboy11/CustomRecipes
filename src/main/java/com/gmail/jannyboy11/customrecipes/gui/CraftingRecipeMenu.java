@@ -1,17 +1,23 @@
 package com.gmail.jannyboy11.customrecipes.gui;
 
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
+import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.ShapedRecipe;
+import com.gmail.jannyboy11.customrecipes.api.ingredient.ChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.api.ingredient.Ingredient;
+import com.gmail.jannyboy11.customrecipes.gui.framework.menu.ItemButton;
+import com.gmail.jannyboy11.customrecipes.gui.framework.menu.MenuButton;
+import com.gmail.jannyboy11.customrecipes.gui.framework.menu.MenuHolder;
+import com.gmail.jannyboy11.customrecipes.util.inventory.GridView;
 
 import java.util.Map;
 
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
-//TODO use a Container that blocks non-button slots
-public class CraftingRecipeMenu implements InventoryHolder {
+//TODO this shouldn't actually be a menu, but an editor lol :P TODO use the custom container <3
+public class CraftingRecipeMenu extends MenuHolder<CustomRecipesPlugin> {
 
     private static final String[] asciiLayout = new String[] {
           "PPPPPPPPP",
@@ -21,40 +27,78 @@ public class CraftingRecipeMenu implements InventoryHolder {
           "PPPPPPPPP",
           "PPDPBPEPP",
     };
-    private static final Map<Character, ItemStack> legend = Map.of(
-            'P', new ItemStack(Material.STAINED_GLASS_PANE, 1, DyeColor.LIGHT_BLUE.getWoolData()),
-            ' ', new ItemStack(Material.AIR),
-            'D', new ItemStack(Material.BARRIER),
-            'E', new ItemStack(Material.STRUCTURE_VOID),
-            'B', new ItemStack(Material.WOOD_DOOR));
+    private static final Map<Character, ? extends MenuButton> legend = Map.of(
+            'P', new ItemButton(new ItemStack(Material.STAINED_GLASS_PANE, 1, DyeColor.LIGHT_BLUE.getWoolData())), //not needed, event is cancelled anyway
+            'D', new ItemButton(new ItemStack(Material.BARRIER)), //TODO use custom implementation that deltes the recipe and redirects
+            'E', new ItemButton(new ItemStack(Material.STRUCTURE_VOID)), //TODO use redirect button?
+            'B', new ItemButton(new ItemStack(Material.WOOD_DOOR))); //TODO use redirectbutton?
     
-    private CustomRecipesPlugin plugin;
-    private Inventory inventory;
-    
-    //TODO support larger recipes than 3x3?
+    private final CraftingRecipe recipe;
 
-    public CraftingRecipeMenu(CustomRecipesPlugin plugin, ItemStack[][] ingredientsGrid, ItemStack result) {
-        this.plugin = plugin;
-        this.inventory = plugin.getServer().createInventory(this, 54, "Manage Recipe");
-
-        GridView gridView = new GridView(inventory, 9, 6);
+    public CraftingRecipeMenu(CustomRecipesPlugin plugin, CraftingRecipe craftingRecipe) {
+        super(plugin, 6 * 9, "Manage " + craftingRecipe.getKey());
+        
+        this.recipe = craftingRecipe;
         
         for (int y = 0; y < asciiLayout.length; y++) {
             for (int x = 0; x < asciiLayout[y].length(); x++) {
-                char symbol = asciiLayout[y].charAt(x);
-                ItemStack item = legend.get(symbol);
-                gridView.setItem(x, y, item);
+                MenuButton button = legend.get(asciiLayout[y].charAt(x));
+                if (button != null) setButton(y * 9 + x, button);
             }
         }
-
-        int heigth = ingredientsGrid.length;
-        int width = heigth == 0 ? 0 : ingredientsGrid[0].length;
-
-        gridView.fill(0, 0, width, heigth, (x, y) -> ingredientsGrid[x][y]);
+        
+        layoutRecipe();
     }
-
-    @Override
-    public Inventory getInventory() {
-        return inventory;
+    
+    
+    private void layoutRecipe() {
+        GridView gridView = new GridView(getInventory(), 9, 5);
+        
+        //layout result
+        gridView.setItem(7, 2, recipe.getResult());
+        
+        //layout ingredients
+        if (recipe instanceof ShapedRecipe) {
+            ShapedRecipe shapedRecipe = (ShapedRecipe) recipe;
+            
+            int width = shapedRecipe.getWidth();
+            int height = shapedRecipe.getHeight();
+            
+            int i = 0;
+            for (int w = 0; w < width; w++) {
+                for (int h = 0; h < height; h++) {
+                    ChoiceIngredient choiceIngredient = shapedRecipe.getIngredients().get(i);
+                    if (!choiceIngredient.getChoices().isEmpty()) {
+                        ItemStack firstChoice = choiceIngredient.getChoices().get(0);
+                        
+                        gridView.setItem(1 + w, 1 + h, firstChoice);
+                    }
+                    
+                    i++;
+                }
+            }
+            
+        } else {
+            //not a shaped recipe
+            
+            int i = 0;
+            for (int w = 0; w < 3; w++) {
+                for (int h = 0; h < 3; h++) {
+                    Ingredient ingredient = recipe.getIngredients().get(i);
+                    if (!(ingredient instanceof ChoiceIngredient)) continue;
+                    
+                    ChoiceIngredient choiceIngredient = (ChoiceIngredient) ingredient;
+                    
+                    if (!choiceIngredient.getChoices().isEmpty()) {
+                        ItemStack firstChoice = choiceIngredient.getChoices().get(0);
+                        
+                        gridView.setItem(1 + w, 1 + h, firstChoice);
+                    }
+                    
+                    i++;
+                }
+            }
+        }
     }
+    
 }

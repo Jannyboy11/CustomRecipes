@@ -17,6 +17,14 @@ public class NMSShapedRecipe<V extends ShapedRecipes> extends NMSCraftingRecipe<
         return delegate.key;
     }
     
+    public int getWidth() {
+        return (int) ReflectionUtil.getDeclaredFieldValue(delegate, "width");
+    }
+
+    public int getHeight() {
+        return (int) ReflectionUtil.getDeclaredFieldValue(delegate, "height");
+    }
+    
     @Override
     public String getGroup() {
         return (String) ReflectionUtil.getDeclaredFieldValue(delegate, "e");

@@ -28,5 +28,8 @@ public interface Ingredient extends Predicate<ItemStack> {
 	public default boolean test(ItemStack itemStack) {
 		return isIngredient(itemStack);
 	}
+	
+	//TODO a method which determines what is returned when the recipe is used? no that would be for crafting recipes only.
+	//TODO subclass this with a CraftinIngredient interface.
 
 }

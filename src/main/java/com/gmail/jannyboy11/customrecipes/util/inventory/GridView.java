@@ -1,4 +1,4 @@
-package com.gmail.jannyboy11.customrecipes.gui;
+package com.gmail.jannyboy11.customrecipes.util.inventory;
 
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
@@ -46,9 +46,13 @@ public class GridView implements InventoryHolder {
         this.width = width;
         this.height = height;
     }
+    
+    public int getIndex(int x, int y) {
+        return x + y * width;
+    }
 
-    public ItemStack getItem(int xRightWards, int yDownWards) {
-        return inventory.getItem(xRightWards + yDownWards * width);
+    public ItemStack getItem(int x, int y) {
+        return inventory.getItem(getIndex(x, y));
     }
 
     public List<? extends ItemStack> getColumnItems(int x) {

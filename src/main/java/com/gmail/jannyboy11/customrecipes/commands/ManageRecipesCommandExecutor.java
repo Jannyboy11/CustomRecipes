@@ -2,6 +2,8 @@ package com.gmail.jannyboy11.customrecipes.commands;
 
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.gui.CraftingRecipeMenu;
+import com.gmail.jannyboy11.customrecipes.gui.MainMenu;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -27,7 +29,7 @@ public class ManageRecipesCommandExecutor implements CommandExecutor {
 
         Player player = (Player) sender;
         //temporary
-        player.openInventory(new CraftingRecipeMenu(plugin, new ItemStack[0][], new ItemStack(Material.AIR)).getInventory());
+        player.openInventory(new MainMenu(plugin).getInventory());
 
         return true;
     }

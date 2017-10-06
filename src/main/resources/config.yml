@@ -1,0 +1,9 @@
+# CustomRecipes configuration
+
+# Yup, this is really the only thing that's configurable!
+disable-vanilla-recipes:
+  # Whether vanilla crafting recipes should be disabled when CustomRecipes enables.
+  crafting: false
+
+  # Whether vanilla furnace recipes should be disabled when CustomRecipes enables.
+  furnace : false

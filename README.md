@@ -26,7 +26,7 @@ BuildTools already does this for you, but if you got the server jar from somewhe
 More on this [here](https://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html).
 Once you've done this, the dependencies in the pom.xml should resolve.
 
-Then run ```mvn package install``` and your server-ready plugin jar is ready in your target folder. Be sure to use the shaded one.
+Then run ```mvn clean install``` and your server-ready plugin jar is ready in your target folder. Be sure to use the shaded one.
 
 # FAQ
 
@@ -37,8 +37,4 @@ A: Run the command ```/migraterecpes``` to migrate the custom recipes to the new
 
 Q: I want to disable all vanilla recipes, but using the /removerecipe command is too tedious.
 
-A: Vanilla recipes are stored as json files in the server jar, wich is a glorified zip file.
-Use any zip file editor such as 7zip or WinRAR to remove those recipes.
-They can be found /assets/minecraft/recipes. This works for crafting recipes, but furnace recipes are still hardcoded in the vanilla minecraft code sadly.
-
-
+A: Vanilla recipes can be disabled in the config.

@@ -1,14 +1,9 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
-
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.ShapedRecipe;
-import com.gmail.jannyboy11.customrecipes.impl.RecipeUtils;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingRecipe;
-import com.gmail.jannyboy11.customrecipes.impl.ingredient.vanilla.CRChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.util.NBTUtil;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
@@ -42,7 +37,7 @@ public class CRShapedRecipe<V extends ShapedRecipes, S extends NMSShapedRecipe<V
         serialized.setInt("width", getWidth());
         serialized.setInt("height", getHeight());
         NBTTagList ingredients = new NBTTagList();
-        for (RecipeItemStack ingr : nmsIngredients()) {
+        for (RecipeItemStack ingr : nmsRecipe.d()) {
             ingredients.add(NBTUtil.serializeRecipeItemStack(ingr));
         }
         serialized.set("ingredients", ingredients);
@@ -72,24 +67,12 @@ public class CRShapedRecipe<V extends ShapedRecipes, S extends NMSShapedRecipe<V
 
     @Override
     public int getWidth() {
-        return (int) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "width");
+        return nmsRecipe.getWidth();
     }
 
     @Override
     public int getHeight() {
-        return (int) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "height");
-    }
-
-    @Override
-    public List<CRChoiceIngredient> getIngredients() {
-        return nmsIngredients().stream()
-                .map(RecipeUtils::asBukkitIngredient)
-                .collect(Collectors.toList());
-    }
-
-    @SuppressWarnings("unchecked")
-    protected NonNullList<RecipeItemStack> nmsIngredients() {
-        return (NonNullList<RecipeItemStack>) ReflectionUtil.getDeclaredFieldValue(nmsRecipe, "items");
+        return nmsRecipe.getHeight();
     }
 
     @Override
