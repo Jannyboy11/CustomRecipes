@@ -47,6 +47,12 @@ public class CRChoiceIngredient extends CRIngredient<RecipeItemStack> implements
     public Map<String, Object> serialize() {
         return NBTSerializable.super.serialize();
     }
+    
+    @Override
+    public String toString() {
+        return getClass().getName() + '{' +
+                "nms itemstack choices=" + Arrays.toString(nmsIngredient.choices) + '}';
+    }
 
     @Override
     public boolean equals(Object o) {

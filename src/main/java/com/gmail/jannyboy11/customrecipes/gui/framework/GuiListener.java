@@ -27,12 +27,10 @@ public class GuiListener<P extends Plugin> implements Listener {
     
     @EventHandler
     public void onClose(InventoryCloseEvent event) {
-        if (event.getView().getTopInventory().getHolder() == guiInventoryHolder)
-            guiInventoryHolder.onClose(event);
-
+        if (event.getView().getTopInventory().getHolder() != guiInventoryHolder) return;
+        
+        guiInventoryHolder.onClose(event);
         HandlerList.unregisterAll(this);
     }
     
-    //TODO listen to InventoryOpenEvent to re-register the eventhandlers?
-
 }

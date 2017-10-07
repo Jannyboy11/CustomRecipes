@@ -2,6 +2,7 @@ package com.gmail.jannyboy11.customrecipes.gui.framework;
 
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -11,21 +12,21 @@ public class GuiInventoryHolder<P extends Plugin> implements InventoryHolder {
     
     private final Inventory inventory;
     private final P plugin;
-    private final GuiListener<P> guiListener; //unregister on gc instead of on close?
+    final GuiListener<P> guiListener;
     
     public GuiInventoryHolder(P plugin, InventoryType type, String title) {
-        this.inventory = plugin.getServer().createInventory(this, type, title); //implicit null check
         this.plugin = plugin;
-        
         this.guiListener = new GuiListener<>(this);
+        this.inventory = plugin.getServer().createInventory(this, type, title); //implicit null check
+        
         plugin.getServer().getPluginManager().registerEvents(guiListener, plugin);
     }
     
     public GuiInventoryHolder(P plugin, int size, String title) {
-        this.inventory = plugin.getServer().createInventory(this, size, title); //implicit null check
         this.plugin = plugin;
-        
         this.guiListener = new GuiListener<>(this);
+        this.inventory = plugin.getServer().createInventory(this, size, title); //implicit null check
+        
         plugin.getServer().getPluginManager().registerEvents(guiListener, plugin);
     }
     
@@ -42,6 +43,9 @@ public class GuiInventoryHolder<P extends Plugin> implements InventoryHolder {
     }
 
     public void onClick(InventoryClickEvent event) {
+    }
+    
+    public void onOpen(InventoryOpenEvent event) {
     }
     
 }

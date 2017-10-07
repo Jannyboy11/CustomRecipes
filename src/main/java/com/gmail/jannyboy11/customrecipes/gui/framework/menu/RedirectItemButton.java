@@ -6,7 +6,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import com.google.common.base.Supplier;
+import java.util.function.Supplier;
 
 public class RedirectItemButton<MH extends MenuHolder<?>> extends ItemButton<MH> implements RedirectButton<MH> {
     

@@ -8,6 +8,7 @@ import java.util.logging.Level;
 import java.util.stream.*;
 
 import com.gmail.jannyboy11.customrecipes.commands.ManageRecipesCommandExecutor;
+import com.gmail.jannyboy11.customrecipes.gui.framework.GuiOpenListener;
 import com.gmail.jannyboy11.customrecipes.impl.ingredient.custom.InjectedIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.ingredient.vanilla.CRChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.ingredient.vanilla.CREmptyIngredient;
@@ -52,10 +53,6 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 
     //Hacks!
     private static CustomRecipesPlugin instance;
-
-    //TODO use NamspacedKey as keys instead
-//    private final NavigableMap<String, BiConsumer<? super Player, ? super List<String>>> adders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-//    private final NavigableMap<String, BiConsumer<? super Player, ? super List<String>>> removers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
     private final Map<String, BiConsumer<? super NBTSerializable, ? super File>> writers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private final Map<String, Function<? super File, ? extends Recipe>> readers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -105,6 +102,17 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 
     @Override
     public void onEnable() {
+        //listeners
+        getServer().getPluginManager().registerEvents(new GuiOpenListener(this), this);
+
+        //commands
+        getCommand("managerecipes").setExecutor(new ManageRecipesCommandExecutor(this));
+        //TODO migration command
+        
+        
+        //TODO disable vanilla recipes, check config.
+        
+        
         //serializable stuff
 
         //nbt arrays
@@ -153,13 +161,6 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
         //furnace
         ConfigurationSerialization.registerClass(SimpleFixedFurnaceRecipe.class);
         ConfigurationSerialization.registerClass(CRFixedFurnaceRecipe.class);
-
-        //TODO disable vanilla recipes, check config.
-
-
-        //commands
-        getCommand("managerecipes").setExecutor(new ManageRecipesCommandExecutor(this));
-        //TODO migration command
     }
 
     @Override

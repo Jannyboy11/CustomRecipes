@@ -3,7 +3,6 @@ package com.gmail.jannyboy11.customrecipes.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -21,11 +20,7 @@ public class CraftingManagerMenu extends MenuHolder<CustomRecipesPlugin> {
     private static final int RECIPES_PER_PAGE = 9 * 5;
     private static final ItemStack NEXT_BUTTON = new ItemBuilder(Material.MAGENTA_GLAZED_TERRACOTTA).name("Next").build();
     private static final ItemStack PREVIOUS_BUTTON = new ItemBuilder(Material.MAGENTA_GLAZED_TERRACOTTA).name("Previous").build();
-    private static final ItemStack NEW_BUTTON = new ItemBuilder(Material.CONCRETE)
-            .durability(DyeColor.LIME.getWoolData())
-            .name("Create new")
-            .build();
-    
+    private static final ItemStack NEW_BUTTON = new ItemBuilder(Material.STRUCTURE_BLOCK).name("Create new").build();
     
     private final List<CraftingRecipe> recipes = new ArrayList<>();
     private final int lastPageNr;
@@ -55,7 +50,7 @@ public class CraftingManagerMenu extends MenuHolder<CustomRecipesPlugin> {
             if (InventoryUtils.isEmptyStack(icon)) icon = new ItemStack(Material.STRUCTURE_VOID);
             icon = new ItemBuilder(icon).name(recipe.getKey().toString()).build();
 
-            MenuButton button = new RedirectItemButton(icon, () -> new CraftingRecipeMenu(getPlugin(), recipe).getInventory());
+            MenuButton button = new RedirectItemButton(icon, new CraftingRecipeMenu(getPlugin(), recipe, this::getInventory)::getInventory);
             setButton(inventoryIndex, button);
             
             inventoryIndex++;
