@@ -19,7 +19,7 @@ public class NMSMapExtend extends NMSShapedRecipe<RecipeMapExtend> {
     
     @Override
     public ItemStack b() {
-        return new ItemStack(Items.MAP);
+        return new ItemStack(Items.FILLED_MAP);
     }
     
 }

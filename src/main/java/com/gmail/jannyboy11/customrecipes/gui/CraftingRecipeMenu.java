@@ -9,7 +9,6 @@ import com.gmail.jannyboy11.customrecipes.gui.framework.menu.BackButton;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.ItemButton;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.MenuButton;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.MenuHolder;
-import com.gmail.jannyboy11.customrecipes.gui.framework.menu.RedirectItemButton;
 import com.gmail.jannyboy11.customrecipes.util.ItemBuilder;
 import com.gmail.jannyboy11.customrecipes.util.inventory.GridView;
 
@@ -32,9 +31,12 @@ public class CraftingRecipeMenu extends MenuHolder<CustomRecipesPlugin> {
           "PPPPPPPPP",
           "PPDPBPEPP",
     };
-    private static final ItemStack BORDER_BUTTON = new ItemStack(Material.STAINED_GLASS_PANE, 1, DyeColor.LIGHT_BLUE.getWoolData());
     private static final ItemStack DELETE_BUTTON = new ItemBuilder(Material.BARRIER).name("Delete").build();
     private static final ItemStack EDIT_BUTTON = new ItemBuilder(Material.STRUCTURE_VOID).name("Edit").build(); 
+    private static final ItemStack BORDER_BUTTON = new ItemBuilder(Material.STAINED_GLASS_PANE)
+            .name("U Can't Touch This")
+            .durability(DyeColor.LIGHT_BLUE.getWoolData())
+            .build();
     
     private final Map<Character, ? extends MenuButton> legend;
     private final CraftingRecipe recipe;

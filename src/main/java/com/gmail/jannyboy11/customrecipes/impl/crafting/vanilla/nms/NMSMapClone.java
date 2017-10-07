@@ -19,7 +19,7 @@ public class NMSMapClone extends NMSShapelessRecipe<RecipeMapClone> {
     
     @Override
     public ItemStack b() {
-        return new ItemStack(Items.FILLED_MAP);
+        return new ItemStack(Items.MAP);
     }
 
 }

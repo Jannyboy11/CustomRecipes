@@ -7,7 +7,7 @@ website: https://www.spigotmc.org/resources/custom-recipes.11440/
 
 commands:
   managerecipes:
-    description: Create a new recipe
+    description: Manage recipes
     usage: /managerecipes
     permission: customrecipes.manage
     aliases: [manrecipes, mrecipes, adminrecipes, arecipes, mr, ar]
@@ -17,8 +17,15 @@ commands:
     permission: customrecipes.migrate
 
 permissions:
+  customrecipes.*:
+    description: "Gives access to all of the CustomRecipes admin stuff :)"
+    children:
+      - customrecipes.manage
+      - customrecipes.migrate
+    default: op
+
   customrecipes.manage:
-    description: Allows access to /addrecipe
+    description: Allows access to /managerecipes
     default: op
   customrecipes.migrate:
     description: Allows access to /migraterecipes
