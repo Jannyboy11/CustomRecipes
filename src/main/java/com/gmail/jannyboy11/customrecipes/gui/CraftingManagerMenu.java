@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.gui.framework.menu.BackButton;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.ItemButton;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.MenuButton;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.MenuHolder;
@@ -43,7 +44,8 @@ public class CraftingManagerMenu extends MenuHolder<CustomRecipesPlugin> {
         
         //put in the buttons
         fillButtons();
-        setButton(RECIPES_PER_PAGE + 4, new ItemButton(NEW_BUTTON)); //TODO redirect button to editor
+        setButton(RECIPES_PER_PAGE + 3, new BackButton(() -> new MainMenu(getPlugin()).getInventory()));
+        setButton(RECIPES_PER_PAGE + 5, new ItemButton(NEW_BUTTON)); //TODO redirect button to editor
     }
     
     private void fillButtons() {        
@@ -58,7 +60,7 @@ public class CraftingManagerMenu extends MenuHolder<CustomRecipesPlugin> {
             if (InventoryUtils.isEmptyStack(icon)) icon = new ItemStack(Material.STRUCTURE_VOID);
             icon = new ItemBuilder(icon).name(recipe.getKey().toString()).build();
 
-            MenuButton button = new RedirectItemButton(icon, new CraftingRecipeMenu(getPlugin(), recipe, this::getInventory)::getInventory);
+            MenuButton button = new RedirectItemButton(icon, () -> new CraftingRecipeMenu(getPlugin(), recipe, this::getInventory).getInventory());
             setButton(inventoryIndex, button);
             
             inventoryIndex++;

@@ -5,6 +5,7 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.ShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.ingredient.Ingredient;
+import com.gmail.jannyboy11.customrecipes.gui.framework.menu.BackButton;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.ItemButton;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.MenuButton;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.MenuHolder;
@@ -33,7 +34,6 @@ public class CraftingRecipeMenu extends MenuHolder<CustomRecipesPlugin> {
     };
     private static final ItemStack BORDER_BUTTON = new ItemStack(Material.STAINED_GLASS_PANE, 1, DyeColor.LIGHT_BLUE.getWoolData());
     private static final ItemStack DELETE_BUTTON = new ItemBuilder(Material.BARRIER).name("Delete").build();
-    private static final ItemStack BACK_BUTTON = new ItemBuilder(Material.WOOD_DOOR).name("Back").build();
     private static final ItemStack EDIT_BUTTON = new ItemBuilder(Material.STRUCTURE_VOID).name("Edit").build(); 
     
     private final Map<Character, ? extends MenuButton> legend;
@@ -47,7 +47,7 @@ public class CraftingRecipeMenu extends MenuHolder<CustomRecipesPlugin> {
                 'P', new ItemButton(BORDER_BUTTON),
                 'D', new ItemButton(DELETE_BUTTON), //TODO use custom implementation that deletes the recipe and redirects
                 'E', new ItemButton(EDIT_BUTTON), //TODO use redirect button to editor inventory
-                'B', new RedirectItemButton(BACK_BUTTON, backRedirect));
+                'B', new BackButton(backRedirect));
     }
     
     @Override
@@ -64,6 +64,9 @@ public class CraftingRecipeMenu extends MenuHolder<CustomRecipesPlugin> {
     
     
     private void layoutRecipe() {
+        //TODO animated ingredients for choice ingredients with multiple choices? like the recipe book?
+        //TODO the animation task can be cancelled on close
+        
         GridView gridView = new GridView(getInventory(), 9, 5);
         
         //layout result
@@ -78,10 +81,13 @@ public class CraftingRecipeMenu extends MenuHolder<CustomRecipesPlugin> {
             
             int i = 0;
             
-            for (int h = 0; h < height; h++) {
+            int addW = width == 1 ? 1 : 0;
+            int addH = height == 1 ? 1 : 0;
+            
+            for (int h = addH; h < height + addH; h++) {
                 if (i >= recipe.getIngredients().size()) break;
                 
-                for (int w = 0; w < width; w++) {
+                for (int w = addW; w < width + addW; w++) {
                     if (i >= recipe.getIngredients().size()) break;
                     
                     ChoiceIngredient choiceIngredient = shapedRecipe.getIngredients().get(i);

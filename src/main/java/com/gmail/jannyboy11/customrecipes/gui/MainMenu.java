@@ -6,6 +6,7 @@ import com.gmail.jannyboy11.customrecipes.gui.framework.menu.RedirectItemButton;
 import com.gmail.jannyboy11.customrecipes.util.ItemBuilder;
 
 import org.bukkit.Material;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 
@@ -16,8 +17,11 @@ public class MainMenu extends MenuHolder<CustomRecipesPlugin> {
 
     public MainMenu(CustomRecipesPlugin plugin) {
         super(plugin, InventoryType.HOPPER, "Select a recipe type");
-        
-        setButton(1, new RedirectItemButton(CRAFTING_BUTTON, () -> new CraftingManagerMenu(plugin).getInventory()));
+    }
+    
+    @Override
+    public void onOpen(InventoryOpenEvent event) {
+        setButton(1, new RedirectItemButton(CRAFTING_BUTTON, () -> new CraftingManagerMenu(getPlugin()).getInventory()));
         //TODO setButton(3, new RedirectItemButton(FURNACE_BUTTON, () -> new FurnaceManagerMenu(plugin).getInventory()));
     }
 
