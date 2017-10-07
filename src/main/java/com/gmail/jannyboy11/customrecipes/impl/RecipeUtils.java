@@ -42,6 +42,7 @@ public class RecipeUtils {
     static {
         registerNMSCraftingRecipe(RecipeArmorDye.class, NMSArmorDye.class);
         registerNMSCraftingRecipe(RecipesBanner.AddRecipe.class, NMSBannerAdd.class);
+        registerNMSCraftingRecipe(RecipesBanner.DuplicateRecipe.class, NMSBannerDuplicate.class);
         registerNMSCraftingRecipe(RecipeBookClone.class, NMSBookClone.class);
         registerNMSCraftingRecipe(RecipeFireworks.class, NMSFireworks.class);
         registerNMSCraftingRecipe(RecipeMapClone.class, NMSMapClone.class);
