@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemStack;
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
@@ -23,18 +24,25 @@ public class CraftingManagerMenu extends MenuHolder<CustomRecipesPlugin> {
     private static final ItemStack NEW_BUTTON = new ItemBuilder(Material.STRUCTURE_BLOCK).name("Create new").build();
     
     private final List<CraftingRecipe> recipes = new ArrayList<>();
-    private final int lastPageNr;
     
+    private int lastPageNr;
     private int pageNr;
 
     public CraftingManagerMenu(CustomRecipesPlugin plugin) {
         super(plugin, 9 * 6, "Manage Crafting Recipes");
+    }
+    
+    @Override
+    public void onOpen(InventoryOpenEvent event) {
+        //refresh list every time this inventory is opened
+        recipes.clear();
+        getPlugin().getCraftingManager().spliterator().forEachRemaining(recipes::add);
         
-        plugin.getCraftingManager().spliterator().forEachRemaining(recipes::add);
+        //recalculate number of pages
         lastPageNr = recipes.size() / RECIPES_PER_PAGE;
         
+        //put in the buttons
         fillButtons();
-        
         setButton(RECIPES_PER_PAGE + 4, new ItemButton(NEW_BUTTON)); //TODO redirect button to editor
     }
     
