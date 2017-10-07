@@ -2,11 +2,9 @@ package com.gmail.jannyboy11.customrecipes.gui.framework.menu;
 
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.plugin.Plugin;
-
 import com.gmail.jannyboy11.customrecipes.util.ItemBuilder;
 
-public class CloseButton extends ItemButton {
+public class CloseButton<MH extends MenuHolder<?>> extends ItemButton<MH> {
     
     public CloseButton() {
         this(Material.WOOD_DOOR);
@@ -21,7 +19,7 @@ public class CloseButton extends ItemButton {
     }
     
     @Override
-    public <P extends Plugin, MH extends MenuHolder<P>> void onClick(MH holder, InventoryClickEvent event) {
+    public void onClick(MH holder, InventoryClickEvent event) {
         holder.getPlugin().getServer().getScheduler().runTask(holder.getPlugin(), event.getView()::close);
     }
 

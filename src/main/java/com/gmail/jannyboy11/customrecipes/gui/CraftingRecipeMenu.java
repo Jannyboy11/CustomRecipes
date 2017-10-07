@@ -8,6 +8,8 @@ import com.gmail.jannyboy11.customrecipes.api.ingredient.Ingredient;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.ItemButton;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.MenuButton;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.MenuHolder;
+import com.gmail.jannyboy11.customrecipes.gui.framework.menu.RedirectItemButton;
+import com.gmail.jannyboy11.customrecipes.util.ItemBuilder;
 import com.gmail.jannyboy11.customrecipes.util.inventory.GridView;
 
 import java.util.Map;
@@ -27,11 +29,13 @@ public class CraftingRecipeMenu extends MenuHolder<CustomRecipesPlugin> {
           "PPPPPPPPP",
           "PPDPBPEPP",
     };
-    private static final Map<Character, ? extends MenuButton> legend = Map.of(
+    private static final ItemStack BACK_BUTTON = new ItemBuilder(Material.WOOD_DOOR).name("Back").build();
+    
+    private final Map<Character, ? extends MenuButton> legend = Map.of(
             'P', new ItemButton(new ItemStack(Material.STAINED_GLASS_PANE, 1, DyeColor.LIGHT_BLUE.getWoolData())), //not needed, event is cancelled anyway
-            'D', new ItemButton(new ItemStack(Material.BARRIER)), //TODO use custom implementation that deltes the recipe and redirects
-            'E', new ItemButton(new ItemStack(Material.STRUCTURE_VOID)), //TODO use redirect button?
-            'B', new ItemButton(new ItemStack(Material.WOOD_DOOR))); //TODO use redirectbutton?
+            'D', new ItemButton(new ItemStack(Material.BARRIER)), //TODO use custom implementation that deletes the recipe and redirects
+            'E', new ItemButton(new ItemStack(Material.STRUCTURE_VOID)), //TODO use redirect button to editor inventory
+            'B', new RedirectItemButton(BACK_BUTTON, () -> new CraftingManagerMenu(getPlugin()).getInventory()));
     
     private final CraftingRecipe recipe;
 
@@ -58,7 +62,7 @@ public class CraftingRecipeMenu extends MenuHolder<CustomRecipesPlugin> {
         gridView.setItem(6, 2, recipe.getResult());
         
         //layout ingredients
-        if (recipe instanceof ShapedRecipe) {
+        if (recipe instanceof ShapedRecipe) { //TODO should check whether the base is a ShapedRecipe tho.
             ShapedRecipe shapedRecipe = (ShapedRecipe) recipe;
             
             int width = shapedRecipe.getWidth();

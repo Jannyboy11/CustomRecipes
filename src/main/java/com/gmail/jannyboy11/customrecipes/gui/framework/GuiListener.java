@@ -32,5 +32,7 @@ public class GuiListener<P extends Plugin> implements Listener {
 
         HandlerList.unregisterAll(this);
     }
+    
+    //TODO listen to InventoryOpenEvent to re-register the eventhandlers?
 
 }

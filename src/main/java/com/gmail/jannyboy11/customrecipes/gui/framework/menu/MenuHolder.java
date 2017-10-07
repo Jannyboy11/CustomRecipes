@@ -38,9 +38,14 @@ public class MenuHolder<P extends Plugin> extends GuiInventoryHolder<P> {
         getInventory().setItem(slot, button.getIcon());
     }
     
-    public void unsetButton(int slot) {
+    public boolean unsetButton(int slot) {
         MenuButton button = this.buttons.remove(slot);
-        if (button != null) getInventory().setItem(slot, null);
+        if (button != null) {
+            getInventory().setItem(slot, null);
+            return true;
+        }
+        
+        return false;
     }
     
     public void clearButtons() {

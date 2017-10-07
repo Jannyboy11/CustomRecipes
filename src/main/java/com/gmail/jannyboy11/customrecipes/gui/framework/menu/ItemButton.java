@@ -2,7 +2,7 @@ package com.gmail.jannyboy11.customrecipes.gui.framework.menu;
 
 import org.bukkit.inventory.ItemStack;
 
-public class ItemButton implements MenuButton {
+public class ItemButton<MH extends MenuHolder<?>> implements MenuButton<MH> {
     
     private final ItemStack stack;
     

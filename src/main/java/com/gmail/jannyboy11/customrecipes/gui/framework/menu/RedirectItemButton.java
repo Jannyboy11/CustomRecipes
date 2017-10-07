@@ -8,7 +8,7 @@ import org.bukkit.inventory.ItemStack;
 
 import com.google.common.base.Supplier;
 
-public class RedirectItemButton extends ItemButton implements RedirectButton {
+public class RedirectItemButton<MH extends MenuHolder<?>> extends ItemButton<MH> implements RedirectButton<MH> {
     
     private final Supplier<? extends Inventory> redirect;
     
@@ -23,7 +23,7 @@ public class RedirectItemButton extends ItemButton implements RedirectButton {
     }
     
     @Override
-    public void onClick(MenuHolder holder, InventoryClickEvent event) {
+    public void onClick(MH holder, InventoryClickEvent event) {
         RedirectButton.super.onClick(holder, event);
     }
     
