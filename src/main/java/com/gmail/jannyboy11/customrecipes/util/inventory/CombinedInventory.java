@@ -23,25 +23,25 @@ public class CombinedInventory implements Inventory {
     }
 
     @Override
-    public HashMap<Integer, ItemStack> addItem(ItemStack... arg0) throws IllegalArgumentException {
+    public HashMap<Integer, ItemStack> addItem(ItemStack... itemStacks) throws IllegalArgumentException {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public HashMap<Integer, ? extends ItemStack> all(int arg0) {
+    public HashMap<Integer, ? extends ItemStack> all(int materialId) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public HashMap<Integer, ? extends ItemStack> all(Material arg0) throws IllegalArgumentException {
+    public HashMap<Integer, ? extends ItemStack> all(Material material) throws IllegalArgumentException {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public HashMap<Integer, ? extends ItemStack> all(ItemStack arg0) {
+    public HashMap<Integer, ? extends ItemStack> all(ItemStack itemStack) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -53,67 +53,67 @@ public class CombinedInventory implements Inventory {
     }
 
     @Override
-    public void clear(int arg0) {
+    public void clear(int slot) {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public boolean contains(int arg0) {
+    public boolean contains(int materialId) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public boolean contains(Material arg0) throws IllegalArgumentException {
+    public boolean contains(Material material) throws IllegalArgumentException {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public boolean contains(ItemStack arg0) {
+    public boolean contains(ItemStack itemStack) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public boolean contains(int arg0, int arg1) {
+    public boolean contains(int materialId, int amount) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public boolean contains(Material arg0, int arg1) throws IllegalArgumentException {
+    public boolean contains(Material material, int amount) throws IllegalArgumentException {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public boolean contains(ItemStack arg0, int arg1) {
+    public boolean contains(ItemStack itemStack, int amount) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public boolean containsAtLeast(ItemStack arg0, int arg1) {
+    public boolean containsAtLeast(ItemStack itemStack, int amount) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public int first(int arg0) {
+    public int first(int materialId) {
         // TODO Auto-generated method stub
         return 0;
     }
 
     @Override
-    public int first(Material arg0) throws IllegalArgumentException {
+    public int first(Material material) throws IllegalArgumentException {
         // TODO Auto-generated method stub
         return 0;
     }
 
     @Override
-    public int first(ItemStack arg0) {
+    public int first(ItemStack itemStack) {
         // TODO Auto-generated method stub
         return 0;
     }
@@ -137,7 +137,7 @@ public class CombinedInventory implements Inventory {
     }
 
     @Override
-    public ItemStack getItem(int arg0) {
+    public ItemStack getItem(int slot) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -197,59 +197,57 @@ public class CombinedInventory implements Inventory {
     }
 
     @Override
-    public ListIterator<ItemStack> iterator(int arg0) {
+    public ListIterator<ItemStack> iterator(int startIndex) { //TODO what is this int?
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public void remove(int arg0) {
+    public void remove(int slot) {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void remove(Material arg0) throws IllegalArgumentException {
+    public void remove(Material material) throws IllegalArgumentException {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void remove(ItemStack arg0) {
+    public void remove(ItemStack stack) {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public HashMap<Integer, ItemStack> removeItem(ItemStack... arg0) throws IllegalArgumentException {
+    public HashMap<Integer, ItemStack> removeItem(ItemStack... itemStacks) throws IllegalArgumentException {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public void setContents(ItemStack[] arg0) throws IllegalArgumentException {
+    public void setContents(ItemStack[] contents) throws IllegalArgumentException {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void setItem(int arg0, ItemStack arg1) {
+    public void setItem(int slot, ItemStack stack) {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void setMaxStackSize(int arg0) {
+    public void setMaxStackSize(int slot) {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void setStorageContents(ItemStack[] arg0) throws IllegalArgumentException {
+    public void setStorageContents(ItemStack[] contents) throws IllegalArgumentException {
         // TODO Auto-generated method stub
         
     }
     
-    
-
 }
