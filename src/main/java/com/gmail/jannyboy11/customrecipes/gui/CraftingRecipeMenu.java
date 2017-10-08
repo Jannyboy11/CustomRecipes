@@ -23,7 +23,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class CraftingRecipeMenu extends MenuHolder<CustomRecipesPlugin> {
 
-    private static final String[] asciiLayout = new String[] {
+    private static final String[] ASCII_LAYOUT = new String[] {
           "PPPPPPPPP",
           "P   PPPPP",
           "P   PP PP",
@@ -54,9 +54,9 @@ public class CraftingRecipeMenu extends MenuHolder<CustomRecipesPlugin> {
     
     @Override
     public void onOpen(InventoryOpenEvent event) {
-        for (int y = 0; y < asciiLayout.length; y++) {
-            for (int x = 0; x < asciiLayout[y].length(); x++) {
-                MenuButton button = legend.get(asciiLayout[y].charAt(x));
+        for (int y = 0; y < ASCII_LAYOUT.length; y++) {
+            for (int x = 0; x < ASCII_LAYOUT[y].length(); x++) {
+                MenuButton button = legend.get(ASCII_LAYOUT[y].charAt(x));
                 if (button != null) setButton(y * 9 + x, button);
             }
         }

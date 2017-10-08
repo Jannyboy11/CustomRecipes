@@ -30,6 +30,15 @@ public class GuiInventoryHolder<P extends Plugin> implements InventoryHolder {
         plugin.getServer().getPluginManager().registerEvents(guiListener, plugin);
     }
     
+    public GuiInventoryHolder(P plugin, Inventory inventory) {
+        assert inventory.getHolder() == this;
+        
+        this.plugin = plugin;
+        this.guiListener = new GuiListener<>(this);
+        
+        this.inventory = inventory;
+    }
+    
     @Override
     public final Inventory getInventory() {
         return inventory;

@@ -1,256 +1,168 @@
 package com.gmail.jannyboy11.customrecipes.util.inventory;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftHumanEntity;
 import org.bukkit.entity.HumanEntity;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
 
-//TODO
-public class SubInventory implements Inventory {
+import net.minecraft.server.v1_12_R1.EntityHuman;
+import net.minecraft.server.v1_12_R1.IChatBaseComponent;
+import net.minecraft.server.v1_12_R1.IInventory;
+import net.minecraft.server.v1_12_R1.ItemStack;
+
+public class SubInventory implements IInventory {
     
-    private final Inventory from;
-    private final int starting, ending;
+    private final IInventory source;
+    private final int startIndex, stopIndex;
     
-    public SubInventory(Inventory from, int startingIndex, int endingIndex) {
-        this.from = Objects.requireNonNull(from);
-        this.starting = startingIndex;
-        this.ending = endingIndex;
-    }
-
-    @Override
-    public HashMap<Integer, ItemStack> addItem(ItemStack... itemStacks) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public HashMap<Integer, ? extends ItemStack> all(int materialId) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public HashMap<Integer, ? extends ItemStack> all(Material material) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public HashMap<Integer, ? extends ItemStack> all(ItemStack itemStack) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void clear() {
-        // TODO Auto-generated method stub
+    public SubInventory(IInventory source, int startIndex, int stopIndex) {
+        this.source = Objects.requireNonNull(source);
         
-    }
-
-    @Override
-    public void clear(int slot) {
-        // TODO Auto-generated method stub
+        if (startIndex > stopIndex) throw new IllegalArgumentException("start cannot be greater than stop!");
+        if (startIndex < 0) throw new IllegalArgumentException("start cannot be below zero!");
+        if (stopIndex > source.getSize()) throw new IllegalArgumentException("stop cannot be greater than the source size!");
         
+        this.startIndex = startIndex;
+        this.stopIndex = stopIndex;
     }
-
-    @Override
-    public boolean contains(int materialId) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean contains(Material material) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean contains(ItemStack itemStack) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean contains(int materialId, int amount) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean contains(Material material, int amount) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean contains(ItemStack itemStack, int amount) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean containsAtLeast(ItemStack itemStack, int amount) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public int first(int materialId) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public int first(Material material) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public int first(ItemStack itemStack) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public int firstEmpty() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public ItemStack[] getContents() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public InventoryHolder getHolder() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public ItemStack getItem(int slot) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Location getLocation() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public int getMaxStackSize() {
-        // TODO Auto-generated method stub
-        return 0;
+    
+    private int adaptSlot(int slot) {
+        return slot - startIndex;
     }
 
     @Override
     public String getName() {
-        // TODO Auto-generated method stub
-        return null;
+        return source.getName();
     }
+
+    @Override
+    public IChatBaseComponent getScoreboardDisplayName() {
+        return source.getScoreboardDisplayName();
+    }
+
+    @Override
+    public boolean hasCustomName() {
+        return source.hasCustomName();
+    }
+
+    @Override
+    public boolean a(EntityHuman player) { //can access
+        return source.a(player);
+    }
+
+    @Override
+    public boolean b(int slot, ItemStack stack) { //can move into slot
+        return source.b(adaptSlot(slot), stack);
+    }
+
+    @Override
+    public void clear() {
+        IntStream.range(startIndex, stopIndex).forEach(i -> source.setItem(i, ItemStack.a));
+    }
+
+    @Override
+    public void closeContainer(EntityHuman player) {
+        source.closeContainer(player);
+    }
+
+    @Override
+    public List<ItemStack> getContents() {
+        return source.getContents().subList(startIndex, stopIndex);
+    }
+
+    @Override
+    public ItemStack getItem(int index) {
+        return source.getItem(adaptSlot(index));
+    }
+
+    @Override
+    public Location getLocation() {
+        return source.getLocation();
+    }
+
+    @Override
+    public int getMaxStackSize() {
+        return source.getMaxStackSize();
+    }
+
+    @Override
+    public InventoryHolder getOwner() {
+        return source.getOwner(); //should i have a separate field for this?
+    }
+
 
     @Override
     public int getSize() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public ItemStack[] getStorageContents() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String getTitle() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public InventoryType getType() {
-        // TODO Auto-generated method stub
-        return null;
+        return stopIndex - startIndex;
     }
 
     @Override
     public List<HumanEntity> getViewers() {
-        // TODO Auto-generated method stub
-        return null;
+        return source.getViewers();
     }
 
     @Override
-    public ListIterator<ItemStack> iterator() {
-        // TODO Auto-generated method stub
-        return null;
+    public void onClose(CraftHumanEntity player) {
+        source.onClose(player);
     }
 
     @Override
-    public ListIterator<ItemStack> iterator(int startIndex) { //TODO what is this int?
-        // TODO Auto-generated method stub
-        return null;
+    public void onOpen(CraftHumanEntity player) {
+        source.onOpen(player);
     }
 
     @Override
-    public void remove(int slot) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void remove(Material material) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void remove(ItemStack stack) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public HashMap<Integer, ItemStack> removeItem(ItemStack... itemStacks) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void setContents(ItemStack[] contents) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void setItem(int slot, ItemStack stack) {
-        // TODO Auto-generated method stub
-        
+    public void setItem(int slot, ItemStack item) {
+        source.setItem(adaptSlot(slot), item);
     }
 
     @Override
     public void setMaxStackSize(int slot) {
-        // TODO Auto-generated method stub
-        
+        source.setMaxStackSize(adaptSlot(slot));
     }
 
     @Override
-    public void setStorageContents(ItemStack[] contents) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        
+    public void setProperty(int key, int value) {
+        source.setProperty(key, value);
+    }
+    
+    @Override
+    public int getProperty(int slot) {
+        return source.getProperty(slot);
+    }
+    
+    @Override
+    public int h() { //property count
+        return source.h();
+    }
+
+    @Override
+    public ItemStack splitStack(int slot, int amount) {
+        return source.splitStack(adaptSlot(slot), amount);
+    }
+
+    @Override
+    public ItemStack splitWithoutUpdate(int slot) {
+        return source.splitWithoutUpdate(adaptSlot(slot));
+    }
+
+    @Override
+    public void startOpen(EntityHuman player) {
+        source.startOpen(player);
+    }
+
+    @Override
+    public void update() {
+        source.update();
+    }
+
+    @Override
+    public boolean x_() { //isEmpty
+        return getContents().stream().allMatch(ItemStack::isEmpty);
     }
 
 }

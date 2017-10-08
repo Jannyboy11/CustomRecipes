@@ -1,253 +1,194 @@
 package com.gmail.jannyboy11.customrecipes.util.inventory;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftHumanEntity;
 import org.bukkit.entity.HumanEntity;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
 
-//TODO
-public class CombinedInventory implements Inventory {
+import net.minecraft.server.v1_12_R1.EntityHuman;
+import net.minecraft.server.v1_12_R1.IChatBaseComponent;
+import net.minecraft.server.v1_12_R1.IInventory;
+import net.minecraft.server.v1_12_R1.ItemStack;
+
+public class CombinedInventory implements IInventory {
     
-    private final List<Inventory> builtFrom;
+    private final List<HumanEntity> viewers = new ArrayList<>();
+    private final List<? extends IInventory> builtFrom;
+
+    public CombinedInventory(List<? extends IInventory> from) {
+        if (from.size() < 1) throw new IllegalArgumentException("builtFrom list cannot be empty!");
+        this.builtFrom = Objects.requireNonNull(from);
+    }
     
-    public CombinedInventory(List<Inventory> builtFrom) {
-        this.builtFrom = Objects.requireNonNull(builtFrom);
+    public CombinedInventory(IInventory... from) {
+        this(List.of(from));
     }
 
     @Override
-    public HashMap<Integer, ItemStack> addItem(ItemStack... itemStacks) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        return null;
+    public String getName() {
+        return builtFrom.get(0).getName();
     }
 
     @Override
-    public HashMap<Integer, ? extends ItemStack> all(int materialId) {
-        // TODO Auto-generated method stub
-        return null;
+    public IChatBaseComponent getScoreboardDisplayName() {
+        return builtFrom.get(0).getScoreboardDisplayName();
     }
 
     @Override
-    public HashMap<Integer, ? extends ItemStack> all(Material material) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        return null;
+    public boolean hasCustomName() {
+        return builtFrom.get(0).hasCustomName();
     }
 
     @Override
-    public HashMap<Integer, ? extends ItemStack> all(ItemStack itemStack) {
-        // TODO Auto-generated method stub
-        return null;
+    public boolean a(EntityHuman player) {
+        return true;
+    }
+
+    @Override
+    public boolean b(int slot, ItemStack item) {
+        return true;
     }
 
     @Override
     public void clear() {
-        // TODO Auto-generated method stub
-        
+        builtFrom.forEach(IInventory::clear);
     }
 
     @Override
-    public void clear(int slot) {
-        // TODO Auto-generated method stub
-        
+    public void closeContainer(EntityHuman player) {
     }
 
     @Override
-    public boolean contains(int materialId) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean contains(Material material) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean contains(ItemStack itemStack) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean contains(int materialId, int amount) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean contains(Material material, int amount) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean contains(ItemStack itemStack, int amount) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean containsAtLeast(ItemStack itemStack, int amount) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public int first(int materialId) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public int first(Material material) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public int first(ItemStack itemStack) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public int firstEmpty() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public ItemStack[] getContents() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public InventoryHolder getHolder() {
-        // TODO Auto-generated method stub
-        return null;
+    public List<ItemStack> getContents() {
+        return new ConcatList<>(builtFrom.stream()
+                .map(IInventory::getContents)
+                .collect(Collectors.toList()));
     }
 
     @Override
     public ItemStack getItem(int slot) {
-        // TODO Auto-generated method stub
-        return null;
+        if (slot < 0) throw new IndexOutOfBoundsException("Slot cannot be below 0!");
+        
+        int sizeAcc = 0;
+        for (IInventory inv : builtFrom) {
+            if (slot >= sizeAcc && slot < (sizeAcc += inv.getSize())) {
+                return inv.getItem(slot - sizeAcc);
+            }
+        }
+        
+        throw new IndexOutOfBoundsException("Slot cannot be above " + sizeAcc + "!");
     }
 
     @Override
     public Location getLocation() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public int getMaxStackSize() {
-        // TODO Auto-generated method stub
-        return 0;
+        return MAX_STACK;
     }
 
     @Override
-    public String getName() {
-        // TODO Auto-generated method stub
+    public InventoryHolder getOwner() {
         return null;
+    }
+
+    @Override
+    public int getProperty(int arg0) {
+        return 0;
     }
 
     @Override
     public int getSize() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public ItemStack[] getStorageContents() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String getTitle() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public InventoryType getType() {
-        // TODO Auto-generated method stub
-        return null;
+        return builtFrom.stream().mapToInt(IInventory::getSize).sum();
     }
 
     @Override
     public List<HumanEntity> getViewers() {
-        // TODO Auto-generated method stub
-        return null;
+        return viewers;
     }
 
     @Override
-    public ListIterator<ItemStack> iterator() {
-        // TODO Auto-generated method stub
-        return null;
+    public int h() {
+        return 0;
     }
 
     @Override
-    public ListIterator<ItemStack> iterator(int startIndex) { //TODO what is this int?
-        // TODO Auto-generated method stub
-        return null;
+    public void onClose(CraftHumanEntity player) {
+        viewers.remove(player);
     }
 
     @Override
-    public void remove(int slot) {
-        // TODO Auto-generated method stub
+    public void onOpen(CraftHumanEntity player) {
+        viewers.add(player);
+    }
+
+    @Override
+    public void setItem(int slot, ItemStack item) {
+        if (slot < 0) throw new IndexOutOfBoundsException("Slot cannot be below 0!");
         
-    }
-
-    @Override
-    public void remove(Material material) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
+        int sizeAcc = 0;
+        for (IInventory inv : builtFrom) {
+            int size = inv.getSize();
+            if (slot >= sizeAcc && slot < sizeAcc + size) {
+                inv.setItem(sizeAcc + slot, item);
+                return;
+            }
+            sizeAcc += size;
+        }
         
+        throw new IndexOutOfBoundsException("Slot cannot be above " + sizeAcc + "!");
     }
 
     @Override
-    public void remove(ItemStack stack) {
-        // TODO Auto-generated method stub
-        
+    public void setMaxStackSize(int size) {
     }
 
     @Override
-    public HashMap<Integer, ItemStack> removeItem(ItemStack... itemStacks) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        return null;
+    public void setProperty(int key, int value) {
     }
 
     @Override
-    public void setContents(ItemStack[] contents) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        
+    public ItemStack splitStack(int index, int amount) {
+        ItemStack itemstack = net.minecraft.server.v1_12_R1.ContainerUtil.a(this.getContents(), index, amount);
+
+        if (!itemstack.isEmpty()) {
+            this.update();
+        }
+
+        return itemstack;
     }
 
     @Override
-    public void setItem(int slot, ItemStack stack) {
-        // TODO Auto-generated method stub
-        
+    public ItemStack splitWithoutUpdate(int slot) {
+        ItemStack itemstack = (ItemStack) this.getContents().get(slot);
+
+        if (itemstack.isEmpty()) {
+            return ItemStack.a;
+        } else {
+            this.getContents().set(slot, ItemStack.a);
+            return itemstack;
+        }
     }
 
     @Override
-    public void setMaxStackSize(int slot) {
-        // TODO Auto-generated method stub
-        
+    public void startOpen(EntityHuman arg0) {
     }
 
     @Override
-    public void setStorageContents(ItemStack[] contents) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        
+    public void update() {
+        builtFrom.forEach(IInventory::update);
+    }
+
+    @Override
+    public boolean x_() {
+        return builtFrom.stream().allMatch(IInventory::x_);
     }
     
 }

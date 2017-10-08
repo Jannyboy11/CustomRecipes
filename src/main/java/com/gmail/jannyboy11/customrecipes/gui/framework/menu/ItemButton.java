@@ -14,5 +14,5 @@ public class ItemButton<MH extends MenuHolder<?>> implements MenuButton<MH> {
     public ItemStack getIcon() {
         return stack == null ? null : stack.clone();
     }
-
+    
 }

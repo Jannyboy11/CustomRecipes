@@ -15,5 +15,9 @@ public class BackButton extends RedirectItemButton {
     public BackButton(Supplier<? extends Inventory> to) {
         super(BACK_BUTTON, to);
     }
+    
+    public BackButton(String name, Supplier<? extends Inventory> to) {
+        super(new ItemBuilder(Material.WOOD_DOOR).name(name).build(), to);
+    }
 
 }

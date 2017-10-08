@@ -6,6 +6,7 @@ import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
@@ -58,7 +59,7 @@ public class CraftingManagerMenu extends MenuHolder<CustomRecipesPlugin> {
             
             ItemStack icon = recipe.getResult();
             if (InventoryUtils.isEmptyStack(icon)) icon = new ItemStack(Material.STRUCTURE_VOID);
-            icon = new ItemBuilder(icon).name(recipe.getKey().toString()).build();
+            icon = new ItemBuilder(icon).name(recipe.getKey().toString()).flags(ItemFlag.values()).build();
 
             MenuButton button = new RedirectItemButton(icon, () -> new CraftingRecipeMenu(getPlugin(), recipe, this::getInventory).getInventory());
             setButton(inventoryIndex, button);
@@ -75,8 +76,8 @@ public class CraftingManagerMenu extends MenuHolder<CustomRecipesPlugin> {
         }
         
         //buttons
-        final int nextIndex = RECIPES_PER_PAGE + 8;
         final int previousIndex = RECIPES_PER_PAGE;
+        final int nextIndex = RECIPES_PER_PAGE + 8;
         
         if (pageNr < lastPageNr) {
             setButton(nextIndex, new NextButton());

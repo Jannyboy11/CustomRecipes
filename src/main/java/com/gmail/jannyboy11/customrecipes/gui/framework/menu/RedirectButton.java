@@ -1,5 +1,6 @@
 package com.gmail.jannyboy11.customrecipes.gui.framework.menu;
 
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 
@@ -10,7 +11,8 @@ public interface RedirectButton<MH extends MenuHolder<?>> extends MenuButton<MH>
         holder.getPlugin().getServer().getScheduler().runTask(holder.getPlugin(), () -> {
            event.getView().close();
            
-           event.getWhoClicked().openInventory(to());
+           HumanEntity player = event.getWhoClicked();
+           player.openInventory(to());
         });
     }
     
