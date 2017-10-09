@@ -31,16 +31,15 @@ public class GuiInventoryHolder<P extends Plugin> implements InventoryHolder {
     }
     
     public GuiInventoryHolder(P plugin, Inventory inventory) {
-        assert inventory.getHolder() == this;
-        
         this.plugin = plugin;
-        this.guiListener = new GuiListener<>(this);
-        
         this.inventory = inventory;
+        this.guiListener = new GuiListener<>(this);
+
+        assert getInventory().getHolder() == this;        
     }
     
     @Override
-    public final Inventory getInventory() {
+    public Inventory getInventory() {
         return inventory;
     }
     

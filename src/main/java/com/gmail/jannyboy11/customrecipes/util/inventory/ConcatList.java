@@ -137,7 +137,7 @@ public class ConcatList<T> extends AbstractList<T> implements List<T> {
 
             @Override
             public T previous() {
-                return get(currentIndex--);
+                return get(--currentIndex);
             }
 
             @Override
