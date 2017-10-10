@@ -1,5 +1,7 @@
 package com.gmail.jannyboy11.customrecipes.gui.container;
 
+import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
+
 import net.minecraft.server.v1_12_R1.EntityHuman;
 import net.minecraft.server.v1_12_R1.IInventory;
 import net.minecraft.server.v1_12_R1.ItemStack;
@@ -26,8 +28,6 @@ public class FixedSlot extends Slot {
         super(inventory, index, xPosition, yPosition);
     }
     
-    //TODO anything else?
-    
     @Override
     public boolean isAllowed(EntityHuman player) {
         return false;
@@ -36,6 +36,12 @@ public class FixedSlot extends Slot {
     @Override
     public boolean isAllowed(ItemStack input) {
         return false;
+    }
+    
+    @Override
+    public void set(ItemStack item) {
+        //we are not setting any item, this is a fixed slot!
+        this.f();
     }
     
     @Override

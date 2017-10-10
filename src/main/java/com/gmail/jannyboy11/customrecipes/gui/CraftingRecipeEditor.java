@@ -1,7 +1,9 @@
 package com.gmail.jannyboy11.customrecipes.gui;
 
-import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.bukkit.DyeColor;
@@ -9,7 +11,6 @@ import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftHumanEntity;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventory;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryView;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
@@ -71,6 +72,20 @@ public class CraftingRecipeEditor extends GuiInventoryHolder {
             'R', RETURN,
             'S', SAVE);
     
+    private static final Set<Integer> TOP_SHIFT_CLICKABLE_SLOTS = new LinkedHashSet<>();
+    static {final int addY = 1;
+        final int addX = 1;
+        
+        for (int y = addY; y < 3 + addY; y++) {
+            for (int x = addX; x < 3 + addX; x++) {
+                TOP_SHIFT_CLICKABLE_SLOTS.add(y * 9 + x); //ingredient slots
+            }
+        }
+        
+        TOP_SHIFT_CLICKABLE_SLOTS.add(1 * 9 + 7); //result slots
+    }
+    
+    
     private CraftingRecipeEditor(EditorInventory inventory) {
         super(inventory.getPlugin(), inventory.getBukkitInventory());
     }
@@ -88,7 +103,10 @@ public class CraftingRecipeEditor extends GuiInventoryHolder {
         return getInventory().getRecipe();
     }
     
-    //TODO setter can be private, the save button is the only thing that may set the recipe.
+    private void setRecipe(CraftingRecipe recipe) {
+        //TODO implement this
+        //TODO make the save button call this method
+    }
     
     
     @Override
@@ -104,7 +122,7 @@ public class CraftingRecipeEditor extends GuiInventoryHolder {
             }
         }
         
-        //TODO layout recipe? //TODO make it flicker!
+        //TODO layout recipe? //TODO make it flicker (using packets)!
         Recipe recipe = getRecipe();
         
     }
@@ -117,6 +135,8 @@ public class CraftingRecipeEditor extends GuiInventoryHolder {
     
     @Override
     public void onClick(InventoryClickEvent event) {
+        event.setCancelled(false);
+
         switch(event.getClick()) {
         case LEFT:
             //TODO implement buttons for just regular left clicks
@@ -124,9 +144,10 @@ public class CraftingRecipeEditor extends GuiInventoryHolder {
             break;
         case SHIFT_LEFT:
         case SHIFT_RIGHT:
-            event.setCancelled(false);
             break;
         }
+        
+        getPlugin().getServer().getScheduler().runTask(getPlugin(), () -> ((org.bukkit.entity.Player) event.getWhoClicked()).updateInventory());
     }
     
     private static class CREditorInventory extends CraftInventory {
@@ -142,6 +163,10 @@ public class CraftingRecipeEditor extends GuiInventoryHolder {
         
         public CraftingRecipe getRecipe() {
             return getInventory().getRecipe();
+        }
+        
+        public CustomRecipesPlugin getPlugin() {
+            return getInventory().getPlugin();
         }
     }
     
@@ -175,7 +200,7 @@ public class CraftingRecipeEditor extends GuiInventoryHolder {
         
         @Override
         public String getContainerName() {
-            return "minecraft:container"; //might need to change this to minecraft:chest
+            return "minecraft:container";
         }
         
         private void setRecipe(CraftingRecipe recipe) {
@@ -188,26 +213,17 @@ public class CraftingRecipeEditor extends GuiInventoryHolder {
     }
     
     private static class Container extends net.minecraft.server.v1_12_R1.Container {
-        private static final Set<Integer> TOP_SHIFT_CLICKABLE_SLOTS = new HashSet<>();
-        static {final int addY = 1;
-            final int addX = 1;
-            
-            for (int y = addY; y < 3 + addY; y++) {
-                for (int x = addX; x < 3 + addX; x++) {
-                    TOP_SHIFT_CLICKABLE_SLOTS.add(y * 9 + x); //ingredient slots
-                }
-            }
-            
-            TOP_SHIFT_CLICKABLE_SLOTS.add(1 * 9 + 8); //result slots
-        }
         
-        
+        private final CustomRecipesPlugin plugin;
         private final CraftInventoryView bukkitView;
+        private final EditorInventory editorInventory;
         private final PlayerInventory playerInventory;
         
         public Container(int id, CraftHumanEntity player, CREditorInventory viewing) {
             this.windowId = id;
             this.bukkitView = new CraftInventoryView(player, viewing, this);
+            this.editorInventory = viewing.getInventory();
+            this.plugin = viewing.getPlugin();
             
             EntityHuman entityHuman = player.getHandle();
             EditorInventory editorInventory = viewing.getInventory();
@@ -215,29 +231,36 @@ public class CraftingRecipeEditor extends GuiInventoryHolder {
             this.playerInventory = (player.getHandle().inventory);
             
             
-            //setup slots //copied from ContainerChest. should I extend ContainerChest instead?
-            int i = (6 - 4) * 18; //(rows - 4) * 18
-            int j;
-
-            for (j = 0; j < 6; j++) {
-                for (int k = 0; k < 9; k++) {
-                    int index = k + j * 9;
-                    int xPosition = 8 + k * 18;
-                    int yPosition = 18 + j * 18;
-                    if (isTopShiftClickSlot(index)) {
+            //setup slots //mostly copied from ContainerChest TODO should I extends ContainerChest?
+            int y;
+            for (y = 0; y < 6; y++) {
+                for (int x = 0; x < 9; x++) {
+                    int index = x + y * 9;
+                    int xPosition = 8 + x * 18;
+                    int yPosition = 18 + y * 18;
+                    boolean isShiftClickSlot = isTopShiftClickSlot(index);
+                    
+                    if (isShiftClickSlot) {
                         a(new Slot(editorInventory, index, xPosition, yPosition));
                     } else {
                         a(new FixedSlot(editorInventory, index, xPosition, yPosition));
                     }
                 }
             }
-            for (j = 0; j < 3; j++) {
-                for (int k = 0; k < 9; k++) {
-                    a(new Slot(playerInventory, k + j * 9 + 9, 8 + k * 18, 103 + j * 18 + i));
+            
+            //bottom slots
+            final int i = (6 - 4) * 18; //(rows - 4) * 18 = 2 * 18 = 36
+            for (y = 0; y < 3; y++) {
+                for (int x = 0; x < 9; x++) {
+                    int index = x + y * 9 + 9;      //+9 skips the hotbar, we do that later
+                    int xPos = 8 + x * 18;          //i don't fucking know what this is for, it seems rudimentary
+                    int yPos = 103 + y * 18 + i;    //i don't fucking know what this is for, it seems rudimentary
+                    a(new Slot(playerInventory, index, xPos, yPos));
                 }
             }
-            for (j = 0; j < 9; j++) {
-                a(new Slot(playerInventory, j, 8 + j * 18, 161 + i));
+            //hotbar slots are player's first 9 slots, but in the container they're last.
+            for (int x = 0; x < 9; x++) {
+                a(new Slot(playerInventory, x, 8 + x * 18, 161 + i));
             }
         }
         
@@ -252,56 +275,113 @@ public class CraftingRecipeEditor extends GuiInventoryHolder {
         
         @Override
         public boolean c(EntityHuman player) { //can do transaction
-            CustomRecipesPlugin.getInstance().getLogger().info("DEBUG c(EntityHuman)");
             
-            //WHAT DOES THIS DO? it is called on window clicks and checks whether player can go on?
+            //is called on window clicks and checks whether player can go on
             
-            //I can do permission checks here, but I'm not sure what is the difference with canUse and this one.
-            //I might actually just return true here for now, since players should always be allowed to click on this container
-            return super.c(player); 
+            //I could do permission checks here
+            //The difference with canUse is, canUse is called way more often (every tick i think)
+            
+            //I might actually just return true here,
+            //since players who got this inventory opened should always be allowed to click on this container
+            
+            return super.c(player); //superclass implementation checks whether the player is not blocked, which is fine for us.
         }
 
         @Override
         public boolean canUse(EntityHuman player) { //can use at all
-            CustomRecipesPlugin.getInstance().getLogger().info("DEBUG canUse(EntityHuman)");
-            
+            //looks like this one's called every tick
             return true;
         }
         
         @Override
-        public net.minecraft.server.v1_12_R1.ItemStack shiftClick(EntityHuman entityhuman, int rawSlot) {
-            //TODO implement our fabulous shift click algorithm <3 we can use the method
-            //protected boolean a(ItemStack itemstack, int startIndex, int endIndex, boolean toBottom); too
-            
-            if (rawSlot < 6 * 9 && !isTopShiftClickSlot(rawSlot)) return net.minecraft.server.v1_12_R1.ItemStack.a;
-            
-            //slot is either a shift-clickable top slot, or a bottom slot
+        public net.minecraft.server.v1_12_R1.ItemStack shiftClick(EntityHuman entityhuman, int rawSlot) {            
 
-            //TODO I can now use a combination of CombinedInventory and SubInventory?! :D
-            net.minecraft.server.v1_12_R1.ItemStack itemClone = net.minecraft.server.v1_12_R1.ItemStack.a;
-            Slot slot = this.slots.get(rawSlot);
-            if (slot != null && slot.hasItem())
-            {
-                net.minecraft.server.v1_12_R1.ItemStack itemInSlot = slot.getItem();
-
-                itemClone = itemInSlot.cloneItemStack();
-                if (rawSlot < 6 * 9)
-                {
-                    if (!a(itemInSlot, 6 * 9, this.slots.size(), true)) {
-                        return net.minecraft.server.v1_12_R1.ItemStack.a;
-                    }
-                } else if (!a(itemInSlot, 0, 6 * 9, false)) { //TODO change this? not every top slot is shift clickable.
+            final Slot clickedSlot = slots.get(rawSlot);
+            if (clickedSlot == null || !clickedSlot.hasItem()) return net.minecraft.server.v1_12_R1.ItemStack.a;
+            
+            net.minecraft.server.v1_12_R1.ItemStack clickedStack = clickedSlot.getItem();
+            net.minecraft.server.v1_12_R1.ItemStack clickedClone = clickedStack.cloneItemStack();
+            
+            if (rawSlot < 6 * 9) {
+                //top inventory was clicked, shift to bottom
+                
+                //can only shift-click on the ingredient slots and result slot
+                if (!isTopShiftClickSlot(rawSlot)) return net.minecraft.server.v1_12_R1.ItemStack.a;
+                
+                //the indexes this item can merge into are 54 - 89 (bottom inventory)
+                if (!this.a(clickedStack, 54, this.slots.size(), true)) {
                     return net.minecraft.server.v1_12_R1.ItemStack.a;
                 }
                 
-                if (itemInSlot.isEmpty()) {
-                    slot.set(net.minecraft.server.v1_12_R1.ItemStack.a);
-                } else {
-                    slot.f(); //not fully shift clicked, update the client's view of this slot
+            } else {
+                //bottom inventory was clicked, shift to top
+                
+                /*
+                 * Algorithm description:
+                 * 
+                 * 1. fill ingredient slots first, then the result slot
+                 * 2. empty slots should take priority and fill up with count 1, after that try to merge with other stacks
+                 * 
+                 */
+                boolean somethingTransferred = false;
+                
+                //iterator is ordered, because of LinkedHashSet
+                Iterator<Integer> topSlotIterator = TOP_SHIFT_CLICKABLE_SLOTS.iterator();
+                while (topSlotIterator.hasNext() && !clickedStack.isEmpty()) {
+                    int topSlotIndex = topSlotIterator.next();
+                    Slot topSlot = this.slots.get(topSlotIndex);
+                    
+                    //empty slots first
+                    if (!topSlot.hasItem()) {
+                        //no need to check whether the item is allowed, any item is allowed in the slot.
+                        somethingTransferred = true;
+                        
+                        //clones the clicked stack and subtracts the argument (1)
+                        //cloneAndSubtract returns a clone with the count equal to the argument (1)
+                        topSlot.set(clickedStack.cloneAndSubtract(1));
+                        topSlot.f();
+                    }
+                }
+                
+                topSlotIterator = TOP_SHIFT_CLICKABLE_SLOTS.iterator();
+                while (topSlotIterator.hasNext() && !clickedStack.isEmpty()) {
+                    int topSlotIndex = topSlotIterator.next();
+                    Slot topSlot = this.slots.get(topSlotIndex);
+                    
+                    //merge with this slot
+                    
+                    //top slot has an item, guaranteed, because all empty slots are filled and our stack is still not empty
+                    net.minecraft.server.v1_12_R1.ItemStack topSlotStack = topSlot.getItem();
+                    
+                    boolean canMerge = topSlotStack.getCount() < topSlot.getMaxStackSize(topSlotStack);
+                    canMerge &= (clickedStack.getItem() == topSlotStack.getItem());
+                    if (clickedStack.usesData()) canMerge &= (clickedStack.getData() == topSlotStack.getData());
+                    canMerge &= Objects.equals(clickedStack.getTag(), topSlotStack.getTag());                    
+                    
+                    if (canMerge) {
+                        somethingTransferred = true;
+                        
+                        int amountTransfer = Math.min(clickedStack.getCount(), topSlot.getMaxStackSize(clickedStack) - topSlotStack.getCount());
+                        
+                        topSlotStack.add(amountTransfer);                        
+                        clickedStack.subtract(amountTransfer);
+                        
+                        topSlot.f();
+                    }
+                }
+                
+                if (!somethingTransferred) {
+                    return net.minecraft.server.v1_12_R1.ItemStack.a;
                 }
             }
             
-            return itemClone;
+            if (clickedSlot.hasItem()) {
+                clickedSlot.f();
+            } else {
+                clickedSlot.set(net.minecraft.server.v1_12_R1.ItemStack.a);
+            }
+            
+            return clickedClone;
         }
     }
 

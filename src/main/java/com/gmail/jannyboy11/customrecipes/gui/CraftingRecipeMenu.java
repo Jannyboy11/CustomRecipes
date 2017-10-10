@@ -9,6 +9,7 @@ import com.gmail.jannyboy11.customrecipes.gui.framework.menu.BackButton;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.ItemButton;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.MenuButton;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.MenuHolder;
+import com.gmail.jannyboy11.customrecipes.gui.framework.menu.RedirectItemButton;
 import com.gmail.jannyboy11.customrecipes.util.ItemBuilder;
 import com.gmail.jannyboy11.customrecipes.util.inventory.GridView;
 
@@ -48,7 +49,7 @@ public class CraftingRecipeMenu extends MenuHolder<CustomRecipesPlugin> {
         this.legend = Map.of(
                 'P', new ItemButton(BORDER_BUTTON),
                 'D', new ItemButton(DELETE_BUTTON), //TODO use custom implementation that deletes the recipe and redirects
-                'E', new ItemButton(EDIT_BUTTON), //TODO use redirect button to editor inventory
+                'E', new RedirectItemButton(EDIT_BUTTON, () -> new CraftingRecipeEditor(getPlugin(), recipe).getInventory()),
                 'B', new BackButton(backRedirect));
     }
     
