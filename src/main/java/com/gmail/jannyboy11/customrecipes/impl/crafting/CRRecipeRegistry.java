@@ -13,7 +13,7 @@ import net.minecraft.server.v1_12_R1.IRecipe;
 import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.RegistryMaterials;
 
-public class CRRecipeRegistry extends RegistryMaterials {
+public class CRRecipeRegistry extends RegistryMaterials /* <MinecraftKey,IRecipe> */ {
 
 	private final BiMap<MinecraftKey, NMSCraftingRecipe<?>> keyToRecipe = HashBiMap.create(256);
 	private final BiMap<NMSCraftingRecipe<?>, MinecraftKey> recipeToKey = keyToRecipe.inverse();
@@ -21,7 +21,7 @@ public class CRRecipeRegistry extends RegistryMaterials {
 	private final BiMap<MinecraftKey, Integer> keyToId = HashBiMap.create(256);
 	private final BiMap<Integer, MinecraftKey> idToKey = keyToId.inverse();
 	
-	//TODO use this to generate IDs when needed, also update it when new IDs are given.
+	//used to generate IDs when needed, also update it when new IDs are given.
 	private int nextId = 0;
 	
 	private NMSCraftingRecipe<?>[] lazyRandomValuesProvider;
@@ -215,13 +215,10 @@ public class CRRecipeRegistry extends RegistryMaterials {
 	
 	private NMSCraftingRecipe<?> getNMSCraftingRecipe(IRecipe vanilla) {
 	    MinecraftKey key = b(vanilla);
-	    if (key != null) {
-	        return keyToRecipe.get(key);
-	    } else if (vanilla instanceof NMSCraftingRecipe) {
-	        return (NMSCraftingRecipe) vanilla;
-	    } else {	        
-	        return RecipeUtils.getNMSRecipe(vanilla);
-	    }
+	    
+	    if (key != null) return keyToRecipe.get(key);
+
+	    return RecipeUtils.getNMSRecipe(vanilla);
 	}
 	
 	/**

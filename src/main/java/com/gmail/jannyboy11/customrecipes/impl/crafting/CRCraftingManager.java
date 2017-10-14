@@ -6,28 +6,11 @@ import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.RecipeUtils;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.Bukkit2NMSCraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSCraftingRecipe;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.*;
 import com.gmail.jannyboy11.customrecipes.util.MapIterator;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-
 import net.minecraft.server.v1_12_R1.CraftingManager;
 import net.minecraft.server.v1_12_R1.IRecipe;
 import net.minecraft.server.v1_12_R1.MinecraftKey;
-import net.minecraft.server.v1_12_R1.RecipeArmorDye;
-import net.minecraft.server.v1_12_R1.RecipeBookClone;
-import net.minecraft.server.v1_12_R1.RecipeFireworks;
-import net.minecraft.server.v1_12_R1.RecipeMapClone;
-import net.minecraft.server.v1_12_R1.RecipeMapExtend;
-import net.minecraft.server.v1_12_R1.RecipeRepair;
-import net.minecraft.server.v1_12_R1.RecipeShulkerBox;
-import net.minecraft.server.v1_12_R1.RecipeTippedArrow;
-import net.minecraft.server.v1_12_R1.RecipesBanner;
-import net.minecraft.server.v1_12_R1.RecipiesShield;
-import net.minecraft.server.v1_12_R1.ShapedRecipes;
-import net.minecraft.server.v1_12_R1.ShapelessRecipes;
 
 /**
  * The CraftingManager implementation.

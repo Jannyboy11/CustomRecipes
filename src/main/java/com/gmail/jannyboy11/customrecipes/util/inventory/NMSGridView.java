@@ -1,9 +1,11 @@
 package com.gmail.jannyboy11.customrecipes.util.inventory;
 
-import org.bukkit.Bukkit;
-import org.bukkit.inventory.Inventory;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventory;
 import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
+
+import net.minecraft.server.v1_12_R1.IInventory;
+import net.minecraft.server.v1_12_R1.InventorySubcontainer;
+import net.minecraft.server.v1_12_R1.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -14,7 +16,7 @@ import java.util.function.IntUnaryOperator;
 import java.util.function.ToIntFunction;
 
 /**
- * View an inventory as a grid
+ * View a net.minecraft.server.IInventory as a grid
  * <p>
  * e.g.
  *      <pre>
@@ -28,20 +30,22 @@ import java.util.function.ToIntFunction;
  *      </pre>
  * </p>
  */
-public class GridView implements InventoryHolder {
+public class NMSGridView implements InventoryHolder {
 
-    private final Inventory inventory;
+    private final IInventory inventory;
     private final int width, height;
+    
+    private CraftInventory bukkitView;
 
-    public GridView(int height) {
-        this.inventory = Bukkit.createInventory(this, (width=9) * (this.height=height));
+    public NMSGridView(int height) {
+        this.inventory = new InventorySubcontainer("", false, (this.width=9) * (this.height=height), this);
     }
 
-    public GridView(String title, int height) {
-        this.inventory = Bukkit.createInventory(this, (width=9) * (this.height=height), title);
+    public NMSGridView(String title, int height) {
+        this.inventory = new InventorySubcontainer(title, true, (this.width=9) * (this.height=height), this);
     }
 
-    public GridView(Inventory inventory, int width, int height) {
+    public NMSGridView(IInventory inventory, int width, int height) {
         this.inventory = Objects.requireNonNull(inventory);
         this.width = width;
         this.height = height;
@@ -314,8 +318,8 @@ public class GridView implements InventoryHolder {
     }
 
     @Override
-    public Inventory getInventory() {
-        return inventory;
+    public CraftInventory getInventory() {
+        return bukkitView == null ? bukkitView = new CraftInventory(inventory) : bukkitView;
     }
 
     public int getWidth() {
@@ -329,7 +333,7 @@ public class GridView implements InventoryHolder {
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("GridView (" + getWidth() + "x" + getHeight() + ") {");
+        stringBuilder.append("NMSGridView (" + getWidth() + "x" + getHeight() + ") {");
         stringBuilder.append(System.lineSeparator());
         for (int i = 0; i < inventory.getSize(); i++) {
             if (i % width == 0) {
@@ -346,9 +350,9 @@ public class GridView implements InventoryHolder {
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!(o instanceof GridView)) return false;
+        if (!(o instanceof NMSGridView)) return false;
 
-        GridView that = (GridView) o;
+        NMSGridView that = (NMSGridView) o;
         return Objects.equals(this.inventory, that.inventory);
     }
 

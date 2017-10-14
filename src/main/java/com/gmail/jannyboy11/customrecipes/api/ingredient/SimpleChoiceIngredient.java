@@ -10,9 +10,9 @@ import java.util.Objects;
 import org.bukkit.Material;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
-
-import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import org.bukkit.material.MaterialData;
+
+import com.gmail.jannyboy11.customrecipes.api.util.InventoryUtils;
 
 /**
  * Represents an ingredient for crafting recipes that aims to mirror vanilla ingredients. 

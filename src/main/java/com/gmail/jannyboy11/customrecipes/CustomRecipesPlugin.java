@@ -21,7 +21,6 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.gmail.jannyboy11.customrecipes.api.*;
-import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.api.crafting.*;
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.*;
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.simple.SimpleShapedRecipe;
@@ -31,6 +30,7 @@ import com.gmail.jannyboy11.customrecipes.api.furnace.recipe.FixedFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.api.furnace.recipe.simple.SimpleFixedFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.api.ingredient.*;
 import com.gmail.jannyboy11.customrecipes.api.ingredient.SimpleChoiceIngredient.SimpleEmptyIngredient;
+import com.gmail.jannyboy11.customrecipes.api.util.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.*;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.Bukkit2NMSCraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.*;

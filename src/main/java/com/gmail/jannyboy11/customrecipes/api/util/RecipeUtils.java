@@ -1,4 +1,4 @@
-package com.gmail.jannyboy11.customrecipes.api;
+package com.gmail.jannyboy11.customrecipes.api.util;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.modify.ModifiedCraftingRecipe;
@@ -36,5 +36,7 @@ public class RecipeUtils {
         }
         return base;
     }
+    
+    //TODO layoutIngredients(GridView, int offsetX, int offsetY)
 
 }

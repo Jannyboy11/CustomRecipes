@@ -5,13 +5,13 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.ShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.ingredient.Ingredient;
+import com.gmail.jannyboy11.customrecipes.api.util.GridView;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.BackButton;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.ItemButton;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.MenuButton;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.MenuHolder;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.RedirectItemButton;
 import com.gmail.jannyboy11.customrecipes.util.ItemBuilder;
-import com.gmail.jannyboy11.customrecipes.util.inventory.GridView;
 
 import java.util.Map;
 import java.util.function.Supplier;
@@ -49,7 +49,7 @@ public class CraftingRecipeMenu extends MenuHolder<CustomRecipesPlugin> {
         this.legend = Map.of(
                 'P', new ItemButton(BORDER_BUTTON),
                 'D', new ItemButton(DELETE_BUTTON), //TODO use custom implementation that deletes the recipe and redirects
-                'E', new RedirectItemButton(EDIT_BUTTON, () -> new CraftingRecipeEditor(getPlugin(), recipe).getInventory()),
+                'E', new RedirectItemButton(EDIT_BUTTON, () -> new CraftingRecipeEditor(getPlugin(), recipe, this::getInventory).getInventory()),
                 'B', new BackButton(backRedirect));
     }
     

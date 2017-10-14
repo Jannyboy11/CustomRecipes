@@ -88,7 +88,7 @@ public class RecipeUtils {
                 return nmsRecipe;
             } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
                 throw new RuntimeException("There should be a NMSCraftingRecipe registered for IRecipe implementation " + nms.getClass() +
-                        " with a public single argument constructor with parameter type " + nms.getClass(), e);
+                        " with a public single argument constructor with parameter type " + nms.getClass() + ".", e);
             }
         }
 

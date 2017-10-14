@@ -12,11 +12,11 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 
-import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.ShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.ingredient.Ingredient;
 import com.gmail.jannyboy11.customrecipes.api.ingredient.SimpleChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.api.util.InventoryUtils;
 
 /**
  * Represents a shaped recipe that aims to mirror the vanilla shaped recipe implementation.

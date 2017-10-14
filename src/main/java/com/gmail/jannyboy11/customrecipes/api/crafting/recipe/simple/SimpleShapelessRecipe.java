@@ -12,9 +12,10 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
-import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
+
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.ShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.api.ingredient.ChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.api.util.InventoryUtils;
 
 /**
  * Represents a shapeless recipe that aims to mirror the vanilla implementation.

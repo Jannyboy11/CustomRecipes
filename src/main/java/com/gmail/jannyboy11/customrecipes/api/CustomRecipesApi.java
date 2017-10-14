@@ -60,4 +60,5 @@ public interface CustomRecipesApi {
 	 * @return the crafting manager
 	 */
 	public CraftingManager getCraftingManager();
+	
 }

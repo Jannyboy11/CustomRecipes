@@ -17,7 +17,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
-import com.gmail.jannyboy11.customrecipes.api.InventoryUtils;
+import com.gmail.jannyboy11.customrecipes.api.util.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.impl.ingredient.vanilla.CRChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapedRecipe;
