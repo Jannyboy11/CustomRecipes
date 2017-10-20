@@ -10,7 +10,7 @@ import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
-import com.gmail.jannyboy11.customrecipes.api.ingredient.ChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.ingredient.CRIngredient;
 import com.gmail.jannyboy11.customrecipes.serialize.NBTSerializable;
 import com.gmail.jannyboy11.customrecipes.util.NBTUtil;

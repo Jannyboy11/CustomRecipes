@@ -1,4 +1,4 @@
-package com.gmail.jannyboy11.customrecipes.api.ingredient;
+package com.gmail.jannyboy11.customrecipes.api.crafting.ingredient;
 
 import java.util.List;
 import java.util.Map;
@@ -7,8 +7,6 @@ import java.util.Optional;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
 
-import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
-
 /**
  * A crafting ingredient that will accept items similar to items in the choices list.
  * <br>
@@ -16,7 +14,7 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngred
  * 
  * @author Jan
  */
-public interface ChoiceIngredient extends CraftingIngredient, ConfigurationSerializable {
+public interface ChoiceIngredient extends CraftingIngredient {
 
     /**
      * Get the list of choices.

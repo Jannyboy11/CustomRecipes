@@ -1,4 +1,4 @@
-package com.gmail.jannyboy11.customrecipes.api.ingredient;
+package com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.simple;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -7,11 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.bukkit.Material;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.ChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.EmptyIngredient;
 import com.gmail.jannyboy11.customrecipes.api.util.InventoryUtils;
 
 /**

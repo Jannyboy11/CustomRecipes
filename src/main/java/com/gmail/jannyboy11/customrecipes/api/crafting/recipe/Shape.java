@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
-import com.gmail.jannyboy11.customrecipes.api.ingredient.SimpleChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.simple.SimpleChoiceIngredient;
 import com.google.common.base.Objects;
 
 public class Shape implements ConfigurationSerializable {
@@ -51,6 +51,14 @@ public class Shape implements ConfigurationSerializable {
     
     public int getHeight() {
         return pattern.length;
+    }
+    
+    public char getCharacter(int x, int y) {
+        return pattern[y].charAt(x);
+    }
+    
+    public CraftingIngredient getIngredient(int x, int y) {
+        return getIngredient(getCharacter(x, y));
     }
     
     public Map<Character, ? extends CraftingIngredient> getIngredientMap() {

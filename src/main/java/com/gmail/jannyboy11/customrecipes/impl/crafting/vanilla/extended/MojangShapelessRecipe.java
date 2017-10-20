@@ -21,7 +21,7 @@ public class MojangShapelessRecipe extends ShapelessRecipes implements MojangCra
     
     @Override
     public String toString() {
-        return "Mojang Shaped Recipe {"
+        return "Mojang Shapeless Recipe {"
                 + "result = " + b()
                 + "ingredients = " + d()
                 + "group = " + getGroup()

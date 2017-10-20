@@ -21,9 +21,9 @@ import org.bukkit.inventory.ItemStack;
 
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.ShapedRecipe;
-import com.gmail.jannyboy11.customrecipes.api.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.ingredient.Ingredient;
 import com.gmail.jannyboy11.customrecipes.api.util.GridView;
 import com.gmail.jannyboy11.customrecipes.gui.container.FixedSlot;

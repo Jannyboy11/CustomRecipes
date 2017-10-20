@@ -6,7 +6,6 @@ import java.util.*;
 import java.util.function.Predicate;
 
 import com.gmail.jannyboy11.customrecipes.api.furnace.recipe.FixedFurnaceRecipe;
-import com.gmail.jannyboy11.customrecipes.api.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.ingredient.Ingredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.modify.CRCraftingModifier;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.modify.NMSCraftingModifier;
@@ -22,9 +21,19 @@ import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.CraftingInventory;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.ChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.modify.CraftingModifier;
 import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.*;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.ExtendedCraftingIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.ExtendedShapedRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.ExtendedShapelessRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.impl.CRCraftingIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.impl.NMSExtendedShapedRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.impl.NMSExtendedShapelessRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.impl.ShapedImpl;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.impl.ShapelessImpl;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.modify.Bukkit2NMSCraftingModifier;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.Bukkit2NMSCraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.*;
@@ -38,7 +47,7 @@ public class RecipeUtils {
 
     private RecipeUtils() {}
 
-    private static Map<Class<? extends IRecipe>, Class<? extends NMSCraftingRecipe>> nmsCraftingRecipeMappings = new HashMap<>();
+    private static final Map<Class<? extends IRecipe>, Class<? extends NMSCraftingRecipe>> NMS_CRAFTING_RECIPE_MAPPINGS = new HashMap<>();
     static {
         registerNMSCraftingRecipe(RecipeArmorDye.class, NMSArmorDye.class);
         registerNMSCraftingRecipe(RecipesBanner.AddRecipe.class, NMSBannerAdd.class);
@@ -53,11 +62,27 @@ public class RecipeUtils {
         registerNMSCraftingRecipe(RecipeTippedArrow.class, NMSTippedArrow.class);
         registerNMSCraftingRecipe(ShapedRecipes.class, NMSShapedRecipe.class);
         registerNMSCraftingRecipe(ShapelessRecipes.class, NMSShapelessRecipe.class);
+        
+        registerNMSCraftingRecipe(ShapedImpl.class, NMSExtendedShapedRecipe.class);
+        registerNMSCraftingRecipe(ShapelessImpl.class, NMSExtendedShapelessRecipe.class);
+        registerNMSCraftingRecipe(ExtendedShapedRecipe.class, NMSExtendedShapedRecipe.class);
+        registerNMSCraftingRecipe(ExtendedShapelessRecipe.class, NMSExtendedShapelessRecipe.class);
     }
 
     //can be called by other plugins to register adapters
     public static void registerNMSCraftingRecipe(Class<? extends IRecipe> vanilla, Class<? extends NMSCraftingRecipe> nms) {
-        nmsCraftingRecipeMappings.put(vanilla, nms);
+        NMS_CRAFTING_RECIPE_MAPPINGS.put(vanilla, nms);
+    }
+    
+    private static final Map<MinecraftKey, String> GROUPS = new HashMap<>();
+    
+    public static void registerGroup(MinecraftKey key, String group) {
+        if ("".equals(group)) return;
+        GROUPS.put(key, group);
+    }
+    
+    public static String getGroup(MinecraftKey key) {
+        return GROUPS.getOrDefault(key, "");
     }
 
 
@@ -73,11 +98,23 @@ public class RecipeUtils {
 
         //try to get from the mappings
         Class vanillaClazz = nms.getClass();
-        Class<? extends NMSCraftingRecipe> nmsClazz = nmsCraftingRecipeMappings.get(vanillaClazz);
+        Class<? extends NMSCraftingRecipe> nmsClazz = NMS_CRAFTING_RECIPE_MAPPINGS.get(vanillaClazz);
+        
         while (nmsClazz == null && IRecipe.class.isAssignableFrom(vanillaClazz)) {
+            //try superclasses
             vanillaClazz = vanillaClazz.getSuperclass();
-            nmsClazz = nmsCraftingRecipeMappings.get(vanillaClazz);
+            nmsClazz = NMS_CRAFTING_RECIPE_MAPPINGS.get(vanillaClazz);
         }
+        
+        if (nmsClazz == null) {
+            //try implemented interfaces
+            vanillaClazz = nms.getClass();
+            for (Class<?> interfaze : vanillaClazz.getInterfaces()) {
+                nmsClazz = NMS_CRAFTING_RECIPE_MAPPINGS.get(interfaze);
+                if (nmsClazz != null) break;
+            }
+        }
+        
         if (nmsClazz != null) {
             try {
                 Constructor<? extends NMSCraftingRecipe> nmsConstructor = nmsClazz.getConstructor(vanillaClazz);
@@ -213,6 +250,13 @@ public class RecipeUtils {
         }
 
         return new InjectedIngredient(nmsIngredient).asNMSIngredient();
+    }
+    
+    
+    public static CraftingIngredient getBukkitCraftingRecipe(ExtendedCraftingIngredient nms) {
+        //TODO check for subclasses (e.g. ExtendedChoiceIngredient, or Bukkit2NMSCraftingIngredient or sth.
+        
+        return new CRCraftingIngredient(nms);
     }
     
 }

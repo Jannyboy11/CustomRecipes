@@ -15,9 +15,9 @@ import org.bukkit.Material;
 
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.*;
-import com.gmail.jannyboy11.customrecipes.api.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.*;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.*;
 import com.gmail.jannyboy11.customrecipes.serialize.NBTSerializable;

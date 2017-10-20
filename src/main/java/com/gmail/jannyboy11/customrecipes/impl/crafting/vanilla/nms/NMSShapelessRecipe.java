@@ -1,5 +1,6 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms;
 
+import com.gmail.jannyboy11.customrecipes.impl.RecipeUtils;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
@@ -22,9 +23,8 @@ public class NMSShapelessRecipe<R extends ShapelessRecipes> extends NMSCraftingR
         try {
             return (String) ReflectionUtil.getDeclaredFieldValue(delegate, "c");
         } catch (Throwable e) {
-            //TODO lookup vanilla groups by key in a Map
-        }
-        return ""; 
+            return RecipeUtils.getGroup(getKey());
+        } 
     }
 
     @Override

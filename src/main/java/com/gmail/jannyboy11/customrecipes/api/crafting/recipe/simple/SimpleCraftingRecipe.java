@@ -93,38 +93,6 @@ public abstract class SimpleCraftingRecipe implements CraftingRecipe, Configurat
 	}
 	
 	/**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<? extends ItemStack> getLeftOverItems(CraftingInventory craftingInventory) {
-        ItemStack[] matrix = craftingInventory.getMatrix();
-        List<ItemStack> leftOver = new ArrayList<>(matrix.length);
-        
-        for (int i = 0; i < matrix.length; i++) {
-            ItemStack matrixStack = matrix[i];
-            
-            if (InventoryUtils.isEmptyStack(matrixStack)) {
-                leftOver.add(null);
-                continue;
-            }
-            
-            ItemStack clone = matrixStack.clone();
-            MaterialData ingredientLeftover = InventoryUtils.getIngredientRemainder(matrixStack.getData());
-            if (ingredientLeftover.getItemType() != Material.AIR) {
-                clone.setData(ingredientLeftover);
-                leftOver.add(clone);           
-                continue;
-            }
-            
-            //ingredient remainder is AIR
-            leftOver.add(null);
-        }
-        
-        craftingInventory.setContents(leftOver.toArray(new ItemStack[matrix.length]));
-        return leftOver;
-    }
-	
-	/**
 	 * {@inheritDoc}
 	 */
 	@Override

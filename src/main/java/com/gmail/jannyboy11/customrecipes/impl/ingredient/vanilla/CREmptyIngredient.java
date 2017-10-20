@@ -2,7 +2,7 @@ package com.gmail.jannyboy11.customrecipes.impl.ingredient.vanilla;
 
 import java.util.Map;
 
-import com.gmail.jannyboy11.customrecipes.api.ingredient.EmptyIngredient;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.EmptyIngredient;
 
 import net.minecraft.server.v1_12_R1.RecipeItemStack;
 

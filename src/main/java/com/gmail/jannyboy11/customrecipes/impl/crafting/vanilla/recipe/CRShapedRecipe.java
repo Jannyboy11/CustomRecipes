@@ -6,9 +6,9 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.EmptyIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.Shape;
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.ShapedRecipe;
-import com.gmail.jannyboy11.customrecipes.api.ingredient.EmptyIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.NMSShapedRecipe;
 import net.minecraft.server.v1_12_R1.ShapedRecipes;

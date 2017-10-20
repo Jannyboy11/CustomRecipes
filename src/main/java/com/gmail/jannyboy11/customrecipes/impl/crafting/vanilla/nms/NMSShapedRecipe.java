@@ -1,5 +1,6 @@
 package com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms;
 
+import com.gmail.jannyboy11.customrecipes.impl.RecipeUtils;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.util.ReflectionUtil;
 
@@ -44,10 +45,8 @@ public class NMSShapedRecipe<V extends ShapedRecipes> extends NMSCraftingRecipe<
         try {
             return (String) ReflectionUtil.getDeclaredFieldValue(delegate, "e");
         } catch (Throwable e) {
-            //TODO lookup vanilla groups by key in a Map
-            
+            return RecipeUtils.getGroup(getKey());
         }
-        return "";
     }
 
     @Override

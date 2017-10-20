@@ -1,17 +1,21 @@
 package com.gmail.jannyboy11.customrecipes.api.crafting;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Keyed;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
+import org.bukkit.material.MaterialData;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.modify.CraftingModifier;
 import com.gmail.jannyboy11.customrecipes.api.crafting.modify.ModifiedCraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.api.util.InventoryUtils;
 
 /**
  * Represents a crafting recipe.
@@ -61,7 +65,34 @@ public interface CraftingRecipe extends Keyed, Recipe {
      * @param craftingInventory the crafting inventory - either a 3x3 workbench inventory, or the 2x2 hand crafting inventory
      * @return the ItemStacks that are left over after crafting completed - can contain null or AIR ItemStacks
      */
-    public List<? extends ItemStack> getLeftOverItems(CraftingInventory craftingInventory);
+    public default List<? extends ItemStack> getLeftOverItems(CraftingInventory craftingInventory) {
+        //only called when the recipe matched
+        ItemStack[] matrix = craftingInventory.getMatrix();
+        List<ItemStack> leftOver = new ArrayList<>(matrix.length);
+        
+        for (int i = 0; i < matrix.length; i++) {
+            ItemStack matrixStack = matrix[i];
+            
+            if (InventoryUtils.isEmptyStack(matrixStack)) {
+                leftOver.add(null);
+                continue;
+            }
+            
+            ItemStack clone = matrixStack.clone();
+            MaterialData ingredientLeftover = InventoryUtils.getIngredientRemainder(matrixStack.getData());
+            if (ingredientLeftover.getItemType() != Material.AIR) {
+                clone.setData(ingredientLeftover);
+                leftOver.add(clone);           
+                continue;
+            }
+            
+            //ingredient remainder is AIR
+            leftOver.add(null);
+        }
+        
+        craftingInventory.setContents(leftOver.toArray(new ItemStack[matrix.length]));
+        return leftOver;
+    }
 
     /**
      * Tests whether the recipe is a special recipe that have multiple ingredient patterns.

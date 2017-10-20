@@ -1,4 +1,4 @@
-package com.gmail.jannyboy11.customrecipes.api.ingredient;
+package com.gmail.jannyboy11.customrecipes.api.crafting.ingredient;
 
 import java.util.List;
 import java.util.Optional;

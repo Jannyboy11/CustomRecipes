@@ -21,6 +21,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.gmail.jannyboy11.customrecipes.api.*;
 import com.gmail.jannyboy11.customrecipes.api.crafting.*;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.ChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.simple.SimpleChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.simple.SimpleChoiceIngredient.SimpleEmptyIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.*;
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.simple.SimpleShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.simple.SimpleShapelessRecipe;
@@ -28,7 +31,6 @@ import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.api.furnace.recipe.FixedFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.api.furnace.recipe.simple.SimpleFixedFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.api.ingredient.*;
-import com.gmail.jannyboy11.customrecipes.api.ingredient.SimpleChoiceIngredient.SimpleEmptyIngredient;
 import com.gmail.jannyboy11.customrecipes.api.util.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.*;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.extended.MojangCraftingRecipe;
@@ -52,7 +54,8 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 
     //Hacks!
     private static CustomRecipesPlugin instance;
-
+    
+    //TODO remove these two fields
     private final Map<String, BiConsumer<? super NBTSerializable, ? super File>> writers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private final Map<String, Function<? super File, ? extends Recipe>> readers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
@@ -143,6 +146,7 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
         ConfigurationSerialization.registerClass(WildcardIngredient.class);
         ConfigurationSerialization.registerClass(SimpleChoiceIngredient.class);
         ConfigurationSerialization.registerClass(SimpleEmptyIngredient.class);
+        ConfigurationSerialization.registerClass(Shape.class);
 
         //bukkit recipes
         ConfigurationSerialization.registerClass(SimpleShapedRecipe.class);

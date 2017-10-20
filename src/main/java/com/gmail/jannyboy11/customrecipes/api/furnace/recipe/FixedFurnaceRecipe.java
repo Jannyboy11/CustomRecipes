@@ -8,8 +8,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 
 import com.gmail.jannyboy11.customrecipes.api.SerializableKey;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.simple.SimpleChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe;
-import com.gmail.jannyboy11.customrecipes.api.ingredient.SimpleChoiceIngredient;
 
 /**
  * Represents a furnace recipe with fixed ingredients, results and experience.

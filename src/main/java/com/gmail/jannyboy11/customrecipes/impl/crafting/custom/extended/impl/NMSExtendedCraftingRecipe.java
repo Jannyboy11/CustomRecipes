@@ -7,16 +7,13 @@ import net.minecraft.server.v1_12_R1.MinecraftKey;
 
 public class NMSExtendedCraftingRecipe<E extends ExtendedCraftingRecipe> extends NMSCraftingRecipe<E> implements ExtendedCraftingRecipe {
     
-    private final MinecraftKey key;
-    
-    public NMSExtendedCraftingRecipe(MinecraftKey key, E delegate) {
+    public NMSExtendedCraftingRecipe(E delegate) {
         super(delegate);
-        this.key = key;
     }
 
     @Override
     public MinecraftKey getKey() {
-        return key;
+        return getHandle().getKey();
     }
 
 }

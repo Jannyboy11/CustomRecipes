@@ -7,27 +7,45 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.bukkit.NamespacedKey;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
 import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.ShapelessRecipe;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.ExtendedCraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.ExtendedCraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.ExtendedShapedRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.ExtendedShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.MatchStrategy;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.Shape;
+
 import net.minecraft.server.v1_12_R1.InventoryCrafting;
 import net.minecraft.server.v1_12_R1.ItemStack;
 import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.NonNullList;
 import net.minecraft.server.v1_12_R1.World;
 
-//TODO why did I create this class again?
-//TODO I think it was to create some common superclass for shaped and shapeless recipes
-//TODO and to allow other plugins to register their own 'base' type (matching strategy) i think it was.
 public class ExtendedMatchRecipe implements ExtendedCraftingRecipe {
     
-    private static final Map<MatchStrategy, Function<? extends ExtendedCraftingRecipe, ? extends CraftingRecipe>> STRATEGY_MAPPER = new HashMap<>();
+    private static final Map<MatchStrategy, Function<? super ExtendedMatchRecipe, ? extends CraftingRecipe>> STRATEGY_MAPPER = new HashMap<>();
     static {
-        STRATEGY_MAPPER.put(VanillaMatchStrategy.SHAPED, null); //TODO
-        STRATEGY_MAPPER.put(VanillaMatchStrategy.SHAPELESS, null); //TODO
+        registerMatchStrategy(VanillaMatchStrategy.SHAPED, recipe -> {
+            ExtendedShapedRecipe shaped = (ExtendedShapedRecipe) recipe;
+            NMSExtendedShapedRecipe nms = new NMSExtendedShapedRecipe(shaped);
+            return new CRShaped(nms);
+        });
+        registerMatchStrategy(VanillaMatchStrategy.SHAPELESS, recipe -> {
+            ExtendedShapelessRecipe shapeless = (ExtendedShapelessRecipe) recipe;
+            NMSExtendedShapelessRecipe nms = new NMSExtendedShapelessRecipe(shapeless);
+            return new CRShapeless(nms);
+        });
+    }
+    
+    public static void registerMatchStrategy(MatchStrategy strat, Function<? super ExtendedMatchRecipe, ? extends CraftingRecipe> bukkitMirror) {
+        STRATEGY_MAPPER.put(strat, bukkitMirror);
     }
     
     private final MinecraftKey key;
@@ -35,6 +53,8 @@ public class ExtendedMatchRecipe implements ExtendedCraftingRecipe {
     private final NonNullList<? extends ExtendedCraftingIngredient> ingredients;
     private final MatchStrategy matcher;
     private final String group;
+
+    private CraftingRecipe bukkit;
     
     public ExtendedMatchRecipe(MinecraftKey key, ItemStack result, NonNullList<? extends ExtendedCraftingIngredient> ingredients, MatchStrategy strat, String group) {
         this.key = key;
@@ -56,26 +76,58 @@ public class ExtendedMatchRecipe implements ExtendedCraftingRecipe {
     @Override
     public Recipe toBukkitRecipe() {
         if (matcher == VanillaMatchStrategy.SHAPED) {
-            //TODO return shaped bukkit recipe
+            ExtendedShapedRecipe nms = (ExtendedShapedRecipe) this;
+            ItemStack result = nms.getResult();
+            Shape shape = nms.getShape();
+            
+            NamespacedKey bukkitKey = CraftNamespacedKey.fromMinecraft(nms.getKey());
+            CraftItemStack bukkitResult = CraftItemStack.asCraftMirror(result);
+            
+            ShapedRecipe bukkit = new ShapedRecipe(bukkitKey, bukkitResult);
+            bukkit.shape(shape.getPattern());
+            
+            shape.getIngredientMap().forEach((character, ingredient) -> ingredient.firstItemStack().ifPresent(itemStack ->
+                    bukkit.setIngredient(character, CraftItemStack.asCraftMirror(itemStack).getData())));
+            
+            return bukkit;
         }
         
-        if (matcher == VanillaMatchStrategy.SHAPELESS) {
-            //TODO return shapeless bukkit recipe
-        }
-        
-        //fallback on CustomRecipes version
-        return getBukkitRecipe();
+        //fallback on shapeless recipe, as CraftBukkit itself does this as well.
+        ExtendedShapelessRecipe nms = (ExtendedShapelessRecipe) this;
+        ItemStack result = nms.getResult();
+        NonNullList<? extends ExtendedCraftingIngredient> ingredients = nms.getIngredients();
+            
+        NamespacedKey bukkitKey = CraftNamespacedKey.fromMinecraft(nms.getKey());
+        CraftItemStack bukkitResult = CraftItemStack.asCraftMirror(result);
+            
+        ShapelessRecipe bukkit = new ShapelessRecipe(bukkitKey, bukkitResult);
+        ingredients.forEach(ingredient -> ingredient.firstItemStack().ifPresent(itemStack ->
+                bukkit.addIngredient(CraftItemStack.asCraftMirror(itemStack).getData())));
+            
+        return bukkit;
     }
 
     @Override
     public MinecraftKey getKey() {
         return key;
     }
+    
+    public MatchStrategy getMatcher() {
+        return this.matcher;
+    }
+    
+    private CraftingRecipe createBukkitRecipe() {
+        Function<? super ExtendedMatchRecipe, ? extends CraftingRecipe> constructor = STRATEGY_MAPPER.get(getMatcher());
+        if (constructor == null) {
+            constructor = STRATEGY_MAPPER.get(VanillaMatchStrategy.SHAPELESS);
+        }
+        
+        return constructor.apply(this);
+    }
 
     @Override
     public CraftingRecipe getBukkitRecipe() {
-        // TODO switch on match strategy, and return a CRShaped, CRShapeless or CRCraftingRecipe
-        return null;
+        return bukkit == null ? bukkit = createBukkitRecipe() : bukkit;
     }
 
     @Override

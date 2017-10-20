@@ -1,15 +1,20 @@
 package com.gmail.jannyboy11.customrecipes.api.crafting.recipe;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.gmail.jannyboy11.customrecipes.api.SerializableKey;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.modify.CraftingModifier;
 import com.gmail.jannyboy11.customrecipes.api.crafting.modify.ModifiedCraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.modify.ModifiedShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.modify.ToShapelessModifier;
+import com.gmail.jannyboy11.customrecipes.api.util.InventoryUtils;
 
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
@@ -30,6 +35,71 @@ public interface ShapelessRecipe extends CraftingRecipe, ConfigurationSerializab
      * @return the ingredients
      */
     public List<? extends CraftingIngredient> getIngredients();
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public default boolean matches(CraftingInventory craftingInventory, World world) {
+        final List<CraftingIngredient> ingredients = new ArrayList<>(getIngredients());
+        final List<ItemStack> contents = Arrays.asList(craftingInventory.getMatrix())
+                .stream().filter(i -> !InventoryUtils.isEmptyStack(i))
+                .collect(Collectors.toList());
+        
+        for (ItemStack stack : contents) {
+            boolean match = false;
+            for (int ingredientIndex = 0; ingredientIndex < ingredients.size(); ingredientIndex++) {
+                CraftingIngredient ingredient = ingredients.get(ingredientIndex);
+                if (ingredient.isIngredient(stack)) {
+                    ingredients.remove(ingredientIndex);
+                    match = true;
+                    break;
+                }
+            }
+            
+            //there was no matching ingredient for the current ItemStack
+            if (!match) return false;
+        }
+        
+        //return true if there are no unused ingredients left over
+        return ingredients.isEmpty();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public default List<? extends ItemStack> getLeftOverItems(CraftingInventory craftingInventory) {
+        ItemStack[] matrix = craftingInventory.getMatrix();
+        final List<CraftingIngredient> ingredients = new ArrayList<>(getIngredients());
+        
+        List<ItemStack> leftOver = new ArrayList<>(matrix.length);
+        
+        for (int i = 0; i < matrix.length; i++) {
+            ItemStack stack = matrix[i];
+            ItemStack remainder = stack;
+
+            for (int ingredientIndex = 0; ingredientIndex < ingredients.size(); ingredientIndex++) {
+                CraftingIngredient ingredient = ingredients.get(ingredientIndex);
+                if (ingredient.isIngredient(stack)) {
+                    ingredients.remove(ingredientIndex); //shrink ingredient copy
+                    
+                    remainder = ingredient.getRemainder(stack);
+                    
+                    break;
+                }
+            }
+            
+            leftOver.add(remainder);
+        }
+        
+        
+        craftingInventory.setContents(leftOver.toArray(new ItemStack[matrix.length]));
+        return leftOver;
+    }
+    
+    
 
     /**
      * Serializes this ShapedRecipe.

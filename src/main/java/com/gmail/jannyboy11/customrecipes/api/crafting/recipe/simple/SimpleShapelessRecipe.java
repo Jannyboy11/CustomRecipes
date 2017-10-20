@@ -1,21 +1,15 @@
 package com.gmail.jannyboy11.customrecipes.api.crafting.recipe.simple;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
-
 import org.bukkit.NamespacedKey;
-import org.bukkit.World;
-import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.ShapelessRecipe;
-import com.gmail.jannyboy11.customrecipes.api.ingredient.ChoiceIngredient;
-import com.gmail.jannyboy11.customrecipes.api.util.InventoryUtils;
 
 /**
  * Represents a shapeless recipe that aims to mirror the vanilla implementation.
@@ -78,35 +72,6 @@ public final class SimpleShapelessRecipe extends SimpleCraftingRecipe implements
 		if (ingredients.stream().anyMatch(Objects::isNull)) throw new IllegalArgumentException("ingredients cannot be null");
 		
 		this.ingredients = new ArrayList<>(ingredients);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean matches(CraftingInventory craftingInventory, World world) {
-		final List<ChoiceIngredient> ingredients = new ArrayList<>(this.ingredients);
-		final List<ItemStack> contents = Arrays.asList(craftingInventory.getMatrix())
-				.stream().filter(i -> !InventoryUtils.isEmptyStack(i))
-				.collect(Collectors.toList());
-		
-		for (ItemStack stack : contents) {
-			boolean match = false;
-			for (int ingredientIndex = 0; ingredientIndex < ingredients.size(); ingredientIndex++) {
-				ChoiceIngredient ingredient = ingredients.get(ingredientIndex);
-				if (ingredient.isIngredient(stack)) {
-					ingredients.remove(ingredientIndex);
-					match = true;
-					break;
-				}
-			}
-			
-			//there was no matching ingredient for the current ItemStack
-			if (!match) return false;
-		}
-		
-		//return true if there are no unused ingredients left over
-		return ingredients.isEmpty();
 	}
 
 	/**
