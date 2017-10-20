@@ -8,12 +8,14 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
+import org.bukkit.material.MaterialData;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.ExtendedCraftingIngredient;
@@ -106,8 +108,12 @@ public class ExtendedMatchRecipe implements ExtendedCraftingRecipe {
         CraftItemStack bukkitResult = CraftItemStack.asCraftMirror(result);
             
         ShapelessRecipe bukkit = new ShapelessRecipe(bukkitKey, bukkitResult);
-        ingredients.forEach(ingredient -> ingredient.firstItemStack().ifPresent(itemStack ->
-                bukkit.addIngredient(CraftItemStack.asCraftMirror(itemStack).getData())));
+        ingredients.forEach(ingredient -> {
+            bukkit.addIngredient(ingredient.firstItemStack()
+                    .map(CraftItemStack::asCraftMirror)
+                    .map(CraftItemStack::getData)
+                    .orElse(new MaterialData(Material.AIR))); //Other plugins will love this! xD
+        });
             
         return bukkit;
     }
@@ -157,9 +163,16 @@ public class ExtendedMatchRecipe implements ExtendedCraftingRecipe {
         }
 
         //fallback, update all slots. this implementation doesn't taken the ingredients to account!
-        return NonNullList.a(inventory.getSize(), ItemStack.a).stream()
+        NonNullList<ItemStack> remainders = NonNullList.a(inventory.getSize(), ItemStack.a).stream()
                 .map(itemStack -> itemStack.getItem().r() ? new ItemStack(itemStack.getItem().q()) : itemStack)
                 .collect(Collectors.toCollection(NonNullList::a));
+        
+        //IInventory needs a method like setContents really bad!
+        for (int i = 0; i < inventory.getSize(); i++) {
+            inventory.setItem(i, remainders.get(i));
+        }
+        
+        return remainders;
     }
 
     @Override
