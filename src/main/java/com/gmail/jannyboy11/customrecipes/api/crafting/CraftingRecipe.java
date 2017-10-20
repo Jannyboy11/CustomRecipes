@@ -66,7 +66,7 @@ public interface CraftingRecipe extends Keyed, Recipe {
      * @return the ItemStacks that are left over after crafting completed - can contain null or AIR ItemStacks
      */
     public default List<? extends ItemStack> getLeftOverItems(CraftingInventory craftingInventory) {
-        //only called when the recipe matched
+        //only called when the recipe matched - update all itemstacks according to the 'vanilla' strategy
         ItemStack[] matrix = craftingInventory.getMatrix();
         List<ItemStack> leftOver = new ArrayList<>(matrix.length);
         

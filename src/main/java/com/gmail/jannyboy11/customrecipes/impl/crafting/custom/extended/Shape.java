@@ -36,8 +36,16 @@ public interface Shape {
         return getPattern()[0].length();
     }
     
-    public default int getHeigth() {
+    public default int getHeight() {
         return getPattern().length;
+    }
+    
+    public default char getKey(int x, int y) {
+        return getPattern()[y].charAt(x);
+    }
+    
+    public default ExtendedCraftingIngredient getIngredient(int x, int y) {
+        return getIngredient(getKey(x, y));
     }
 
 }

@@ -11,7 +11,7 @@ public class ShapedImpl extends ExtendedMatchRecipe implements ExtendedShapedRec
     private final Shape shape;
     
     public ShapedImpl(MinecraftKey key, ItemStack result, Shape shape, String group) {
-        super(key, result, shape.getIngredients(), VanillaMatchStrategy.SHAPED, group);
+        super(key, result, shape.getIngredients(), VanillaMatchStrategy.SHAPED, VanillaRemainderStrategy.SHAPED, group);
         this.shape = shape;
     }
 

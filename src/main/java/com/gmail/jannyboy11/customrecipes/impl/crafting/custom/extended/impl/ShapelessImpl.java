@@ -10,7 +10,7 @@ import net.minecraft.server.v1_12_R1.NonNullList;
 public class ShapelessImpl extends ExtendedMatchRecipe implements ExtendedShapelessRecipe {
 
     public ShapelessImpl(MinecraftKey key, ItemStack result, NonNullList<? extends ExtendedCraftingIngredient> ingredients, String group) {
-        super(key, result, ingredients, VanillaMatchStrategy.SHAPELESS, group);
+        super(key, result, ingredients, VanillaMatchStrategy.SHAPELESS, VanillaRemainderStrategy.SHAPELESS, group);
     }
     
 }

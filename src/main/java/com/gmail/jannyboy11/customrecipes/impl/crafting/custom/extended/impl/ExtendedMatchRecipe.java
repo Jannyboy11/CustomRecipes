@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
@@ -20,6 +21,7 @@ import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.Extended
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.ExtendedShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.ExtendedShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.MatchStrategy;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.RemainderStrategy;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.Shape;
 
 import net.minecraft.server.v1_12_R1.InventoryCrafting;
@@ -52,15 +54,18 @@ public class ExtendedMatchRecipe implements ExtendedCraftingRecipe {
     private final ItemStack result;
     private final NonNullList<? extends ExtendedCraftingIngredient> ingredients;
     private final MatchStrategy matcher;
+    private final RemainderStrategy remainder;
     private final String group;
 
     private CraftingRecipe bukkit;
     
-    public ExtendedMatchRecipe(MinecraftKey key, ItemStack result, NonNullList<? extends ExtendedCraftingIngredient> ingredients, MatchStrategy strat, String group) {
+    public ExtendedMatchRecipe(MinecraftKey key, ItemStack result, NonNullList<? extends ExtendedCraftingIngredient> ingredients,
+            MatchStrategy matchStrategy, RemainderStrategy remainderStrategy, String group) {
         this.key = key;
         this.result = result;
         this.ingredients = ingredients;
-        this.matcher = strat;
+        this.matcher = matchStrategy;
+        this.remainder = remainderStrategy;
         this.group = group;
     }
 
@@ -147,26 +152,14 @@ public class ExtendedMatchRecipe implements ExtendedCraftingRecipe {
 
     @Override
     public NonNullList<ItemStack> getRemainders(InventoryCrafting inventory) {
-        NonNullList<ItemStack> remainders = NonNullList.a(inventory.getSize(), ItemStack.a);
-        ListIterator<ItemStack> remainderIterator = remainders.listIterator();
-        
-        List<ItemStack> matrix = inventory.getContents();
-        NonNullList<? extends ExtendedCraftingIngredient> ingredients = getIngredients();
-        
-        Iterator<ItemStack> matrixIterator = matrix.iterator();
-        Iterator<? extends ExtendedCraftingIngredient> ingredientIterator = ingredients.iterator();
-        
-        while (matrixIterator.hasNext() && ingredientIterator.hasNext() && remainderIterator.hasNext()) {
-            ItemStack content = matrixIterator.next();
-            ExtendedCraftingIngredient ingredient = ingredientIterator.next();
-            
-            ItemStack remainder = ingredient.getRemainder(content);
-
-            remainderIterator.next();
-            remainderIterator.set(remainder);
+        if (remainder != null) {
+            return remainder.getRemaining(this, inventory);
         }
-        
-        return remainders;
+
+        //fallback, update all slots. this implementation doesn't taken the ingredients to account!
+        return NonNullList.a(inventory.getSize(), ItemStack.a).stream()
+                .map(itemStack -> itemStack.getItem().r() ? new ItemStack(itemStack.getItem().q()) : itemStack)
+                .collect(Collectors.toCollection(NonNullList::a));
     }
 
     @Override

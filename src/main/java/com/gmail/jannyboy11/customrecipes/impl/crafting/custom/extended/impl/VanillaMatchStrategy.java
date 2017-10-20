@@ -28,7 +28,7 @@ public abstract class VanillaMatchStrategy<R extends ExtendedCraftingRecipe> imp
             
             Shape shape = recipe.getShape();
             int maxAddX = inventoryWidth - shape.getWidth();
-            int maxAddY = inventoryHeight - shape.getHeigth();
+            int maxAddY = inventoryHeight - shape.getHeight();
             
             for (int addX = 0; addX <= maxAddX; addX++) {
                 for (int addY = 0; addY <= maxAddY; addY++) {
@@ -45,7 +45,7 @@ public abstract class VanillaMatchStrategy<R extends ExtendedCraftingRecipe> imp
             Map<Character, ? extends ExtendedCraftingIngredient> ingredients = shape.getIngredientMap();
             String[] pattern = shape.getPattern();
             
-            for (int y = 0; y < shape.getHeigth(); y++) {
+            for (int y = 0; y < shape.getHeight(); y++) {
                 for (int x = 0; x < shape.getWidth(); x++) {
                     
                     final int gridX = mirrored ? shape.getWidth() - 1 - x + addX : x + addX;

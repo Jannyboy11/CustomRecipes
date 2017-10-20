@@ -83,7 +83,7 @@ public interface ShapelessRecipe extends CraftingRecipe, ConfigurationSerializab
             for (int ingredientIndex = 0; ingredientIndex < ingredients.size(); ingredientIndex++) {
                 CraftingIngredient ingredient = ingredients.get(ingredientIndex);
                 if (ingredient.isIngredient(stack)) {
-                    ingredients.remove(ingredientIndex); //shrink ingredient copy
+                    ingredients.remove(ingredientIndex); //shrink ingredients copy
                     
                     remainder = ingredient.getRemainder(stack);
                     
