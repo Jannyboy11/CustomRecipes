@@ -7,6 +7,8 @@ import net.minecraft.server.v1_12_R1.NBTTagCompound;
 
 import java.util.function.Predicate;
 
+import org.bukkit.NamespacedKey;
+
 public class CRCountModifier extends CRAbstractIngredientModifier<Predicate<ItemStack>, Predicate<ItemStack>, NMSCountModifier> implements CountModifier, NBTSerializable {
 
     public CRCountModifier(NMSCountModifier nmsModifier) {
@@ -21,6 +23,12 @@ public class CRCountModifier extends CRAbstractIngredientModifier<Predicate<Item
     @Override
     public int getCount() {
         return nmsModifier.getCount();
+    }
+
+    @Override
+    public NamespacedKey getKey() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

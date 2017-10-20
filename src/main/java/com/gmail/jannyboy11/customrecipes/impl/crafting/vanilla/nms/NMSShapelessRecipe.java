@@ -14,12 +14,17 @@ public class NMSShapelessRecipe<R extends ShapelessRecipes> extends NMSCraftingR
 
     @Override
     public MinecraftKey getKey() {
-        return delegate.key;
+        return getHandle().key;
     }
     
     @Override
     public String getGroup() {
-        return (String) ReflectionUtil.getDeclaredFieldValue(delegate, "c");
+        try {
+            return (String) ReflectionUtil.getDeclaredFieldValue(delegate, "c");
+        } catch (Throwable e) {
+            //TODO lookup vanilla groups by key in a Map
+        }
+        return ""; 
     }
 
     @Override

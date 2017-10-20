@@ -1,5 +1,10 @@
 package com.gmail.jannyboy11.customrecipes.api.ingredient;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.bukkit.inventory.ItemStack;
+
 /**
  * The ingredient that only accepts the empty ItemStack.
  * <br>
@@ -9,5 +14,15 @@ package com.gmail.jannyboy11.customrecipes.api.ingredient;
  *
  */
 public interface EmptyIngredient extends ChoiceIngredient {
+    
+    @Override
+    public default List<? extends ItemStack> getChoices() {
+        return List.of();
+    }
+    
+    @Override
+    public default Optional<? extends ItemStack> firstItemStack() {
+        return Optional.empty();
+    }
 
 }

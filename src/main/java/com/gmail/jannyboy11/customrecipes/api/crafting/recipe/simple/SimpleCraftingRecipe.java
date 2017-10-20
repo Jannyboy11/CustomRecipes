@@ -59,7 +59,7 @@ public abstract class SimpleCraftingRecipe implements CraftingRecipe, Configurat
 		map.put("key", new SerializableKey(getKey()));
 		map.put("result", getResult());
 		if (isHidden()) map.put("hidden", isHidden());
-		if (hasGroup()) map.put("group", getGroup());
+		if (isGrouped()) map.put("group", getGroup());
 		return map;
 	}
 	
@@ -101,20 +101,23 @@ public abstract class SimpleCraftingRecipe implements CraftingRecipe, Configurat
         List<ItemStack> leftOver = new ArrayList<>(matrix.length);
         
         for (int i = 0; i < matrix.length; i++) {
-            ItemStack itemStack = matrix[i];
+            ItemStack matrixStack = matrix[i];
             
-            if (InventoryUtils.isEmptyStack(itemStack)) {
+            if (InventoryUtils.isEmptyStack(matrixStack)) {
                 leftOver.add(null);
                 continue;
             }
             
-            ItemStack clone = itemStack.clone();
-            MaterialData craftingResult = InventoryUtils.getSingleIngredientResult(itemStack.getData());
-            if (craftingResult.getItemType() != Material.AIR) {
-                clone.setData(craftingResult);
+            ItemStack clone = matrixStack.clone();
+            MaterialData ingredientLeftover = InventoryUtils.getIngredientRemainder(matrixStack.getData());
+            if (ingredientLeftover.getItemType() != Material.AIR) {
+                clone.setData(ingredientLeftover);
                 leftOver.add(clone);           
                 continue;
             }
+            
+            //ingredient remainder is AIR
+            leftOver.add(null);
         }
         
         craftingInventory.setContents(leftOver.toArray(new ItemStack[matrix.length]));

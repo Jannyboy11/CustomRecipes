@@ -16,7 +16,6 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -32,8 +31,8 @@ import com.gmail.jannyboy11.customrecipes.api.ingredient.*;
 import com.gmail.jannyboy11.customrecipes.api.ingredient.SimpleChoiceIngredient.SimpleEmptyIngredient;
 import com.gmail.jannyboy11.customrecipes.api.util.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.*;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.recipe.Bukkit2NMSCraftingRecipe;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.*;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.extended.MojangCraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.extended.MojangRecipeDeserializer;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.*;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.custom.*;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.vanilla.NMSFixedFurnaceRecipe;
@@ -87,7 +86,23 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
     @Override
     public void onLoad() {
         instance = this;
-
+        
+        //DEBUG!
+        Map<MinecraftKey, ? extends MojangCraftingRecipe> serverRecipes = MojangRecipeDeserializer.get(this.getLogger()).readFromServerJar();
+        serverRecipes.entrySet()
+                .forEach(entry -> {
+                        System.out.println("key: " + entry.getKey());
+                        System.out.println("value: " + entry.getValue());
+                        System.out.println(System.lineSeparator());
+                        System.out.println(System.lineSeparator());
+                });
+        getLogger().info("DEBUG TOTAL = " + serverRecipes.size()); //432 loaded from server jar
+        
+        getServer().resetRecipes();
+        
+        int vanillaTotal = StreamSupport.stream(CraftingManager.recipes.spliterator(), false).mapToInt(recipe -> 1).sum();
+        getLogger().info("VANILLA TOTAL (incl hidden): " + vanillaTotal); //443 in the crafting manager
+        
         craftingManager = new CRCraftingManager();
         furnaceManager = new CRFurnaceManager(NMSFurnaceManager.getInstance());
 
@@ -144,19 +159,20 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
         ConfigurationSerialization.registerClass(CREmptyIngredient.class);
 
         //nms recipe wrappers
-        ConfigurationSerialization.registerClass(CRShapedRecipe.class);
-        ConfigurationSerialization.registerClass(CRShapelessRecipe.class);
-        ConfigurationSerialization.registerClass(CRArmorDyeRecipe.class);
-        ConfigurationSerialization.registerClass(CRBannerAddPatternRecipe.class);
-        ConfigurationSerialization.registerClass(BannerDuplicateRecipe.class);
-        ConfigurationSerialization.registerClass(CRBookCloneRecipe.class);
-        ConfigurationSerialization.registerClass(CRFireworksRecipe.class);
-        ConfigurationSerialization.registerClass(CRMapCloneRecipe.class);
-        ConfigurationSerialization.registerClass(CRMapExtendRecipe.class);
-        ConfigurationSerialization.registerClass(CRRepairRecipe.class);
-        ConfigurationSerialization.registerClass(CRShieldDecorationRecipe.class);
-        ConfigurationSerialization.registerClass(CRShulkerBoxDyeRecipe.class);
-        ConfigurationSerialization.registerClass(CRTippedArrowRecipe.class);
+        //TODO remove all of this? I don't want to deal with the ConfigurationSerializable API actually.
+//        ConfigurationSerialization.registerClass(CRShapedRecipe.class);
+//        ConfigurationSerialization.registerClass(CRShapelessRecipe.class);
+//        ConfigurationSerialization.registerClass(CRArmorDyeRecipe.class);
+//        ConfigurationSerialization.registerClass(CRBannerAddPatternRecipe.class);
+//        ConfigurationSerialization.registerClass(CRBannerDuplicateRecipe.class);
+//        ConfigurationSerialization.registerClass(CRBookCloneRecipe.class);
+//        ConfigurationSerialization.registerClass(CRFireworksRecipe.class);
+//        ConfigurationSerialization.registerClass(CRMapCloneRecipe.class);
+//        ConfigurationSerialization.registerClass(CRMapExtendRecipe.class);
+//        ConfigurationSerialization.registerClass(CRRepairRecipe.class);
+//        ConfigurationSerialization.registerClass(CRShieldDecorationRecipe.class);
+//        ConfigurationSerialization.registerClass(CRShulkerBoxDyeRecipe.class);
+//        ConfigurationSerialization.registerClass(CRTippedArrowRecipe.class);
 
         //furnace
         ConfigurationSerialization.registerClass(SimpleFixedFurnaceRecipe.class);
@@ -186,18 +202,13 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 
     @Override
     public ShapedRecipe asCustomRecipesMirror(org.bukkit.inventory.ShapedRecipe bukkitRecipe) {
-        String[] shape = bukkitRecipe.getShape();
-        Map<Character, ItemStack> map = bukkitRecipe.getIngredientMap();
-        List<? extends ChoiceIngredient> ingredients = Arrays.stream(shape)
-                .flatMapToInt(String::chars)
-                .mapToObj(i -> map.get((char) i))
-                .map(SimpleChoiceIngredient::fromChoices)
-                .collect(Collectors.toList());
-
-        int width = shape[0].length();
-        int height = shape.length;
-
-        SimpleShapedRecipe simple = new SimpleShapedRecipe(bukkitRecipe.getKey(), bukkitRecipe.getResult(), width, height, ingredients);
+        String[] pattern = bukkitRecipe.getShape();
+        Map<Character, SimpleChoiceIngredient> ingredientMap = bukkitRecipe.getIngredientMap().entrySet().stream()
+                .collect(Collectors.toMap(e -> e.getKey(), e -> SimpleChoiceIngredient.fromChoices(e.getValue())));
+        
+        Shape shape = new Shape(pattern, ingredientMap);
+        
+        SimpleShapedRecipe simple = new SimpleShapedRecipe(bukkitRecipe.getKey(), bukkitRecipe.getResult(), shape);
         CraftingRecipe byKey = craftingManager.getRecipe(bukkitRecipe.getKey()); //can we do better? get by result and by ingredients?
         return simple.equals(byKey) ? (ShapedRecipe) byKey : simple;
     }

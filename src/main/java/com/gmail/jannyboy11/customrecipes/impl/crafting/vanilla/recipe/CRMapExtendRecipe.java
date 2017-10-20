@@ -10,9 +10,5 @@ public class CRMapExtendRecipe extends CRShapedRecipe<RecipeMapExtend, NMSMapExt
 	public CRMapExtendRecipe(NMSMapExtend nmsRecipe) {
 		super(nmsRecipe);
 	}
-	
-	public CRMapExtendRecipe(java.util.Map<String, ?> map) {
-		super(map);
-	}
 
 }

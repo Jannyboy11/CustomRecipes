@@ -43,8 +43,8 @@ public class SimpleChoiceIngredient implements ChoiceIngredient, ConfigurationSe
 		 * @return an empty list
 		 */
 		@Override
-		public List<? extends ItemStack> getChoices() {
-			return Collections.emptyList();
+		public List<ItemStack> getChoices() {
+			return List.of();
 		}
 		/**
 		 * Serializes this empty ingredient.

@@ -21,6 +21,7 @@ import org.bukkit.inventory.ItemStack;
 
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.ShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.ingredient.Ingredient;
@@ -124,9 +125,6 @@ public class CraftingRecipeEditor extends GuiInventoryHolder {
         final int baseX = 1;
         final int baseY = 1;
         
-        //TODO should check whether the base is a ShapedRecipe tho.
-        //TODO I could have a method public Optional<Shape> getShape() in CraftingRecipe?
-
         //TODO un-duplicate this code to some common (utility) class
         if (recipe instanceof ShapedRecipe) { 
             ShapedRecipe shapedRecipe = (ShapedRecipe) recipe;
@@ -145,12 +143,13 @@ public class CraftingRecipeEditor extends GuiInventoryHolder {
                 for (int w = addW; w < width + addW; w++) {
                     if (i >= recipe.getIngredients().size()) break;
                     
-                    ChoiceIngredient choiceIngredient = shapedRecipe.getIngredients().get(i);
-                    if (!choiceIngredient.getChoices().isEmpty()) {
-                        ItemStack firstChoice = choiceIngredient.getChoices().get(0);
-                        
-                        grid.setItem(baseX + w, baseY + h, firstChoice);
-                    }
+                    final int gridX = baseX + w;
+                    final int gridY = baseY + h;
+                    
+                    CraftingIngredient craftingIngredient = shapedRecipe.getIngredients().get(i);
+                    craftingIngredient.firstItemStack().ifPresentOrElse(itemStack ->
+                        grid.setItem(gridX, gridY, itemStack), () ->
+                        grid.setItem(gridX, gridY, null));
                     
                     i++;
                 }
@@ -166,7 +165,7 @@ public class CraftingRecipeEditor extends GuiInventoryHolder {
                 for (int w = 0; w < 3; w++) {
                     if (i >= recipe.getIngredients().size()) break;
                     
-                    Ingredient ingredient = recipe.getIngredients().get(i);
+                    CraftingIngredient ingredient = recipe.getIngredients().get(i); //TODO use firstItemStack?
                     if (ingredient instanceof ChoiceIngredient) {
                         
                         ChoiceIngredient choiceIngredient = (ChoiceIngredient) ingredient;

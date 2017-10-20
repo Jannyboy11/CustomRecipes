@@ -4,10 +4,18 @@ import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRBannerA
 
 import net.minecraft.server.v1_12_R1.ItemStack;
 import net.minecraft.server.v1_12_R1.Items;
+import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.RecipesBanner;
 
-public class NMSBannerAdd extends NMSShapelessRecipe<RecipesBanner.AddRecipe> {
+public class NMSBannerAdd extends NMSCraftingRecipe<RecipesBanner.AddRecipe> {
 
+    public static final MinecraftKey KEY = new MinecraftKey("banneraddpattern");
+    
+    @Override
+    public MinecraftKey getKey() {
+        return KEY;
+    }
+    
     public NMSBannerAdd(RecipesBanner.AddRecipe delegate) {
         super(delegate);
     }

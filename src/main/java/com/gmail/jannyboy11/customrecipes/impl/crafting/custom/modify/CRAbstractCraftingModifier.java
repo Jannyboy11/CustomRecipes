@@ -10,7 +10,8 @@ import net.minecraft.server.v1_12_R1.MinecraftKey;
 
 import java.util.Objects;
 
-public class CRAbstractCraftingModifier<N extends NMSCraftingModifier> implements CraftingModifier {
+//eclipse you are drunk!
+public class CRAbstractCraftingModifier<T extends CraftingRecipe, R extends CraftingRecipe, N extends NMSCraftingModifier> implements CraftingModifier<T, R> {
 
     protected final N nmsModifier;
 
@@ -19,15 +20,10 @@ public class CRAbstractCraftingModifier<N extends NMSCraftingModifier> implement
     }
 
     @Override
-    public CraftingRecipe modify(CraftingRecipe base) {
+    public R modify(T base) {
         NMSCraftingRecipe nms = RecipeUtils.getNMSRecipe(base);
         IRecipe nmsModified = nmsModifier.modify(nms.getHandle());
-        return new CRCraftingRecipe(new NMSCraftingRecipe(nmsModified) {
-            @Override
-            public MinecraftKey getKey() {
-                return nms.getKey();
-            }
-        });
+        return (R) RecipeUtils.getBukkitRecipe(nmsModified);
     }
 
     public N getNmsModifier() {

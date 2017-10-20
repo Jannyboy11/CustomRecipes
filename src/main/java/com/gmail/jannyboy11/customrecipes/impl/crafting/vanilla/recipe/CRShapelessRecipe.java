@@ -21,47 +21,6 @@ public class CRShapelessRecipe<V extends ShapelessRecipes, S extends NMSShapeles
         super(nmsRecipe);
     }
 
-    public CRShapelessRecipe(NBTTagCompound recipeCompound) {
-        this((S) new NMSShapelessRecipe((V) deserializeNmsRecipe(recipeCompound)));
-    }
-
-    public CRShapelessRecipe(Map<String, ?> map) {
-        this(NBTUtil.fromMap(map));
-    }
-
-    //TODO refactor this to NMSShapelessRecipes?
-    public NBTTagCompound serializeToNbt() {
-        NBTTagCompound serialized = new NBTTagCompound();
-        serialized.set("key", NBTUtil.serializeKey(getHandle().getKey()));
-        serialized.set("result", NBTUtil.serializeItemStack(getHandle().b()));
-        if (hasGroup()) serialized.setString("group", getGroup());
-        NBTTagList ingredients = new NBTTagList();
-        for (RecipeItemStack ingr : nmsRecipe.d()) {
-            ingredients.add(NBTUtil.serializeRecipeItemStack(ingr));
-        }
-        serialized.set("ingredients", ingredients);
-        return serialized;
-    }
-
-    //TODO refactor this method to NMSCraftingRecipe / NMSShapelessRecipes?
-    protected static ShapelessRecipes deserializeNmsRecipe(NBTTagCompound recipeCompound) {
-        String group = recipeCompound.hasKeyOfType("group", NBTUtil.STRING) ? recipeCompound.getString("group") : "";
-        NonNullList<RecipeItemStack> ingredients = NonNullList.a();
-        NBTTagList nbtIngredients = recipeCompound.getList("ingredients", NBTUtil.COMPOUND);
-        for (int i = 0; i < nbtIngredients.size(); i++) {
-            NBTTagCompound ingredientTag = nbtIngredients.get(i);
-            RecipeItemStack recipeItemStack = NBTUtil.deserializeRecipeItemStack(ingredientTag);
-            ingredients.add(recipeItemStack);
-        }
-        NBTTagCompound resultCompound = (NBTTagCompound) recipeCompound.get("result");
-        ItemStack result = new ItemStack(resultCompound);
-        ShapelessRecipes shapelessRecipes = new ShapelessRecipes(group, result, ingredients);
-        if (recipeCompound.hasKey("key")) {
-            shapelessRecipes.setKey(NBTUtil.deserializeKey(recipeCompound.getCompound("key")));
-        }
-        return shapelessRecipes;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;

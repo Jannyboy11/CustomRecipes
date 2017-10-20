@@ -6,6 +6,7 @@ import org.bukkit.inventory.Recipe;
 
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.CRCraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.ExtendedCraftingRecipe;
 
 import net.minecraft.server.v1_12_R1.IRecipe;
 import net.minecraft.server.v1_12_R1.InventoryCrafting;
@@ -15,7 +16,7 @@ import net.minecraft.server.v1_12_R1.NonNullList;
 import net.minecraft.server.v1_12_R1.RecipeItemStack;
 import net.minecraft.server.v1_12_R1.World;
 
-public abstract class NMSCraftingRecipe<R extends IRecipe> implements IRecipe {
+public abstract class NMSCraftingRecipe<R extends IRecipe> implements ExtendedCraftingRecipe {
 
     protected final R delegate;
     protected CraftingRecipe bukkit;
@@ -51,10 +52,25 @@ public abstract class NMSCraftingRecipe<R extends IRecipe> implements IRecipe {
     public boolean a(InventoryCrafting inventoryCrafting, World world) {
         return delegate.a(inventoryCrafting, world);
     }
+    
+    @Override
+    public boolean matches(InventoryCrafting inventory, World world) {
+        return a(inventory, world);
+    }
 
+    @Override
+    public ItemStack getResult() {
+        return b();
+    }
+    
     @Override
     public ItemStack b() {
         return delegate.b();
+    }
+    
+    @Override
+    public NonNullList<ItemStack> getRemainders(InventoryCrafting inventory) {
+        return b(inventory);
     }
 
     @Override
@@ -80,6 +96,11 @@ public abstract class NMSCraftingRecipe<R extends IRecipe> implements IRecipe {
     @Override
     public NonNullList<RecipeItemStack> d() {
         return delegate.d();
+    }
+    
+    @Override
+    public boolean isHidden() {
+        return c();
     }
     
     @Override

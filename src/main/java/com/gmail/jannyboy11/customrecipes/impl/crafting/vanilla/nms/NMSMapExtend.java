@@ -4,10 +4,17 @@ import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRMapExte
 
 import net.minecraft.server.v1_12_R1.ItemStack;
 import net.minecraft.server.v1_12_R1.Items;
+import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.RecipeMapExtend;
 
 public class NMSMapExtend extends NMSShapedRecipe<RecipeMapExtend> {
 
+    public static final MinecraftKey KEY = new MinecraftKey("mapextending");
+    
+    public MinecraftKey getKey() {
+        return KEY;
+    }
+    
     public NMSMapExtend(RecipeMapExtend delegate) {
         super(delegate);
     }

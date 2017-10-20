@@ -4,10 +4,17 @@ import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRFirewor
 
 import net.minecraft.server.v1_12_R1.ItemStack;
 import net.minecraft.server.v1_12_R1.Items;
+import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.RecipeFireworks;
 
-public class NMSFireworks extends NMSShapelessRecipe<RecipeFireworks> {
-
+public class NMSFireworks extends NMSCraftingRecipe<RecipeFireworks> {
+    
+    public static final MinecraftKey KEY = new MinecraftKey("fireworks");
+    
+    public MinecraftKey getKey() {
+        return KEY;
+    }
+    
     public NMSFireworks(RecipeFireworks delegate) {
         super(delegate);
     }

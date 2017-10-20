@@ -2,9 +2,12 @@ package com.gmail.jannyboy11.customrecipes.api.ingredient;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
+
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
 
 /**
  * A crafting ingredient that will accept items similar to items in the choices list.
@@ -13,7 +16,7 @@ import org.bukkit.inventory.ItemStack;
  * 
  * @author Jan
  */
-public interface ChoiceIngredient extends Ingredient, ConfigurationSerializable {
+public interface ChoiceIngredient extends CraftingIngredient, ConfigurationSerializable {
 
     /**
      * Get the list of choices.
@@ -34,6 +37,12 @@ public interface ChoiceIngredient extends Ingredient, ConfigurationSerializable 
      */
     public default Map<String, Object> serialize() {
         return Map.of("choices", getChoices());
+    }
+    
+    
+    @Override
+    public default Optional<? extends ItemStack> firstItemStack() {
+        return getChoices().stream().findFirst();
     }
 
 }

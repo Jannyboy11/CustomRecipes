@@ -4,10 +4,18 @@ import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRArmorDy
 
 import net.minecraft.server.v1_12_R1.ItemStack;
 import net.minecraft.server.v1_12_R1.Items;
+import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.RecipeArmorDye;
 
-public class NMSArmorDye extends NMSShapelessRecipe<RecipeArmorDye> {
+public class NMSArmorDye extends NMSCraftingRecipe<RecipeArmorDye> {
+    
+    public static final MinecraftKey KEY = new MinecraftKey("armordye");
 
+    @Override
+    public MinecraftKey getKey() {
+        return KEY;
+    }
+    
     public NMSArmorDye(RecipeArmorDye delegate) {
         super(delegate);
     }

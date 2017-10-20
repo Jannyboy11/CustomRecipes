@@ -7,6 +7,8 @@ import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.ShapedRecipes;
 
 public class NMSShapedRecipe<V extends ShapedRecipes> extends NMSCraftingRecipe<V> {
+    
+    protected int bukkitWidth, bukkitHeight;
 
     public NMSShapedRecipe(V delegate) {
         super(delegate);
@@ -14,20 +16,38 @@ public class NMSShapedRecipe<V extends ShapedRecipes> extends NMSCraftingRecipe<
 
     @Override
     public MinecraftKey getKey() {
-        return delegate.key;
+        return getHandle().key;
     }
     
     public int getWidth() {
-        return (int) ReflectionUtil.getDeclaredFieldValue(delegate, "width");
+        if (bukkitWidth != 0) return bukkitWidth;
+        
+        try {
+            return bukkitWidth = (int) ReflectionUtil.getDeclaredFieldValue(delegate, "width");
+        } catch (Throwable e) {
+            return bukkitWidth = getHandle().toBukkitRecipe().getShape()[0].length();
+        }
     }
 
     public int getHeight() {
-        return (int) ReflectionUtil.getDeclaredFieldValue(delegate, "height");
+        if (bukkitHeight != 0) return bukkitHeight;
+        
+        try {
+            return bukkitHeight = (int) ReflectionUtil.getDeclaredFieldValue(delegate, "height");
+        } catch (Throwable e) {
+            return bukkitHeight = getHandle().toBukkitRecipe().getShape().length;
+        }
     }
     
     @Override
     public String getGroup() {
-        return (String) ReflectionUtil.getDeclaredFieldValue(delegate, "e");
+        try {
+            return (String) ReflectionUtil.getDeclaredFieldValue(delegate, "e");
+        } catch (Throwable e) {
+            //TODO lookup vanilla groups by key in a Map
+            
+        }
+        return "";
     }
 
     @Override

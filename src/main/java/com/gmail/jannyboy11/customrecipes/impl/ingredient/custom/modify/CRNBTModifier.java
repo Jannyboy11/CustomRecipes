@@ -8,6 +8,8 @@ import net.minecraft.server.v1_12_R1.NBTTagCompound;
 
 import java.util.function.Predicate;
 
+import org.bukkit.NamespacedKey;
+
 public class CRNBTModifier extends CRAbstractIngredientModifier<Predicate<ItemStack>, NBTIngredient, NMSNBTModifier> implements NBTModifier, NBTSerializable {
 
     public CRNBTModifier(NMSNBTModifier nmsModifier) {
@@ -17,5 +19,11 @@ public class CRNBTModifier extends CRAbstractIngredientModifier<Predicate<ItemSt
     @Override
     public NBTTagCompound serializeToNbt() {
         return nmsModifier.serializeToNbt();
+    }
+
+    @Override
+    public NamespacedKey getKey() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

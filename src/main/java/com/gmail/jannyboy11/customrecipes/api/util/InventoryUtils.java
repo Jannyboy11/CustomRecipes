@@ -84,12 +84,12 @@ public final class InventoryUtils {
 	/**
 	 * Get the MaterialData that vanilla crafting recipes leave in a crafting inventory if the ingredient is of stack size 1.
 	 * <br>
-	 * For most materials the returned data will have Material.AIR, but there are exceptions for filled buckets and dragons breath.
+	 * For most materials the returned data will be equal to the material itself, but there are exceptions for filled buckets and dragons breath.
 	 * 
 	 * @param ingredient the material data used as a crafting ingredient.
 	 * @return the material data that vanilla recipes would give back upon crafting
 	 */
-	public static MaterialData getSingleIngredientResult(MaterialData ingredient) {
+	public static MaterialData getIngredientRemainder(MaterialData ingredient) {
 		if (ingredient == null) return new MaterialData(Material.AIR);
 		
 		switch(ingredient.getItemType()) {
@@ -101,7 +101,7 @@ public final class InventoryUtils {
 			case DRAGONS_BREATH:
 				return new MaterialData(Material.GLASS_BOTTLE);
 				
-			default: return new MaterialData(Material.AIR);
+			default: return ingredient.clone();
 		}
 	}
 

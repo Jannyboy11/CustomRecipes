@@ -51,12 +51,12 @@ public class RecipeUtils {
         registerNMSCraftingRecipe(RecipiesShield.Decoration.class, NMSShieldDecoration.class);
         registerNMSCraftingRecipe(RecipeShulkerBox.Dye.class, NMSShulkerBoxDye.class);
         registerNMSCraftingRecipe(RecipeTippedArrow.class, NMSTippedArrow.class);
-        //TODO why don't shaped and shapeless recipes work with registerNMSCraftingRecipe?
-        nmsCraftingRecipeMappings.put(ShapedRecipes.class, NMSShapedRecipe.class);
-        nmsCraftingRecipeMappings.put(ShapelessRecipes.class, NMSShapelessRecipe.class);
+        registerNMSCraftingRecipe(ShapedRecipes.class, NMSShapedRecipe.class);
+        registerNMSCraftingRecipe(ShapelessRecipes.class, NMSShapelessRecipe.class);
     }
 
-    public static <V extends IRecipe> void registerNMSCraftingRecipe(Class<? extends V> vanilla, Class<? extends NMSCraftingRecipe<? extends V>> nms) {
+    //can be called by other plugins to register adapters
+    public static void registerNMSCraftingRecipe(Class<? extends IRecipe> vanilla, Class<? extends NMSCraftingRecipe> nms) {
         nmsCraftingRecipeMappings.put(vanilla, nms);
     }
 
@@ -70,8 +70,6 @@ public class RecipeUtils {
     public static NMSCraftingRecipe<?> getNMSRecipe(IRecipe nms) {
         if (nms == null) return null;
         if (nms instanceof NMSCraftingRecipe) return (NMSCraftingRecipe) nms;
-
-        //TODO support other NMS implementations?
 
         //try to get from the mappings
         Class vanillaClazz = nms.getClass();

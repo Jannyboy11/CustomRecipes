@@ -158,7 +158,7 @@ public class GridView implements InventoryHolder {
         }
     }
 
-    public <T> void fill(ToIntFunction<T> fTtoX, ToIntFunction<T> fTtoY, CoordinateFunction with, T... ts) {
+    public <T> void fill(ToIntFunction<T> fTtoX, ToIntFunction<T> fTtoY, CoordinateFunction with, @SuppressWarnings("unchecked") T... ts) {
         for (T t : ts) {
             int x = fTtoX.applyAsInt(t);
             int y = fTtoY.applyAsInt(t);

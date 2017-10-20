@@ -5,8 +5,17 @@ import java.util.Map;
 
 import com.gmail.jannyboy11.customrecipes.api.SerializableKey;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
-import com.gmail.jannyboy11.customrecipes.api.ingredient.ChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
+import com.gmail.jannyboy11.customrecipes.api.crafting.modify.CraftingModifier;
+import com.gmail.jannyboy11.customrecipes.api.crafting.modify.ModifiedCraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.modify.ModifiedShapelessRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.modify.ToShapelessModifier;
+
+import org.bukkit.NamespacedKey;
+import org.bukkit.World;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.inventory.CraftingInventory;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * Represents a shapeless recipe.
@@ -20,7 +29,7 @@ public interface ShapelessRecipe extends CraftingRecipe, ConfigurationSerializab
      *
      * @return the ingredients
      */
-    public List<? extends ChoiceIngredient> getIngredients();
+    public List<? extends CraftingIngredient> getIngredients();
 
     /**
      * Serializes this ShapedRecipe.
@@ -36,6 +45,72 @@ public interface ShapelessRecipe extends CraftingRecipe, ConfigurationSerializab
                 "result", getResult(),
                 "hidden", isHidden(),
                 "group", getGroup());
+    }
+    
+    
+    @Override
+    public default <R extends CraftingRecipe> ModifiedCraftingRecipe<? extends CraftingRecipe> applyModifier(CraftingModifier<? super CraftingRecipe, R> modifier) {
+        if (modifier instanceof ToShapelessModifier) {
+            return applyShapelessModifier((ToShapelessModifier) modifier);
+        } else {
+            return CraftingRecipe.super.applyModifier(modifier);
+        }
+    }
+    
+    public default <R extends ShapelessRecipe> ModifiedShapelessRecipe applyShapelessModifier(ToShapelessModifier<? , R> modifier) {
+        return new ModifiedShapelessRecipe() {
+            private R modified = modifier.modify(ShapelessRecipe.this);
+            
+            @Override
+            public ShapelessRecipe getBaseRecipe() {
+                return ShapelessRecipe.this;
+            }
+
+            @Override
+            public ToShapelessModifier<?, R> getModifier() {
+                return modifier;
+            }
+
+            @Override
+            public boolean matches(CraftingInventory craftingInventory, World world) {
+                return modified.matches(craftingInventory, world);
+            }
+
+            @Override
+            public ItemStack craftItem(CraftingInventory craftingInventory) {
+                return modified.craftItem(craftingInventory);
+            }
+
+            @Override
+            public ItemStack getResult() {
+                return modified.getResult();
+            }
+
+            @Override
+            public List<? extends CraftingIngredient> getIngredients() {
+                return modified.getIngredients();
+            }
+
+            @Override
+            public List<? extends ItemStack> getLeftOverItems(CraftingInventory craftingInventory) {
+                return modified.getLeftOverItems(craftingInventory);
+            }
+
+            @Override
+            public boolean isHidden() {
+                return modified.isHidden();
+            }
+            
+            @Override
+            public String getGroup() {
+                return modified.getGroup();
+            }
+
+            @Override
+            public NamespacedKey getKey() {
+                return modified.getKey();
+            }            
+        };
     }
 
 }

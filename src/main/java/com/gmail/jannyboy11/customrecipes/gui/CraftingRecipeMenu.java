@@ -2,9 +2,8 @@ package com.gmail.jannyboy11.customrecipes.gui;
 
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.ShapedRecipe;
-import com.gmail.jannyboy11.customrecipes.api.ingredient.ChoiceIngredient;
-import com.gmail.jannyboy11.customrecipes.api.ingredient.Ingredient;
 import com.gmail.jannyboy11.customrecipes.api.util.GridView;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.BackButton;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.ItemButton;
@@ -70,13 +69,13 @@ public class CraftingRecipeMenu extends MenuHolder<CustomRecipesPlugin> {
         //TODO animated ingredients for choice ingredients with multiple choices? like the recipe book?
         //TODO the animation task can be cancelled on close
         
-        GridView gridView = new GridView(getInventory(), 9, 5);
+        GridView gridView = new GridView(getInventory(), 9, 6);
         
         //layout result
         gridView.setItem(6, 2, recipe.getResult());
         
         //layout ingredients
-        if (recipe instanceof ShapedRecipe) { //TODO should check whether the base is a ShapedRecipe tho.
+        if (recipe instanceof ShapedRecipe) {
             ShapedRecipe shapedRecipe = (ShapedRecipe) recipe;
             
             int width = shapedRecipe.getWidth();
@@ -92,13 +91,12 @@ public class CraftingRecipeMenu extends MenuHolder<CustomRecipesPlugin> {
                 
                 for (int w = addW; w < width + addW; w++) {
                     if (i >= recipe.getIngredients().size()) break;
+
+                    final int gridX = w + 1;
+                    final int gridY = h + 1;
                     
-                    ChoiceIngredient choiceIngredient = shapedRecipe.getIngredients().get(i);
-                    if (!choiceIngredient.getChoices().isEmpty()) {
-                        ItemStack firstChoice = choiceIngredient.getChoices().get(0);
-                        
-                        gridView.setItem(1 + w, 1 + h, firstChoice);
-                    }
+                    CraftingIngredient craftingIngredient = shapedRecipe.getIngredients().get(i);
+                    craftingIngredient.firstItemStack().ifPresent(firstItemStack -> gridView.setItem(gridX, gridY, firstItemStack));
                     
                     i++;
                 }
@@ -114,16 +112,11 @@ public class CraftingRecipeMenu extends MenuHolder<CustomRecipesPlugin> {
                 for (int w = 0; w < 3; w++) {
                     if (i >= recipe.getIngredients().size()) break;
                     
-                    Ingredient ingredient = recipe.getIngredients().get(i);
-                    if (!(ingredient instanceof ChoiceIngredient)) continue;
+                    final int gridX = w + 1;
+                    final int gridY = h + 1;
                     
-                    ChoiceIngredient choiceIngredient = (ChoiceIngredient) ingredient;
-                    
-                    if (!choiceIngredient.getChoices().isEmpty()) {
-                        ItemStack firstChoice = choiceIngredient.getChoices().get(0);
-                        
-                        gridView.setItem(1 + w, 1 + h, firstChoice);
-                    }
+                    CraftingIngredient ingredient = recipe.getIngredients().get(i);
+                    ingredient.firstItemStack().ifPresent(itemStack -> gridView.setItem(gridX, gridY, itemStack));
                     
                     i++;
                 }

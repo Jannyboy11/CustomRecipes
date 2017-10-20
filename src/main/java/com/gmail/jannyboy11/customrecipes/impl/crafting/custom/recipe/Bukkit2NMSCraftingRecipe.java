@@ -11,9 +11,11 @@ import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.*;
 import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
 import org.bukkit.inventory.Recipe;
+import org.bukkit.Material;
 
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.*;
 import com.gmail.jannyboy11.customrecipes.api.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.nms.*;
@@ -69,7 +71,7 @@ public class Bukkit2NMSCraftingRecipe extends NMSCraftingRecipe<IRecipe> {
         CraftInventoryCrafting bukkitInventory = RecipeUtils.getBukkitCraftingInventory(inventoryCrafting);
 
         List<? extends org.bukkit.inventory.ItemStack> bukkitLeftovers = bukkit.getLeftOverItems(bukkitInventory);
-        ItemStack[] nmsLeftovers = bukkitLeftovers.stream().map(CraftItemStack::asNMSCopy).toArray(size -> new ItemStack[size]);
+        ItemStack[] nmsLeftovers = bukkitLeftovers.stream().map(CraftItemStack::asNMSCopy).toArray(ItemStack[]::new);
         return NonNullList.a(ItemStack.a, nmsLeftovers);
     }
 
@@ -149,15 +151,12 @@ public class Bukkit2NMSCraftingRecipe extends NMSCraftingRecipe<IRecipe> {
 
             int arrayNum = 0;
             int charNum = 0;
-            for (ChoiceIngredient ingr : shapedRecipe.getIngredients()) {
-                Iterator<? extends org.bukkit.inventory.ItemStack> choiceIterator = ingr.getChoices().iterator();
-                if (choiceIterator.hasNext()) {
+            for (CraftingIngredient ingr : shapedRecipe.getIngredients()) {
+                Optional<? extends org.bukkit.inventory.ItemStack> firstIngredientItem = ingr.firstItemStack();
+                if (firstIngredientItem.isPresent()) {
                     char key = shape[arrayNum].charAt(charNum);
-                    bukkitShapedRecipe.setIngredient(key, choiceIterator.next().getType());
+                    bukkitShapedRecipe.setIngredient(key, firstIngredientItem.get().getType());
                 }
-                //skip the other choices since they would take up the same item slot.
-                //instead, the materialdata is ignored for this recipe, such that multiple data values would still work.
-                //this seems like the most reasonable thing to do as we don't know what the choices are.
 
                 if (++charNum > shape[arrayNum].length()) {
                     charNum = 0;
@@ -175,14 +174,10 @@ public class Bukkit2NMSCraftingRecipe extends NMSCraftingRecipe<IRecipe> {
 
             org.bukkit.inventory.ShapelessRecipe bukkitShapelessRecipe = new org.bukkit.inventory.ShapelessRecipe(namespacedKey, bukkit.getResult());
 
-            for (ChoiceIngredient ingr : shapelessRecipe.getIngredients()) {
-                Iterator<? extends org.bukkit.inventory.ItemStack> choiceIterator = ingr.getChoices().iterator();
-                if (choiceIterator.hasNext()) {
-                    bukkitShapelessRecipe.addIngredient(choiceIterator.next().getType());
-                }
-                //skip the other choices since they would take up the same item slot.
-                //instead, the materialdata is ignored for this recipe, such that multiple data values would still work.
-                //this seems like the most reasonable thing to do as we don't know what the choices are.
+            for (CraftingIngredient ingr : shapelessRecipe.getIngredients()) {
+                ingr.firstItemStack().ifPresentOrElse(itemStack ->
+                        bukkitShapelessRecipe.addIngredient(itemStack.getData()), () ->
+                        bukkitShapelessRecipe.addIngredient(Material.AIR));
             }
 
             return bukkitShapelessRecipe;

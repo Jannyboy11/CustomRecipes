@@ -4,10 +4,17 @@ import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.recipe.CRShulker
 
 import net.minecraft.server.v1_12_R1.Blocks;
 import net.minecraft.server.v1_12_R1.ItemStack;
+import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.RecipeShulkerBox;
 
-public class NMSShulkerBoxDye extends NMSShapelessRecipe<RecipeShulkerBox.Dye> {
+public class NMSShulkerBoxDye extends NMSCraftingRecipe<RecipeShulkerBox.Dye> {
 
+    public static final MinecraftKey KEY = new MinecraftKey("shulkerboxcoloring");
+    
+    public MinecraftKey getKey() {
+        return KEY;
+    }
+    
     public NMSShulkerBoxDye(RecipeShulkerBox.Dye delegate) {
         super(delegate);
     }

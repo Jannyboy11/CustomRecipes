@@ -3,12 +3,15 @@ package com.gmail.jannyboy11.customrecipes.api.crafting;
 import java.util.List;
 
 import org.bukkit.Keyed;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
-import com.gmail.jannyboy11.customrecipes.api.ingredient.Ingredient;
+
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
+import com.gmail.jannyboy11.customrecipes.api.crafting.modify.CraftingModifier;
+import com.gmail.jannyboy11.customrecipes.api.crafting.modify.ModifiedCraftingRecipe;
 
 /**
  * Represents a crafting recipe.
@@ -44,11 +47,11 @@ public interface CraftingRecipe extends Keyed, Recipe {
     public ItemStack getResult();
 
     /**
-     * Get the ingredients of this recipe. The ordef or the ingredients may or may not be important depending the recipe type.
+     * Get the ingredients of this recipe. The order of the ingredients may or may not be important depending the recipe type.
      *
      * @return the list of ingredients.
      */
-    List<? extends Ingredient> getIngredients();
+    List<? extends CraftingIngredient> getIngredients();
 
     /**
      * Get the list of ItemStacks that remain in the crafting table after crafting.
@@ -99,9 +102,67 @@ public interface CraftingRecipe extends Keyed, Recipe {
      *
      * @return true if the shaped recipe has a group, otherwise false
      */
-    public default boolean hasGroup() {
+    public default boolean isGrouped() {
         String group = getGroup();
         return !(group == null || group.isEmpty());
+    }
+    
+
+    //TODO document this
+    public default <R extends CraftingRecipe> ModifiedCraftingRecipe<? extends CraftingRecipe> applyModifier(CraftingModifier<? super CraftingRecipe, R> modifier) {
+        return new ModifiedCraftingRecipe<CraftingRecipe>() {
+            R modified = modifier.modify(CraftingRecipe.this);
+
+            @Override
+            public boolean matches(CraftingInventory craftingInventory, World world) {
+                return modified.matches(craftingInventory, world);
+            }
+
+            @Override
+            public ItemStack craftItem(CraftingInventory craftingInventory) {
+               return modified.craftItem(craftingInventory);
+            }
+
+            @Override
+            public ItemStack getResult() {
+                return modified.getResult();
+            }
+
+            @Override
+            public List<? extends CraftingIngredient> getIngredients() {
+                return modified.getIngredients();
+            }
+
+            @Override
+            public List<? extends ItemStack> getLeftOverItems(CraftingInventory craftingInventory) {
+                return modified.getLeftOverItems(craftingInventory);
+            }
+
+            @Override
+            public boolean isHidden() {
+                return modified.isHidden();
+            }
+
+            @Override
+            public NamespacedKey getKey() {
+                return modified.getKey();
+            }
+            
+            @Override
+            public String getGroup() {
+                return modified.getGroup();
+            }
+
+            @Override
+            public CraftingRecipe getBaseRecipe() {
+                return CraftingRecipe.this;
+            }
+
+            @Override
+            public CraftingModifier<? super CraftingRecipe, R> getModifier() {
+                return modifier;
+            }
+        };
     }
 
 }

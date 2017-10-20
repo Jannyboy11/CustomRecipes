@@ -4,7 +4,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class ItemButton<MH extends MenuHolder<?>> implements MenuButton<MH> {
     
-    private final ItemStack stack;
+    protected ItemStack stack;
     
     public ItemButton(ItemStack stack) {
         this.stack = stack;
