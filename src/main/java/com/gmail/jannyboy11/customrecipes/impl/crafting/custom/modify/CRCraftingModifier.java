@@ -7,7 +7,7 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.modify.CraftingModifier;
 import com.gmail.jannyboy11.customrecipes.impl.RecipeUtils;
 import net.minecraft.server.v1_12_R1.IRecipe;
 
-public class CRCraftingModifier<T extends IRecipe, R extends IRecipe> implements CraftingModifier {
+public class CRCraftingModifier<T extends IRecipe, R extends IRecipe> implements CraftingModifier<CraftingRecipe, CraftingRecipe> {
     
     private final NMSCraftingModifier<T, R> nmsModifier;
     
@@ -25,5 +25,6 @@ public class CRCraftingModifier<T extends IRecipe, R extends IRecipe> implements
     public NMSCraftingModifier<T, R> getHandle() {
         return nmsModifier;
     }
+    
 
 }

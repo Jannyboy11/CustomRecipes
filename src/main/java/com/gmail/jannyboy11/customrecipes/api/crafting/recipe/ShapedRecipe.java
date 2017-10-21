@@ -8,7 +8,6 @@ import com.gmail.jannyboy11.customrecipes.api.SerializableKey;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.modify.CraftingModifier;
-import com.gmail.jannyboy11.customrecipes.api.crafting.modify.ModifiedCraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.modify.ModifiedShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.modify.ToShapedModifier;
 import com.gmail.jannyboy11.customrecipes.api.util.GridView;
@@ -185,6 +184,15 @@ public interface ShapedRecipe extends CraftingRecipe, ConfigurationSerializable 
         return CraftingRecipe.super.getLeftOverItems(craftingInventory);
     }
     
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public default boolean isHidden() {
+        return false;
+    }
+    
 
     /**
      * Serializes this ShapedRecipe.
@@ -206,15 +214,16 @@ public interface ShapedRecipe extends CraftingRecipe, ConfigurationSerializable 
     
     
     @Override
-    public default <R extends CraftingRecipe> ModifiedCraftingRecipe<? extends CraftingRecipe> applyModifier(CraftingModifier<? super CraftingRecipe, R> modifier) {
-        if (modifier instanceof ToShapedModifier) {
-            return applyShapedModifier((ToShapedModifier) modifier);
-        } else {
-            return CraftingRecipe.super.applyModifier(modifier);
-        }
+    public default Class<? extends ModifiedShapedRecipe> getModifiedType() {
+        return ModifiedShapedRecipe.class;
     }
     
-    public default <R extends ShapedRecipe> ModifiedShapedRecipe applyShapedModifier(ToShapedModifier<?, R> modifier) {
+    @Override
+    public default <R extends CraftingRecipe> ModifiedShapedRecipe applyModifier(CraftingModifier<? extends CraftingRecipe, R> modifier) {
+        return (ModifiedShapedRecipe) CraftingRecipe.super.applyModifier(modifier);
+    }
+    
+    public default <R extends ShapedRecipe> ModifiedShapedRecipe applyShapedModifier(ToShapedModifier<? extends ShapedRecipe, R> modifier) {
         return new ModifiedShapedRecipe() {
             R modified = modifier.modify(ShapedRecipe.this);
 
@@ -223,8 +232,9 @@ public interface ShapedRecipe extends CraftingRecipe, ConfigurationSerializable 
                 return ShapedRecipe.this;
             }
 
+            @SuppressWarnings("unchecked")
             @Override
-            public ToShapedModifier<?, R> getModifier() {
+            public ToShapedModifier<? extends ShapedRecipe, R> getModifier() {
                 return modifier;
             }
 

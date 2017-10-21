@@ -8,10 +8,8 @@ import java.util.stream.Collectors;
 
 import com.gmail.jannyboy11.customrecipes.api.SerializableKey;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
-import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.modify.CraftingModifier;
-import com.gmail.jannyboy11.customrecipes.api.crafting.modify.ModifiedCraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.modify.ModifiedShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.modify.ToShapelessModifier;
 import com.gmail.jannyboy11.customrecipes.api.util.InventoryUtils;
@@ -21,6 +19,8 @@ import org.bukkit.World;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
+
+//TODO remove ConfigurationSerializable?
 
 /**
  * Represents a shapeless recipe.
@@ -99,6 +99,13 @@ public interface ShapelessRecipe extends CraftingRecipe, ConfigurationSerializab
         return leftOver;
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public default boolean isHidden() {
+        return false;
+    }
     
 
     /**
@@ -117,17 +124,17 @@ public interface ShapelessRecipe extends CraftingRecipe, ConfigurationSerializab
                 "group", getGroup());
     }
     
-    
     @Override
-    public default <R extends CraftingRecipe> ModifiedCraftingRecipe<? extends CraftingRecipe> applyModifier(CraftingModifier<? super CraftingRecipe, R> modifier) {
-        if (modifier instanceof ToShapelessModifier) {
-            return applyShapelessModifier((ToShapelessModifier) modifier);
-        } else {
-            return CraftingRecipe.super.applyModifier(modifier);
-        }
+    public default Class<? extends ModifiedShapelessRecipe> getModifiedType() {
+        return ModifiedShapelessRecipe.class;
     }
     
-    public default <R extends ShapelessRecipe> ModifiedShapelessRecipe applyShapelessModifier(ToShapelessModifier<? , R> modifier) {
+    @Override
+    public default <R extends CraftingRecipe> ModifiedShapelessRecipe applyModifier(CraftingModifier<? extends CraftingRecipe, R> modifier) {
+        return (ModifiedShapelessRecipe) CraftingRecipe.super.applyModifier(modifier);
+    }
+    
+    public default <R extends ShapelessRecipe> ModifiedShapelessRecipe applyShapelessModifier(ToShapelessModifier<? extends ShapelessRecipe , R> modifier) {
         return new ModifiedShapelessRecipe() {
             private R modified = modifier.modify(ShapelessRecipe.this);
             
@@ -136,8 +143,9 @@ public interface ShapelessRecipe extends CraftingRecipe, ConfigurationSerializab
                 return ShapelessRecipe.this;
             }
 
+            @SuppressWarnings("unchecked")
             @Override
-            public ToShapelessModifier<?, R> getModifier() {
+            public ToShapelessModifier<? extends ShapelessRecipe, R> getModifier() {
                 return modifier;
             }
 

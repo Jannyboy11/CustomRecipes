@@ -1,14 +1,17 @@
 package com.gmail.jannyboy11.customrecipes.gui;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftHumanEntity;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventory;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryView;
@@ -23,6 +26,7 @@ import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
+import com.gmail.jannyboy11.customrecipes.api.crafting.modify.CraftingIngredientModifier;
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.ShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.ingredient.Ingredient;
 import com.gmail.jannyboy11.customrecipes.api.util.GridView;
@@ -39,9 +43,13 @@ import net.minecraft.server.v1_12_R1.InventorySubcontainer;
 import net.minecraft.server.v1_12_R1.PlayerInventory;
 import net.minecraft.server.v1_12_R1.Slot;
 
-public class CraftingRecipeEditor extends GuiInventoryHolder {
+public class CraftingRecipeEditor extends GuiInventoryHolder<CustomRecipesPlugin> {
 
- // ========================= Layout ========================= 
+ // ========================= Layout =========================
+    
+    //TODO in the future, when recipes can become larger, make this 0, 0
+    private static final int CORNER_X = 1;
+    private static final int CORNER_Y = 1;
     
     private static final String[] ASCII_LAYOUT = new String[] {
             "GGGGGGPPP",
@@ -83,6 +91,10 @@ public class CraftingRecipeEditor extends GuiInventoryHolder {
         TOP_SHIFT_CLICKABLE_SLOTS.add(1 * 9 + 7); //result slot
     }
     
+    
+    private final Map<Integer, CraftingIngredient> ingredientsBySlot = new HashMap<>();
+    
+    
     // ========================= InventoryHolder ========================= 
     
     private CraftingRecipeEditor(EditorInventory inventory) {
@@ -111,6 +123,8 @@ public class CraftingRecipeEditor extends GuiInventoryHolder {
     }
     
     private void layoutRecipe() {
+        ingredientsBySlot.clear();
+        
         //TODO make it flicker (using packets)! (future work)
         
         //TODO init ingredient and result modifiers?
@@ -121,11 +135,7 @@ public class CraftingRecipeEditor extends GuiInventoryHolder {
         //result
         grid.setItem(7, 1, recipe.getResult());
         
-        //ingredients
-        final int baseX = 1;
-        final int baseY = 1;
-        
-        //TODO un-duplicate this code to some common (utility) class
+        //ingredients        
         if (recipe instanceof ShapedRecipe) { 
             ShapedRecipe shapedRecipe = (ShapedRecipe) recipe;
             
@@ -134,22 +144,22 @@ public class CraftingRecipeEditor extends GuiInventoryHolder {
             
             int i = 0;
             
-            int addW = width == 1 ? 1 : 0;
-            int addH = height == 1 ? 1 : 0;
-            
-            for (int h = addH; h < height + addH; h++) {
+            for (int h = 0; h < height; h++) {
                 if (i >= recipe.getIngredients().size()) break;
                 
-                for (int w = addW; w < width + addW; w++) {
+                for (int w = 0; w < width; w++) {
                     if (i >= recipe.getIngredients().size()) break;
                     
-                    final int gridX = baseX + w;
-                    final int gridY = baseY + h;
+                    final int gridX = CORNER_X + w;
+                    final int gridY = CORNER_Y + h;
                     
                     CraftingIngredient craftingIngredient = shapedRecipe.getIngredients().get(i);
                     craftingIngredient.firstItemStack().ifPresentOrElse(itemStack ->
                         grid.setItem(gridX, gridY, itemStack), () ->
                         grid.setItem(gridX, gridY, null));
+                    
+                    int slot = grid.getIndex(gridX, gridY);
+                    ingredientsBySlot.put(slot, craftingIngredient);
                     
                     i++;
                 }
@@ -166,20 +176,22 @@ public class CraftingRecipeEditor extends GuiInventoryHolder {
                     if (i >= recipe.getIngredients().size()) break;
                     
                     CraftingIngredient ingredient = recipe.getIngredients().get(i); //TODO use firstItemStack?
-                    if (ingredient instanceof ChoiceIngredient) {
-                        
-                        ChoiceIngredient choiceIngredient = (ChoiceIngredient) ingredient;
-                        
-                        if (!choiceIngredient.getChoices().isEmpty()) {
-                            ItemStack firstChoice = choiceIngredient.getChoices().get(0);
-                            
-                            grid.setItem(baseX + w, baseY + h, firstChoice);
-                        }
+                    Optional<? extends ItemStack> firstItem = ingredient.firstItemStack();
+                    
+                    int gridX = CORNER_X + w;
+                    int gridY = CORNER_Y + h;
+                    
+                    if (firstItem.isPresent()) {
+                        ItemStack firstChoice = firstItem.get();
+                        grid.setItem(gridX, gridY, firstChoice);
                     } else {
                         //TODO the flickering should be enough, this should not be needed.
                         ItemStack dafuq = new ItemBuilder(Material.STRUCTURE_VOID).name("Unknown ingredient material").build();
-                        grid.setItem(baseX + w, baseY + h, dafuq);
+                        grid.setItem(gridX, gridY, dafuq);
                     }
+                    
+                    int slot = grid.getIndex(gridX, gridY);
+                    ingredientsBySlot.put(slot, ingredient);
                     
                     i++;
                 }
@@ -267,6 +279,21 @@ public class CraftingRecipeEditor extends GuiInventoryHolder {
             break;
         case SHIFT_RIGHT:
             //TODO edit this ingredient
+            
+            if (event.getClickedInventory().getHolder() == this && isTopShiftClickSlot(rawSlot)) {
+                event.setCancelled(true);
+                
+                CraftingIngredient ingredient = ingredientsBySlot.get(rawSlot); //TODO check if still the same itemstack, otherwise create a new CraftingIngredient
+                HashMap<NamespacedKey, ? extends CraftingIngredientModifier> ingredientModifiers = new HashMap<>(); //TODO fill this
+                
+                getPlugin().getServer().getScheduler().runTask(getPlugin(), () -> {
+                    event.getView().close();
+                    
+                    event.getWhoClicked().openInventory(new CraftingIngredientMenu(
+                            getPlugin(), event.getCurrentItem(), ingredientModifiers, this::getInventory)
+                            .getInventory()); //TODO pass a CompletionStage to set the ingredient?
+                });
+            }
             
             //TODO UP NEXT
             break;

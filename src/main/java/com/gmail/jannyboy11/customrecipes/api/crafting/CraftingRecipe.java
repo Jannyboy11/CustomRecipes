@@ -1,11 +1,11 @@
 package com.gmail.jannyboy11.customrecipes.api.crafting;
 
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Keyed;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
@@ -15,6 +15,7 @@ import org.bukkit.material.MaterialData;
 import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.modify.CraftingModifier;
 import com.gmail.jannyboy11.customrecipes.api.crafting.modify.ModifiedCraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.api.crafting.modify.ModifiedInvocationHandler;
 import com.gmail.jannyboy11.customrecipes.api.util.InventoryUtils;
 
 /**
@@ -40,7 +41,10 @@ public interface CraftingRecipe extends Keyed, Recipe {
      * @param craftingInventory the crafting inventory - either a 3x3 workbench inventory, or the 2x2 hand crafting inventory
      * @return the crafting result ItemStack
      */
-    public ItemStack craftItem(CraftingInventory craftingInventory);
+    public default ItemStack craftItem(CraftingInventory craftingInventory) {
+        ItemStack result = getResult();
+        return result == null ? result : result.clone();
+    }
 
     /**
      * Get the result of this recipe. This is NOT the item that is used by the recipe when the player crafts an item.
@@ -138,62 +142,19 @@ public interface CraftingRecipe extends Keyed, Recipe {
         return !(group == null || group.isEmpty());
     }
     
+    
+    @SuppressWarnings("rawtypes")
+    public default Class<? extends ModifiedCraftingRecipe> getModifiedType() {
+        return ModifiedCraftingRecipe.class;
+    }
 
-    //TODO document this
-    public default <R extends CraftingRecipe> ModifiedCraftingRecipe<? extends CraftingRecipe> applyModifier(CraftingModifier<? super CraftingRecipe, R> modifier) {
-        return new ModifiedCraftingRecipe<CraftingRecipe>() {
-            R modified = modifier.modify(CraftingRecipe.this);
-
-            @Override
-            public boolean matches(CraftingInventory craftingInventory, World world) {
-                return modified.matches(craftingInventory, world);
-            }
-
-            @Override
-            public ItemStack craftItem(CraftingInventory craftingInventory) {
-               return modified.craftItem(craftingInventory);
-            }
-
-            @Override
-            public ItemStack getResult() {
-                return modified.getResult();
-            }
-
-            @Override
-            public List<? extends CraftingIngredient> getIngredients() {
-                return modified.getIngredients();
-            }
-
-            @Override
-            public List<? extends ItemStack> getLeftOverItems(CraftingInventory craftingInventory) {
-                return modified.getLeftOverItems(craftingInventory);
-            }
-
-            @Override
-            public boolean isHidden() {
-                return modified.isHidden();
-            }
-
-            @Override
-            public NamespacedKey getKey() {
-                return modified.getKey();
-            }
-            
-            @Override
-            public String getGroup() {
-                return modified.getGroup();
-            }
-
-            @Override
-            public CraftingRecipe getBaseRecipe() {
-                return CraftingRecipe.this;
-            }
-
-            @Override
-            public CraftingModifier<? super CraftingRecipe, R> getModifier() {
-                return modifier;
-            }
-        };
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public default <R extends CraftingRecipe> ModifiedCraftingRecipe<? extends CraftingRecipe> applyModifier(CraftingModifier<? extends CraftingRecipe, R> modifier) {
+        ModifiedInvocationHandler handler = new ModifiedInvocationHandler(this, modifier);
+        ModifiedCraftingRecipe proxy = (ModifiedCraftingRecipe) Proxy.newProxyInstance(ModifiedCraftingRecipe.class.getClassLoader(),
+                new Class[] {getModifiedType()}, handler);
+        
+        return proxy;
     }
 
 }
