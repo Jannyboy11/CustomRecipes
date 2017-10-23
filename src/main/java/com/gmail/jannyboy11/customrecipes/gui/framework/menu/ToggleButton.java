@@ -5,9 +5,11 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.Plugin;
 
 public class ToggleButton extends ItemButton {
 
+    private boolean canToggle = true; 
     private boolean enabled;
     
     public ToggleButton(ItemStack item) {
@@ -23,13 +25,16 @@ public class ToggleButton extends ItemButton {
     
     @Override
     public void onClick(MenuHolder holder, InventoryClickEvent event) {
-        toggle();
+        toggle(holder.getPlugin());
         holder.getInventory().setItem(event.getSlot(), this.stack);
     }
     
-    public void toggle() {
-        this.enabled = !this.enabled;
+    private void toggle(Plugin plugin) {
+        if (!canToggle) return;
+        this.enabled = !isEnabled();
         updateIcon();
+        canToggle = false;
+        plugin.getServer().getScheduler().runTask(plugin, () -> canToggle = true);
     }
     
     public boolean isEnabled() {

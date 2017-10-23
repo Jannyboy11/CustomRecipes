@@ -12,6 +12,8 @@ import com.gmail.jannyboy11.customrecipes.gui.framework.GuiOpenListener;
 import com.gmail.jannyboy11.customrecipes.impl.ingredient.custom.InjectedIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.ingredient.vanilla.CRChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.ingredient.vanilla.CREmptyIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.modify.CRModifierManager;
+
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
@@ -31,10 +33,11 @@ import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.api.furnace.recipe.FixedFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.api.furnace.recipe.simple.SimpleFixedFurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.api.ingredient.*;
+import com.gmail.jannyboy11.customrecipes.api.modify.ModifierManager;
 import com.gmail.jannyboy11.customrecipes.api.util.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.*;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.extended.MojangCraftingRecipe;
-import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.extended.MojangRecipeDeserializer;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.mojang.MojangCraftingRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.mojang.MojangRecipeDeserializer;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.*;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.custom.*;
 import com.gmail.jannyboy11.customrecipes.impl.furnace.vanilla.NMSFixedFurnaceRecipe;
@@ -61,10 +64,11 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
 
     private CRCraftingManager craftingManager;
     private CRFurnaceManager furnaceManager;
+    private CRModifierManager modifierManager;
 
     private Set<MinecraftKey> vanillaCraftingRecipes;
     private Map<net.minecraft.server.v1_12_R1.ItemStack, net.minecraft.server.v1_12_R1.ItemStack> vanillaFurnaceRecipes;
-
+    
 
 
     private void recordVanillaRecipes() {
@@ -90,6 +94,12 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
     public void onLoad() {
         instance = this;
         
+        //define RecipeItemStackInjected subclass
+        InjectedIngredient.inject();
+
+        //let's hope no other plugins have added crafting recipes here
+        recordVanillaRecipes();
+        
         //DEBUG!
         Map<MinecraftKey, ? extends MojangCraftingRecipe> serverRecipes = MojangRecipeDeserializer.get(this.getLogger()).readFromServerJar();
         serverRecipes.entrySet()
@@ -106,15 +116,11 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
         int vanillaTotal = StreamSupport.stream(CraftingManager.recipes.spliterator(), false).mapToInt(recipe -> 1).sum();
         getLogger().info("VANILLA TOTAL (incl hidden): " + vanillaTotal); //443 in the crafting manager
         
+        //managers
+        modifierManager = new CRModifierManager();
         craftingManager = new CRCraftingManager();
         furnaceManager = new CRFurnaceManager(NMSFurnaceManager.getInstance());
 
-
-        //define RecipeItemStackInjected subclass
-        InjectedIngredient.inject();
-
-        //let's hope no other plugins have added crafting recipes here
-        recordVanillaRecipes();
     }
 
 
@@ -201,6 +207,11 @@ public class CustomRecipesPlugin extends JavaPlugin implements CustomRecipesApi 
     @Override
     public CRFurnaceManager getFurnaceManager() {
         return furnaceManager;
+    }
+    
+    @Override
+    public CRModifierManager getModifierManager() {
+        return modifierManager;
     }
 
 

@@ -22,7 +22,7 @@ public class CRShaped extends CRCraftingRecipe<ExtendedShapedRecipe, NMSExtended
         Shape nmsShape = this.nmsRecipe.getShape();
         String[] pattern = nmsShape.getPattern();
         Map<Character, CraftingIngredient> ingredientMap = nmsShape.getIngredientMap().entrySet().stream()
-                .collect(Collectors.toMap(Entry::getKey, e -> RecipeUtils.getBukkitCraftingRecipe(e.getValue())));
+                .collect(Collectors.toMap(Entry::getKey, e -> RecipeUtils.getBukkitCraftingIngredient(e.getValue())));
         
         return new com.gmail.jannyboy11.customrecipes.api.crafting.recipe.Shape(pattern, ingredientMap);
     }

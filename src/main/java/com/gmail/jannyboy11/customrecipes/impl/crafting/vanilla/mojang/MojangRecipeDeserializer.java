@@ -1,4 +1,4 @@
-package com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.extended;
+package com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.mojang;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,18 +11,16 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.apache.commons.io.FilenameUtils;
 
-import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.extended.MojangShapedRecipe.Shape;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.mojang.MojangShapedRecipe.Shape;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;

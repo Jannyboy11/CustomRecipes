@@ -1,4 +1,4 @@
-package com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.extended;
+package com.gmail.jannyboy11.customrecipes.impl.crafting.vanilla.mojang;
 
 import java.util.ArrayList;
 import java.util.Arrays;

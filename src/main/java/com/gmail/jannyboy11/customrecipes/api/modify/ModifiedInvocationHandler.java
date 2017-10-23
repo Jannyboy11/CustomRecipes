@@ -1,4 +1,4 @@
-package com.gmail.jannyboy11.customrecipes.api.crafting.modify;
+package com.gmail.jannyboy11.customrecipes.api.modify;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;

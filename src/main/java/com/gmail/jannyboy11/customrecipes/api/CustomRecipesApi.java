@@ -5,6 +5,7 @@ import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.ShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.ShapelessRecipe;
 import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceManager;
 import com.gmail.jannyboy11.customrecipes.api.furnace.recipe.FixedFurnaceRecipe;
+import com.gmail.jannyboy11.customrecipes.api.modify.ModifierManager;
 
 /**
  * The Custom Recipes application programming interface.
@@ -61,4 +62,11 @@ public interface CustomRecipesApi {
 	 */
 	public CraftingManager getCraftingManager();
 	
+	
+	/**
+	 * Get the modifier manager.
+	 * 
+	 * @return the modifier manager
+	 */
+	public ModifierManager getModifierManager();
 }

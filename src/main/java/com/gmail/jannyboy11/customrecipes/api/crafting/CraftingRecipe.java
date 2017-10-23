@@ -15,7 +15,7 @@ import org.bukkit.material.MaterialData;
 import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.modify.CraftingModifier;
 import com.gmail.jannyboy11.customrecipes.api.crafting.modify.ModifiedCraftingRecipe;
-import com.gmail.jannyboy11.customrecipes.api.crafting.modify.ModifiedInvocationHandler;
+import com.gmail.jannyboy11.customrecipes.api.modify.ModifiedInvocationHandler;
 import com.gmail.jannyboy11.customrecipes.api.util.InventoryUtils;
 
 /**

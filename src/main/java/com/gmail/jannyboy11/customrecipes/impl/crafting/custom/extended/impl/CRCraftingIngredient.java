@@ -34,5 +34,9 @@ public class CRCraftingIngredient implements CraftingIngredient {
         ItemStack nmsRemainder = handle.getRemainder(nmsInput);
         return CraftItemStack.asCraftMirror(nmsRemainder);
     }
+    
+    public ExtendedCraftingIngredient getHandle() {
+        return handle;
+    }
 
 }

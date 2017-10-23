@@ -1,6 +1,7 @@
 package com.gmail.jannyboy11.customrecipes.gui;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -26,7 +27,7 @@ import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
-import com.gmail.jannyboy11.customrecipes.api.crafting.modify.CraftingIngredientModifier;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.modify.CraftingIngredientModifier;
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.ShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.api.ingredient.Ingredient;
 import com.gmail.jannyboy11.customrecipes.api.util.GridView;
@@ -61,7 +62,7 @@ public class CraftingRecipeEditor extends GuiInventoryHolder<CustomRecipesPlugin
     };
 
     private static final ItemStack BLUE_GLASS_PANE = new ItemBuilder(Material.STAINED_GLASS_PANE).name("U Can't Touch This").durability(DyeColor.LIGHT_BLUE.getWoolData()).build();
-    private static final ItemStack SHIFT_RIGHT_CLICK_TO_EDIT = new ItemBuilder(Material.STRUCTURE_VOID).name("Shift-right click to edit!").build();
+    private static final ItemStack SHIFT_RIGHT_CLICK_TO_EDIT = new ItemBuilder(Material.STRUCTURE_VOID).name("Shift-right click to edit!").build(); //TODO use for flickering
     private static final ItemStack SAVE = new ItemBuilder(Material.CONCRETE).name("Save").durability(DyeColor.LIME.getWoolData()).build();
     private static final ItemStack CANCEL = new ItemBuilder(Material.CONCRETE).name("Cancel").durability(DyeColor.RED.getWoolData()).build();
     private static final ItemStack RETURN = new ItemBuilder(Material.WOOD_DOOR).name("Back").build();
@@ -284,18 +285,17 @@ public class CraftingRecipeEditor extends GuiInventoryHolder<CustomRecipesPlugin
                 event.setCancelled(true);
                 
                 CraftingIngredient ingredient = ingredientsBySlot.get(rawSlot); //TODO check if still the same itemstack, otherwise create a new CraftingIngredient
-                HashMap<NamespacedKey, ? extends CraftingIngredientModifier> ingredientModifiers = new HashMap<>(); //TODO fill this
+                Set<NamespacedKey> activeModifiers = new HashSet<>(); //TODO fill this, or instead pass the ingredient to the constructor? :D
                 
                 getPlugin().getServer().getScheduler().runTask(getPlugin(), () -> {
                     event.getView().close();
                     
                     event.getWhoClicked().openInventory(new CraftingIngredientMenu(
-                            getPlugin(), event.getCurrentItem(), ingredientModifiers, this::getInventory)
+                            getPlugin(), event.getCurrentItem(), activeModifiers, this::getInventory)
                             .getInventory()); //TODO pass a CompletionStage to set the ingredient?
                 });
             }
             
-            //TODO UP NEXT
             break;
         case SHIFT_LEFT:
             break;

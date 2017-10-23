@@ -16,6 +16,10 @@ import com.gmail.jannyboy11.customrecipes.impl.ingredient.custom.Bukkit2NMSIngre
 import com.gmail.jannyboy11.customrecipes.impl.ingredient.custom.InjectedIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.ingredient.vanilla.CRChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.ingredient.vanilla.CREmptyIngredient;
+import com.gmail.jannyboy11.customrecipes.impl.modify.bukkit.CRCraftingIngredientModifier;
+import com.gmail.jannyboy11.customrecipes.impl.modify.nms.Bukkit2NMSExtendedCraftingIngredientModifier;
+import com.gmail.jannyboy11.customrecipes.impl.modify.nms.ExtendedCraftingIngredientModifier;
+
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryCrafting;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.CraftingInventory;
@@ -23,12 +27,14 @@ import org.bukkit.inventory.CraftingInventory;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
 import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.modify.CraftingIngredientModifier;
 import com.gmail.jannyboy11.customrecipes.api.crafting.modify.CraftingModifier;
 import com.gmail.jannyboy11.customrecipes.api.furnace.FurnaceRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.*;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.ExtendedCraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.ExtendedShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.ExtendedShapelessRecipe;
+import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.impl.Bukkit2NMSCraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.impl.CRCraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.impl.NMSExtendedShapedRecipe;
 import com.gmail.jannyboy11.customrecipes.impl.crafting.custom.extended.impl.NMSExtendedShapelessRecipe;
@@ -253,10 +259,42 @@ public class RecipeUtils {
     }
     
     
-    public static CraftingIngredient getBukkitCraftingRecipe(ExtendedCraftingIngredient nms) {
-        //TODO check for subclasses (e.g. ExtendedChoiceIngredient, or Bukkit2NMSCraftingIngredient or sth.
+    public static CraftingIngredient getBukkitCraftingIngredient(ExtendedCraftingIngredient nms) {
+        if (nms instanceof Bukkit2NMSCraftingIngredient) {
+            Bukkit2NMSCraftingIngredient bukkit2nms = (Bukkit2NMSCraftingIngredient) nms;
+            return bukkit2nms.getBukkitIngredient();
+        }
+        
+        //TODO check for subclasses (e.g. ExtendedChoiceIngredient or sth)
         
         return new CRCraftingIngredient(nms);
+    }
+
+    public static ExtendedCraftingIngredient getNMSCraftingIngredient(CraftingIngredient bukkit) {
+        if (bukkit instanceof CRCraftingIngredient) {
+            CRCraftingIngredient cr = (CRCraftingIngredient) bukkit;
+            return cr.getHandle();
+        }
+
+        return new Bukkit2NMSCraftingIngredient(bukkit);
+    }
+
+    public static ExtendedCraftingIngredientModifier<?, ?> getNMSCraftingIngredientModifier(CraftingIngredientModifier<?, ?> bukkitModifier) {
+        if (bukkitModifier instanceof CRCraftingIngredientModifier) {
+            CRCraftingIngredientModifier cr = (CRCraftingIngredientModifier) bukkitModifier;
+            return cr.getHandle();
+        }
+        
+        return new Bukkit2NMSExtendedCraftingIngredientModifier(bukkitModifier);
+    }
+    
+    public static CraftingIngredientModifier<?, ?> getBukkitCraftingIngredientModifier(ExtendedCraftingIngredientModifier<?, ?> nmsModifier) {
+        if (nmsModifier instanceof Bukkit2NMSExtendedCraftingIngredientModifier) {
+            Bukkit2NMSExtendedCraftingIngredientModifier b2nms = (Bukkit2NMSExtendedCraftingIngredientModifier) nmsModifier;
+            return b2nms.getBukkitModifier();
+        }
+        
+        return new CRCraftingIngredientModifier(nmsModifier);
     }
     
 }

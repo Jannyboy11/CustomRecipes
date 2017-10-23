@@ -34,9 +34,16 @@ public class InjectedIngredient implements Predicate<ItemStack> {
     }
 
     private final Predicate<? super ItemStack> tester;
+    private final ItemStack[] choices;
 
     public InjectedIngredient(Predicate<? super ItemStack> predicate) {
         this.tester = predicate;
+        this.choices = new ItemStack[0];
+    }
+    
+    public InjectedIngredient(Predicate<? super ItemStack> predicate, ItemStack[] nmsChoices) {
+        this.tester = predicate;
+        this.choices = nmsChoices;
     }
 
     @Override
@@ -63,7 +70,7 @@ public class InjectedIngredient implements Predicate<ItemStack> {
                     .newConstructorForSerialization(recipeItemStackInjectedClass, Object.class.getConstructor());
             RecipeItemStack recipeItemStackInjected = constructor.newInstance();
             ReflectionUtil.setDeclaredFieldValue(recipeItemStackInjected, "predicate", tester);
-            ReflectionUtil.setFinalFieldValue(recipeItemStackInjected, "choices", new ItemStack[0]);
+            ReflectionUtil.setFinalFieldValue(recipeItemStackInjected, "choices", choices);
             return recipeItemStackInjected;
 
         } catch (Exception e) {
