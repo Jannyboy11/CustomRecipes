@@ -1,18 +1,17 @@
 package com.gmail.jannyboy11.customrecipes.gui;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftHumanEntity;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventory;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryView;
@@ -25,18 +24,15 @@ import org.bukkit.inventory.ItemStack;
 
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.crafting.CraftingRecipe;
-import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
-import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.modify.CraftingIngredientModifier;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.simple.SimpleChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.recipe.ShapedRecipe;
-import com.gmail.jannyboy11.customrecipes.api.ingredient.Ingredient;
 import com.gmail.jannyboy11.customrecipes.api.util.GridView;
+import com.gmail.jannyboy11.customrecipes.api.util.InventoryUtils;
 import com.gmail.jannyboy11.customrecipes.gui.container.FixedSlot;
 import com.gmail.jannyboy11.customrecipes.gui.framework.GuiInventoryHolder;
 import com.gmail.jannyboy11.customrecipes.util.ItemBuilder;
 import com.gmail.jannyboy11.customrecipes.util.inventory.NMSGridView;
-import com.google.common.collect.TreeBasedTable;
-
 import net.minecraft.server.v1_12_R1.EntityHuman;
 import net.minecraft.server.v1_12_R1.EntityPlayer;
 import net.minecraft.server.v1_12_R1.ITileEntityContainer;
@@ -92,7 +88,7 @@ public class CraftingRecipeEditor extends GuiInventoryHolder<CustomRecipesPlugin
         TOP_SHIFT_CLICKABLE_SLOTS.add(1 * 9 + 7); //result slot
     }
     
-    
+    //filled on inventory open
     private final Map<Integer, CraftingIngredient> ingredientsBySlot = new HashMap<>();
     
     
@@ -124,7 +120,7 @@ public class CraftingRecipeEditor extends GuiInventoryHolder<CustomRecipesPlugin
     }
     
     private void layoutRecipe() {
-        ingredientsBySlot.clear();
+        // TODO why is this here? ingredientsBySlot.clear();
         
         //TODO make it flicker (using packets)! (future work)
         
@@ -160,7 +156,7 @@ public class CraftingRecipeEditor extends GuiInventoryHolder<CustomRecipesPlugin
                         grid.setItem(gridX, gridY, null));
                     
                     int slot = grid.getIndex(gridX, gridY);
-                    ingredientsBySlot.put(slot, craftingIngredient);
+                    ingredientsBySlot.putIfAbsent(slot, craftingIngredient);
                     
                     i++;
                 }
@@ -279,21 +275,35 @@ public class CraftingRecipeEditor extends GuiInventoryHolder<CustomRecipesPlugin
            
             break;
         case SHIFT_RIGHT:
-            //TODO edit this ingredient
+            //edits this ingredient
             
             if (event.getClickedInventory().getHolder() == this && isTopShiftClickSlot(rawSlot)) {
                 event.setCancelled(true);
                 
                 CraftingIngredient ingredient = ingredientsBySlot.get(rawSlot); //TODO check if still the same itemstack, otherwise create a new CraftingIngredient
-                Set<NamespacedKey> activeModifiers = new HashSet<>(); //TODO fill this, or instead pass the ingredient to the constructor? :D
+                ItemStack clickedItem = event.getCurrentItem();
+                Optional<? extends ItemStack> ingredientItem = ingredient.firstItemStack();
+                boolean ingredientEquals = InventoryUtils.isEmptyStack(clickedItem) && (!ingredientItem.isPresent() || InventoryUtils.isEmptyStack(ingredientItem.get()));
+                ingredientEquals |= clickedItem.equals(ingredientItem.orElse(null));
+                
+                getPlugin().getLogger().info("DEBUG ingredient equals = " + ingredientEquals);
+                
+                final CraftingIngredient finalIngredient = ingredientEquals
+                        ? ingredient
+                        : (clickedItem == null ? SimpleChoiceIngredient.ACCEPTING_EMPTY : SimpleChoiceIngredient.fromChoices(clickedItem)); 
+                
+                CompletableFuture<CraftingIngredient> newIngredientFuture = new CompletableFuture<>();
                 
                 getPlugin().getServer().getScheduler().runTask(getPlugin(), () -> {
                     event.getView().close();
                     
-                    event.getWhoClicked().openInventory(new CraftingIngredientMenu(
-                            getPlugin(), event.getCurrentItem(), activeModifiers, this::getInventory)
-                            .getInventory()); //TODO pass a CompletionStage to set the ingredient?
+                    event.getWhoClicked().openInventory(new CraftingIngredientMenu(getPlugin(),
+                            finalIngredient, newIngredient -> ingredientsBySlot.put(rawSlot, newIngredient),
+                            this::getInventory).getInventory());
                 });
+                
+                //TODO do I need to do more with the new ingredient? I don't think so, the save button of this recipe editor should use it from the map.
+                //TODO this editor gui should probably not open for recipes that are hidden, or are neither SHAPED nor SHAPELESS
             }
             
             break;
@@ -303,6 +313,7 @@ public class CraftingRecipeEditor extends GuiInventoryHolder<CustomRecipesPlugin
             break;
         }
 
+        //not sure if this is needed
         getPlugin().getServer().getScheduler().runTask(getPlugin(), () -> ((org.bukkit.entity.Player) event.getWhoClicked()).updateInventory());
     }
 

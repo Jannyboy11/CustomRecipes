@@ -7,7 +7,7 @@ import net.minecraft.server.v1_12_R1.Items;
 import net.minecraft.server.v1_12_R1.MinecraftKey;
 import net.minecraft.server.v1_12_R1.RecipeMapExtend;
 
-public class NMSMapExtend extends NMSShapedRecipe<RecipeMapExtend> {
+public class NMSMapExtend extends NMSCraftingRecipe<RecipeMapExtend> {
 
     public static final MinecraftKey KEY = new MinecraftKey("mapextending");
     

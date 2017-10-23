@@ -31,10 +31,19 @@ public class ToggleButton extends ItemButton {
     
     private void toggle(Plugin plugin) {
         if (!canToggle) return;
+        if (!beforeToggle()) return;
         this.enabled = !isEnabled();
         updateIcon();
+        afterToggle();
         canToggle = false;
         plugin.getServer().getScheduler().runTask(plugin, () -> canToggle = true);
+    }
+    
+    public boolean beforeToggle() {
+        return true;
+    }
+    
+    public void afterToggle() {
     }
     
     public boolean isEnabled() {

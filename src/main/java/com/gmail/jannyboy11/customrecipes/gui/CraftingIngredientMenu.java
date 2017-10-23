@@ -2,28 +2,37 @@ package com.gmail.jannyboy11.customrecipes.gui;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.ChoiceIngredient;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.modify.CraftingIngredientModifier;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.simple.SimpleChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.util.GridView;
+import com.gmail.jannyboy11.customrecipes.api.util.RecipeUtils;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.BackButton;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.ItemButton;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.MenuButton;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.MenuHolder;
 import com.gmail.jannyboy11.customrecipes.gui.framework.menu.ToggleButton;
+import com.gmail.jannyboy11.customrecipes.impl.modify.CRModifierManager;
 import com.gmail.jannyboy11.customrecipes.util.ItemBuilder;
 
 public class CraftingIngredientMenu extends MenuHolder<CustomRecipesPlugin> {
@@ -43,27 +52,38 @@ public class CraftingIngredientMenu extends MenuHolder<CustomRecipesPlugin> {
     
     private final Map<Character, ? extends MenuButton> legend;
     
-    private final ItemStack ingredientStack;
-    private final Set<NamespacedKey> activeModifiers;    
-
-    //resets when the inventory is closed
-    //fills when the inventory is opened.
-    private final Map<Integer, NamespacedKey> modifiersBySlot = new HashMap<>();
+    private final List<? extends ItemStack> ingredientStacks;
+    private final Set<NamespacedKey> activeModifiers;
+    private final Consumer<CraftingIngredient> saveIngredientCallback;
     
-    public CraftingIngredientMenu(CustomRecipesPlugin plugin, ItemStack ingredient,
-            Set<NamespacedKey> activeModifiers, Supplier<? extends Inventory> backTo) {
+    private CraftingIngredient lastSavedIngredient;
+    
+    
+    public CraftingIngredientMenu(CustomRecipesPlugin plugin, CraftingIngredient ingredient,
+            Consumer<CraftingIngredient> saveIngredientCallback, Supplier<? extends Inventory> backTo) {
         super(plugin, 4 * 9, "Edit ingredient");
         
-        this.ingredientStack = ingredient;
-        this.activeModifiers = activeModifiers; //to copy or not to copy?
+        this.lastSavedIngredient = ingredient;
+        this.saveIngredientCallback = saveIngredientCallback;
+        this.ingredientStacks = ingredient instanceof ChoiceIngredient
+                ? ((ChoiceIngredient) ingredient).getChoices()
+                : ingredient.firstItemStack().stream().collect(Collectors.toList());
+        this.activeModifiers = RecipeUtils.getAppliedModifiers(ingredient).stream()
+                .map(CraftingIngredientModifier::getKey)
+                .collect(Collectors.toSet());
+        
         
         this.legend = Map.of(
                 'P', new ItemButton(BLUE_PANE),
                 'B', new ItemButton(BLACK_PANE),
-                'C', new ItemButton(CANCEL),    //TODO custom implementation, resets modifier states
-                'S', new ItemButton(SAVE),      //TODO custom implementation, saves the current state of modifiers
+                'C', new ResetModifiersButton(),
+                'S', new SaveIngredientButton(),
                 'R', new BackButton(backTo)
                 );
+    }
+    
+    private ItemStack getIngredientStack() {
+        return ingredientStacks.isEmpty() ? null : ingredientStacks.get(0);
     }
 
     @Override
@@ -83,7 +103,7 @@ public class CraftingIngredientMenu extends MenuHolder<CustomRecipesPlugin> {
             }
         }
         
-        grid.setItem(1, 1, ingredientStack);
+        grid.setItem(1, 1, getIngredientStack());//TODO make this a button that can add choices?
         
         layoutModifiers();
     }
@@ -102,14 +122,22 @@ public class CraftingIngredientMenu extends MenuHolder<CustomRecipesPlugin> {
                     
                     int slot = grid.getIndex(x, y);
                     NamespacedKey modifierKey = entry.getKey();
-                    CraftingIngredientModifier modifier = entry.getValue().apply(this.ingredientStack);
+                    CraftingIngredientModifier modifier = entry.getValue().apply(getIngredientStack());
                     boolean isActiveModifier = activeModifiers.contains(modifierKey);
                     
+                    //TODO make sure this is saved across multiple re-opens
                     ToggleButton button = new ToggleButton(new ItemBuilder(MODIFIER)
                             .name(modifierKey.toString())
-                            .build(), isActiveModifier);
-                    
-                    modifiersBySlot.put(slot, modifierKey);
+                            .build(), isActiveModifier) {
+                        @Override
+                        public void afterToggle() {
+                            if (isEnabled()) {
+                                CraftingIngredientMenu.this.activeModifiers.add(modifierKey);
+                            } else {
+                                CraftingIngredientMenu.this.activeModifiers.remove(modifierKey);
+                            }
+                        }
+                    };
                     
                     setButton(slot, button);
                     
@@ -120,12 +148,51 @@ public class CraftingIngredientMenu extends MenuHolder<CustomRecipesPlugin> {
         }
     }
     
-    @Override
-    public void onClose(InventoryCloseEvent event) {
-        this.modifiersBySlot.clear();
+    
+    private static class SaveIngredientButton extends ItemButton<CraftingIngredientMenu> {
+
+        public SaveIngredientButton() {
+            super(SAVE);
+        }
+        
+        @Override
+        public void onClick(CraftingIngredientMenu holder, InventoryClickEvent event) {
+            //TODO doesn't seem to work?
+            holder.saveIngredientCallback.accept(holder.lastSavedIngredient = holder.makeNewIngredient());
+        }
     }
     
+    private static class ResetModifiersButton extends ItemButton<CraftingIngredientMenu> {
+
+        public ResetModifiersButton() {
+            super(CANCEL);
+        }
+        
+        @Override
+        public void onClick(CraftingIngredientMenu holder, InventoryClickEvent event) {
+            //reset active modifiers
+            holder.activeModifiers.clear();
+            holder.activeModifiers.addAll(RecipeUtils.getAppliedModifiers(holder.lastSavedIngredient).stream()
+                    .map(CraftingIngredientModifier::getKey)
+                    .collect(Collectors.toList()));
+            
+            //update icons
+            holder.layoutModifiers();
+        }
+    }
     
-    
+    private CraftingIngredient makeNewIngredient() {
+        CraftingIngredient ingredient = SimpleChoiceIngredient.fromChoices(ingredientStacks
+                .toArray(new ItemStack[ingredientStacks.size()])) ;
+        ItemStack firstItem = getIngredientStack();
+        
+        CRModifierManager modifierManager = getPlugin().getModifierManager();
+        Map<NamespacedKey, Function<? super ItemStack, ? extends CraftingIngredientModifier>> modifiers = modifierManager.getCraftingIngredientModifiers();
+        for (NamespacedKey modifierKey : activeModifiers) {
+            ingredient = modifiers.get(modifierKey).apply(firstItem).modify(ingredient);
+        }
+        
+        return ingredient;
+    }
     
 }
