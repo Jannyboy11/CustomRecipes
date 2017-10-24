@@ -8,4 +8,9 @@ public interface ModifiedCraftingIngredient<T extends CraftingIngredient> extend
     
     public <R extends CraftingIngredient> CraftingIngredientModifier<T, R> getModifier();
     
+    @SuppressWarnings("rawtypes")
+    public default Class<? extends ModifiedCraftingIngredient> getModifiedType() {
+        return ModifiedCraftingIngredient.class;
+    }
+    
 }

@@ -4,8 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
+
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.modify.ModifiedChoiceIngredient;
 
 /**
  * A crafting ingredient that will accept items similar to items in the choices list.
@@ -41,6 +42,11 @@ public interface ChoiceIngredient extends CraftingIngredient {
     @Override
     public default Optional<? extends ItemStack> firstItemStack() {
         return getChoices().stream().findFirst();
+    }
+    
+    @SuppressWarnings("rawtypes")
+    public default Class<? extends ModifiedChoiceIngredient> getModifiedType() {
+        return ModifiedChoiceIngredient.class;
     }
 
 }

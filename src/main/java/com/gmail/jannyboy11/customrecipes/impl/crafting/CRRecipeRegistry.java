@@ -130,6 +130,7 @@ public class CRRecipeRegistry extends RegistryMaterials /* <MinecraftKey,IRecipe
 	 */
 	@Override
 	public Iterator<NMSCraftingRecipe<?>> iterator() {
+	    //TODO iterate over custom (non-vanilla) recipes first?
 		return keyToRecipe.values().iterator();
 	}
 	

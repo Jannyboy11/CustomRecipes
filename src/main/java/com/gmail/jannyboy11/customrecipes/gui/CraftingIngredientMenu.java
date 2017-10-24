@@ -24,6 +24,7 @@ import com.gmail.jannyboy11.customrecipes.CustomRecipesPlugin;
 import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.ChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.CraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.modify.CraftingIngredientModifier;
+import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.modify.ModifiedCraftingIngredient;
 import com.gmail.jannyboy11.customrecipes.api.crafting.ingredient.simple.SimpleChoiceIngredient;
 import com.gmail.jannyboy11.customrecipes.api.util.GridView;
 import com.gmail.jannyboy11.customrecipes.api.util.RecipeUtils;
@@ -189,7 +190,27 @@ public class CraftingIngredientMenu extends MenuHolder<CustomRecipesPlugin> {
         CRModifierManager modifierManager = getPlugin().getModifierManager();
         Map<NamespacedKey, Function<? super ItemStack, ? extends CraftingIngredientModifier>> modifiers = modifierManager.getCraftingIngredientModifiers();
         for (NamespacedKey modifierKey : activeModifiers) {
-            ingredient = modifiers.get(modifierKey).apply(firstItem).modify(ingredient);
+            CraftingIngredient base = ingredient;
+            //TODO can we use a proxy implementation?
+            ingredient = new ModifiedCraftingIngredient<CraftingIngredient>() {
+                CraftingIngredientModifier modifier = modifiers.get(modifierKey).apply(firstItem);
+                CraftingIngredient result = modifier.modify(base);
+                
+                @Override
+                public boolean isIngredient(ItemStack input) {
+                    return result.isIngredient(input);
+                }
+
+                @Override
+                public CraftingIngredient getBase() {
+                    return base;
+                }
+
+                @Override
+                public CraftingIngredientModifier getModifier() {
+                    return modifier;
+                }
+            };
         }
         
         return ingredient;

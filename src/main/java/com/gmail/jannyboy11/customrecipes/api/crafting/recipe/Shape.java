@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -22,6 +23,28 @@ public class Shape implements ConfigurationSerializable {
     public Shape(String[] pattern, Map<Character, ? extends CraftingIngredient> ingredients) {
         this.pattern = Arrays.copyOf(pattern, pattern.length);
         this.ingredients = new HashMap<>(ingredients);
+    }
+    
+    public Shape(int width, int height, List<? extends CraftingIngredient> ingredients) {
+        if (ingredients.size() != width * height)
+            throw new IllegalArgumentException("Number of ingredients must be equal to width * height.");
+        
+        this.pattern = new String[height];
+        
+        Map<Character, CraftingIngredient> ingredientMap = new HashMap<>();
+        char c = 'a';
+        Iterator<? extends CraftingIngredient> iterator = ingredients.iterator();
+        for (int y = 0; y < height; y++) {
+            StringBuilder sb = new StringBuilder();
+            for (int x = 0; x < width; x++) {
+                ingredientMap.put(c, iterator.next());
+                sb.append(c);
+                c++;
+            }
+            pattern[y] = sb.toString();
+        }
+        
+        this.ingredients = ingredientMap;
     }
     
     public String[] getPattern() {

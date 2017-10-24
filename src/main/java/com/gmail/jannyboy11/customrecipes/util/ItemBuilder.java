@@ -38,6 +38,10 @@ public class ItemBuilder {
         return change(i -> i.setData(data));
     }
 
+    /**
+     * @deprecated data/damage values will be removed in MC 1.13, and are likely to be removed from the Bukkit API
+     */
+    @Deprecated(forRemoval = true)
     public ItemBuilder data(byte data) {
         return change(i -> i.getData().setData(data));
     }

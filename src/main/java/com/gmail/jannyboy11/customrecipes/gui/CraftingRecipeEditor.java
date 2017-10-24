@@ -92,6 +92,9 @@ public class CraftingRecipeEditor extends GuiInventoryHolder<CustomRecipesPlugin
     private final Map<Integer, CraftingIngredient> ingredientsBySlot = new HashMap<>();
     
     
+    private CraftingRecipe lastSavedRecipe;
+    
+    
     // ========================= InventoryHolder ========================= 
     
     private CraftingRecipeEditor(EditorInventory inventory) {
@@ -100,6 +103,7 @@ public class CraftingRecipeEditor extends GuiInventoryHolder<CustomRecipesPlugin
 
     public CraftingRecipeEditor(CustomRecipesPlugin plugin, CraftingRecipe recipe, Supplier<? extends Inventory> backInventory) {
         this(new EditorInventory(plugin, recipe, backInventory));
+        this.lastSavedRecipe = recipe;
     }
 
     @Override
@@ -120,7 +124,7 @@ public class CraftingRecipeEditor extends GuiInventoryHolder<CustomRecipesPlugin
     }
     
     private void layoutRecipe() {
-        // TODO why is this here? ingredientsBySlot.clear();
+        ingredientsBySlot.clear();
         
         //TODO make it flicker (using packets)! (future work)
         
@@ -188,7 +192,7 @@ public class CraftingRecipeEditor extends GuiInventoryHolder<CustomRecipesPlugin
                     }
                     
                     int slot = grid.getIndex(gridX, gridY);
-                    ingredientsBySlot.put(slot, ingredient);
+                    ingredientsBySlot.putIfAbsent(slot, ingredient);
                     
                     i++;
                 }
